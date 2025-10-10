@@ -7,7 +7,7 @@
 
         {{-- Tombol Register & Login --}}
         <div class="d-flex ms-auto me-4">
-            <a href="#" class="btn btn-light me-3 fw-semibold">Register</a>
+            <a href="{{ url('/pilihan-daftar') }}" class="btn btn-light me-2 fw-semibold">Register</a>
             <a href="#" class="btn btn-light fw-semibold">Login</a>
         </div>
     </div>

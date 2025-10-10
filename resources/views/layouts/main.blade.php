@@ -39,10 +39,6 @@
         <main class="flex-grow-1">
             @yield('container')
         </main>
-
-        <footer class="bg-dark text-light text-center">
-            @include('partials.footer')
-        </footer>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"

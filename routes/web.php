@@ -2,10 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/pilihan-daftar', function () {
+    return view('register');
 });
 
-Route::get('/bril', function () {
+Route::get('/', function () { 
     return view('home');
 });
