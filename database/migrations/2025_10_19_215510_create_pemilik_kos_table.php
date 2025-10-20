@@ -15,8 +15,12 @@ return new class extends Migration
             $table->string('username')->primary();
             $table->string('nama_pemilik', 100);
             $table->string('no_hp', 20);
-            $table->string('password');
             $table->timestamps();
+
+            $table->foreign('username')
+                  ->references('username')
+                  ->on('akuns')
+                  ->onDelete('cascade');
         });
     }
 
