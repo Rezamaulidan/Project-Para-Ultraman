@@ -12,8 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pemilik_kos', function (Blueprint $table) {
-            $table->id();
+            $table->string('username')->primary();
+            $table->string('nama_pemilik', 100);
+            $table->string('no_hp', 20);
             $table->timestamps();
+
+            $table->foreign('username')
+                  ->references('username')
+                  ->on('akuns')
+                  ->onDelete('cascade');
         });
     }
 
