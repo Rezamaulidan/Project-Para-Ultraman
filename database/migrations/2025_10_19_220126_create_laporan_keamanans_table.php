@@ -13,16 +13,13 @@ return new class extends Migration
     {
         Schema::create('laporan_keamanans', function (Blueprint $table) {
             $table->id('id_laporan');
-            $table->string('id_staf');
+            $table->foreignId('id_staf')
+                  ->constrained('stafs', 'id_staf') // constrained ke tabel 'stafs' kolom 'id_staf'
+                  ->onDelete('cascade');
             $table->string('judul_laporan', 200);
             $table->text('keterangan')->nullable();
             $table->date('tanggal');
             $table->timestamps();
-
-            $table->foreign('id_staf')
-                  ->references('id_staf')
-                  ->on('stafs')
-                  ->onDelete('cascade');
         });
     }
 
