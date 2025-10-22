@@ -43,9 +43,9 @@
             <div class="card-body">
                 <div class="text-center">
 
-                    <img src="{{ asset('img/register.svg') }}" class="img-fluid " alt="Register Illustration" style="max-height: 140px;">
+                    <img src="{{ asset('img/register.svg') }}" class="img-fluid " alt="Register Illustration" style="max-height: 100px;">
 
-                    <h3 class="mb-4 fw-bold">Daftar sebagai Penyewa</h3>
+                    <h5 class="mb-3 fw-bold">Daftar sebagai Penyewa</h3>
 
                     {{-- Formulir Registrasi --}}
                     <form action="{{ route('register.store') }}" method="POST">
@@ -82,6 +82,15 @@
                             @enderror
                         </div>
 
+                        {{-- Username --}}
+                        <div class="form-floating mb-3">
+                            <input type="tel" class="form-control @error('username') is-invalid @enderror" id="username" name="username" placeholder="Username" value="{{ old('username') }}" required>
+                            <label for="username">Username</label>
+                             @error('username')
+                                <div class="invalid-feedback text-start">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         {{-- Email --}}
                         <div class="form-floating mb-3">
                             <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="nama@contoh.com" value="{{ old('email') }}" required>
@@ -101,7 +110,7 @@
                         </div>
 
                         {{-- Tombol Daftar --}}
-                        <div class="d-grid mt-4">
+                        <div class="d-grid mt-2">
                             <button type="submit" class="btn btn-primary btn-lg rounded-pill">Daftar</button>
                         </div>
                     </form>

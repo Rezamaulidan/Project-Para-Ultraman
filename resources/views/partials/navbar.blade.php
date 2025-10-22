@@ -1,5 +1,5 @@
 
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0089FF;">
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0089ffff;">
     <div class="container-fluid py-2">
 
         {{-- Logo (Link mengarah ke home) --}}
@@ -17,7 +17,7 @@
             {{-- Tombol Register & Login dipindahkan ke sini dan didorong ke kanan dengan ms-auto --}}
             <div class="d-flex ms-auto me-4">
                 <a href="{{ route('register.pilihan') }}" class="btn btn-light me-2 fw-semibold">Register</a>
-                <a href="{#" class="btn btn-light fw-semibold">Login</a>
+                <a href="{{ route('login') }}" class="btn btn-light fw-semibold">Login</a>
             </div>
         </div>
 
