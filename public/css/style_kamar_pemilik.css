@@ -1,0 +1,163 @@
+/* kamar_style.css */
+
+/* CSS Global untuk Body */
+/* body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+} */
+
+/* Kontainer Utama */
+/* #main-content {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+} */
+
+/* Styling Umum Tampilan */
+.app-view {
+    /* background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: block; */
+    margin: 20px auto;
+    text-align: center;
+    max-width: 400px; /* Default untuk manajemen */
+    padding: 0px;
+}
+
+/* Penyesuaian Lebar untuk PC */
+#input-data-kamar-lantai-1-view,
+#input-data-kamar-lantai-2-view,
+#input-data-kamar-form-view {
+    max-width: 800px; /* Lebar PC */
+    padding: 40px;
+}
+
+/* Tombol Biru Utama */
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Tombol Abu-abu (Manajemen dan Listfield) */
+.btn-secondary,
+.list-expander {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s;
+}
+.list-expander:hover,
+.btn-secondary:hover {
+    background-color: #e0e0e0;
+}
+
+/* Styling Header Lantai Aktif */
+.list-expander.active-floor {
+    background-color: #ddd !important;
+    font-weight: bold;
+}
+
+/* Styling List Kamar Item */
+.room-item {
+    background-color: #fff;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+}
+.room-item .room-number {
+    margin: 0;
+    font-weight: bold;
+}
+.room-item .room-status {
+    margin: 0;
+    font-size: 0.9em;
+}
+.room-item .status-kosong {
+    color: green;
+    font-weight: bold;
+}
+.room-item .status-terisi {
+    color: red;
+}
+
+.room-item-price {
+    text-align: right;
+}
+.room-item-price .price {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+.room-item-price .period {
+    font-size: 0.8em;
+    color: #666;
+}
+
+/* Styling Formulir */
+.form-group {
+    text-align: left;
+    margin-bottom: 20px;
+}
+.form-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+.file-upload-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.file-upload-label {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.file-upload-label:hover {
+    background-color: #e0e0e0;
+}

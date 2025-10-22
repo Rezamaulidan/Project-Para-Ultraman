@@ -41,3 +41,7 @@ Route::get('/datapenyewapemilik', function () {
 Route::get('/datastaffpemilik', function () {
     return view('data_staff_pemilik');
 });
+
+Route::get('/contoh', function () {
+    return view('contoh');
+});
