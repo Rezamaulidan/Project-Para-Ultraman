@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('id_booking');
             $table->string('username');
             $table->integer('no_kamar');
-            $table->enum('status_booking', ['pending', 'confirmed', 'rejected', 'completed'])->default('pending');
+            $table->enum('status_booking', ['pending', 'confirmed', 'rejected'])->default('pending');
             $table->date('tanggal');
             $table->decimal('nominal', 10, 2);
             $table->text('keterangan')->nullable();

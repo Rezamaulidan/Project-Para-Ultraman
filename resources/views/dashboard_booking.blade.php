@@ -40,7 +40,7 @@
             {{-- Card Kamar 1 (Contoh) --}}
             <div class="col">
                 <div class="card h-100 shadow-sm border-0">
-                    <img src="{{ asset('img/kamar-atas.svg') }}" class="card-img-top" alt="Kamar 1">
+                    <img src="{{ asset('img/kamar-atas.png') }}" class="card-img-top" alt="Kamar 1">
                     <div class="card-body card-kamar-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="card-title fw-bold mb-0">Kamar No. 1</h5>
@@ -56,7 +56,7 @@
             {{-- Card Kamar 2 (Contoh) --}}
             <div class="col">
                 <div class="card h-100 shadow-sm border-0">
-                    <img src="{{ asset('img/kamar-atas.svg') }}" class="card-img-top" alt="Kamar 2">
+                    <img src="{{ asset('img/kamar-atas.png') }}" class="card-img-top" alt="Kamar 2">
                     <div class="card-body card-kamar-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="card-title fw-bold mb-0">Kamar No. 2</h5>
@@ -72,7 +72,7 @@
             {{-- Card Kamar 3 (Contoh) --}}
             <div class="col">
                 <div class="card h-100 shadow-sm border-0">
-                    <img src="{{ asset('img/kamar-atas.svg') }}" class="card-img-top" alt="Kamar 3">
+                    <img src="{{ asset('img/kamar-atas.png') }}" class="card-img-top" alt="Kamar 3">
                     <div class="card-body card-kamar-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="card-title fw-bold mb-0">Kamar No. 3</h5>
@@ -88,7 +88,7 @@
             {{-- Card Kamar 4 (Contoh) --}}
             <div class="col">
                 <div class="card h-100 shadow-sm border-0">
-                    <img src="{{ asset('img/kamar-atas.svg') }}" class="card-img-top" alt="Kamar 4">
+                    <img src="{{ asset('img/kamar-atas.png') }}" class="card-img-top" alt="Kamar 4">
                     <div class="card-body card-kamar-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="card-title fw-bold mb-0">Kamar No. 4</h5>
@@ -104,7 +104,7 @@
             {{-- Card Kamar 11 (Contoh) --}}
             <div class="col">
                 <div class="card h-100 shadow-sm border-0">
-                    <img src="{{ asset('img/kamar-bawah.svg') }}" class="card-img-top" alt="Kamar 11">
+                    <img src="{{ asset('img/kamar-bawah.png') }}" class="card-img-top" alt="Kamar 11">
                     <div class="card-body card-kamar-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="card-title fw-bold mb-0">Kamar No. 11</h5>
@@ -120,7 +120,7 @@
             {{-- Card Kamar 12 (Contoh) --}}
             <div class="col">
                 <div class="card h-100 shadow-sm border-0">
-                    <img src="{{ asset('img/kamar-bawah.svg') }}" class="card-img-top" alt="Kamar 12">
+                    <img src="{{ asset('img/kamar-bawah.png') }}" class="card-img-top" alt="Kamar 12">
                     <div class="card-body card-kamar-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="card-title fw-bold mb-0">Kamar No. 12</h5>
@@ -136,7 +136,7 @@
             {{-- Card Kamar 13 (Contoh) --}}
             <div class="col">
                 <div class="card h-100 shadow-sm border-0">
-                    <img src="{{ asset('img/kamar-bawah.svg') }}" class="card-img-top" alt="Kamar 13">
+                    <img src="{{ asset('img/kamar-bawah.png') }}" class="card-img-top" alt="Kamar 13">
                     <div class="card-body card-kamar-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="card-title fw-bold mb-0">Kamar No. 13</h5>
@@ -152,7 +152,7 @@
             {{-- Card Kamar 14 (Contoh) --}}
             <div class="col">
                 <div class="card h-100 shadow-sm border-0">
-                    <img src="{{ asset('img/kamar-bawah.svg') }}" class="card-img-top" alt="Kamar 14">
+                    <img src="{{ asset('img/kamar-bawah.png') }}" class="card-img-top" alt="Kamar 14">
                     <div class="card-body card-kamar-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="card-title fw-bold mb-0">Kamar No. 14</h5>

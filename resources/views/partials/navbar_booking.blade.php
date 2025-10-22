@@ -18,7 +18,7 @@
 
 {{-- 2. OFF CANVAS (MENU SLIDE-OUT) --}}
 {{-- Ini adalah menu yang muncul dari samping saat hamburger di-klik --}}
-<div class.="offcanvas offcanvas-end" tabindex="-1" id="menuOffcanvas" aria-labelledby="menuOffcanvasLabel">
+<div class="offcanvas offcanvas-end" tabindex="-1" id="menuOffcanvas" aria-labelledby="menuOffcanvasLabel">
 
     {{-- Header Menu --}}
     <div class="offcanvas-header">

@@ -1,5 +1,5 @@
 
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0089FF;">
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0089ffff;">
     <div class="container-fluid py-2">
 
         {{-- Logo (Link mengarah ke home) --}}
