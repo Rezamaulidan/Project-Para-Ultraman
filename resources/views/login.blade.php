@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-        /* CSS Tambahan untuk penyesuaian ikon pada input (dari kode Anda) */
         .input-group {
             position: relative;
         }
@@ -18,9 +17,8 @@
             transform: translateY(-50%);
             color: #6b7280; /* Warna abu-abu ikon */
         }
-        /* Tambahan untuk menyembunyikan ikon mata bawaan dari kode sebelumnya jika tidak diimplementasikan */
         .input-group .password-toggle-icon {
-            display: none; /* Sembunyikan jika tidak ada JS untuk mengaktifkannya */
+            display: none;
         }
     </style>
 </head>
