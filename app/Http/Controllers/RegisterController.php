@@ -28,7 +28,7 @@ class RegisterController extends Controller
             'password'      => 'required|min:5|max:255'
         ]);
 
-        // 2. Enkripsi password sebelum disimpan 
+        // 2. Enkripsi password sebelum disimpan
         $validatedData['password'] = Hash::make($validatedData['password']);
 
         // 3. Simpan data pengguna baru ke database
@@ -38,6 +38,6 @@ class RegisterController extends Controller
         Auth::login($user);
 
         // 5. Arahkan pengguna ke halaman dashboard booking
-        return redirect('/dashboard_booking');
+        return redirect('/dashboard-booking');
     }
 }
