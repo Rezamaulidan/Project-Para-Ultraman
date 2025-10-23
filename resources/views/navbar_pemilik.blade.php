@@ -69,7 +69,7 @@
 
                         <ul class="dropdown-menu" aria-labelledby="lainnyaDropdown">
                             <li><a class="dropdown-item" href="/registrasistaff">Registrasi staff</a></li>
-                            <li><a class="dropdown-item" href="/login"
+                            <li><a class="dropdown-item" href="/loginpenyewa"
                                     onclick="event.preventDefault(); if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) { document.getElementById('logout-form').submit(); }">Logout</a>
                             </li>
                         </ul>
@@ -79,5 +79,5 @@
         </nav>
     </div>
 </div>
-<form id="logout-form" action="/login" method="HEAD" style="display: none;">
+<form id="logout-form" action="/loginpenyewa" method="HEAD" style="display: none;">
 </form>

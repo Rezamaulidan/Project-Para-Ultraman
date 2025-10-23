@@ -32,8 +32,6 @@
             display: flex;
             flex-direction: column;
         }
-
-
     </style>
 </head>
 <body>
@@ -48,30 +46,28 @@
                     <h3 class="mb-4 fw-bold">Login</h3>
 
                     {{-- Formulir Login --}}
-                    <form action="{{ route('login') }}" method="POST">
+                    {{-- Kita ganti action-nya dan tambahkan id pada form --}}
+                    <form id="loginForm" method="POST">
                         @csrf
 
                         {{-- Username --}}
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username" placeholder="Username" value="{{ old('username') }}" required>
+                            {{-- Tambahkan id pada input username --}}
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
                             <label for="username">Username</label>
-                            @error('username')
-                                <div class="invalid-feedback text-start">{{ $message }}</div>
-                            @enderror
+                            {{-- Kita tambahkan elemen untuk pesan error --}}
+                            <div id="usernameError" class="invalid-feedback text-start d-none">Username tidak valid.</div>
                         </div>
 
                         {{-- Password --}}
                         <div class="form-floating mb-3">
-                            <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="Password" required>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
                             <label for="password">Password</label>
-                            @error('password')
-                                <div class="invalid-feedback text-start">{{ $message }}</div>
-                            @enderror
                         </div>
 
                         {{-- Lupa Kata Sandi --}}
                         <div class="text-end mb-4">
-                            <a href="{{ route('password.request') }}" class="text-decoration-none small">Lupa Kata Sandi?</a>
+                            <a href="#" class="text-decoration-none small">Lupa Kata Sandi?</a>
                         </div>
 
                         {{-- Tombol Login --}}
@@ -86,5 +82,47 @@
 
     {{-- Link untuk memuat JavaScript Bootstrap --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    {{-- ====================================================== --}}
+    {{-- BAGIAN BARU: JAVASCRIPT UNTUK IDENTIFIKASI USER --}}
+    {{-- ====================================================== --}}
+    <script>
+        // 1. Ambil elemen form dari HTML
+        const loginForm = document.getElementById('loginForm');
+
+        // 2. Tambahkan 'event listener' yang akan berjalan saat form disubmit
+        loginForm.addEventListener('submit', function(event) {
+
+            // Mencegah form dikirim secara default (agar tidak reload)
+            event.preventDefault();
+
+            // 3. Ambil nilai dari input username
+            const usernameInput = document.getElementById('username');
+            const username = usernameInput.value.toLowerCase(); // Ubah jadi huruf kecil semua
+
+            const usernameError = document.getElementById('usernameError');
+
+            // 4. Lakukan pengecekan username
+            if (username === 'louis1234') {
+
+                // Jika username 'penyewa', arahkan ke halaman home penyewa
+                // Ganti URL '/dashboard_booking' jika URL Anda berbeda
+                window.location.href = '/dashboard-booking';
+
+            } else if (username === 'bril1234') {
+
+                // Jika username 'pemilik', arahkan ke halaman home pemilik
+                // Ganti URL '/home_pemilik' jika URL Anda berbeda
+                window.location.href = '/homepemilik';
+
+            } else {
+
+                usernameInput.classList.add('is-invalid');
+                usernameError.classList.remove('d-none');
+                usernameError.textContent = 'Username yang Anda masukkan salah.';
+            }
+        });
+    </script>
+
 </body>
 </html>
