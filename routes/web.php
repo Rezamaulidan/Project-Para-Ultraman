@@ -5,6 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardBookingController;
+use App\Http\Controllers\AuthController; // Ditambahkan untuk Rute Staff
 
 /*
 |--------------------------------------------------------------------------
@@ -18,34 +19,28 @@ use App\Http\Controllers\DashboardBookingController;
 */
 
 // =======================================================
-// RUTE UNTUK PENYEWA (Tampilan Penyewa)
+// RUTE UNTUK PENYEWA
 // =======================================================
 
 // Rute Halaman Utama (Home)
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Rute untuk MENAMPILKAN form registrasi (GET)
+// Rute Registrasi
 Route::get('/pilihan-daftar', [RegisterController::class, 'pilihan'])->name('register.pilihan');
-
-// Rute untuk MEMPROSES data form registrasi (POST)
 Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
-// Rute untuk MENAMPILKAN form login (GET)
+// Rute Login & Logout
 Route::get('/login', [LoginController::class, 'index'])->name('login');
-
-// Rute untuk MEMPROSES data login (POST)
 Route::post('/login', [LoginController::class, 'store']);
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Rute untuk menampilkan dashboard setelah login/register
+// Rute Dashboard Penyewa (Setelah Login)
 Route::get('/dashboard-booking', [DashboardBookingController::class, 'booking'])->name('dashboard.booking');
 
 // Rute Lupa Password (Placeholder)
 Route::get('/lupa-kata-sandi', function () {
     return 'Halaman Lupa Kata Sandi belum dibuat.';
 })->name('password.request');
-
-// Rute Logout
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
 // =======================================================
@@ -72,11 +67,6 @@ Route::get('/pengeluaranpemilik', function () {
     return view('pengeluaran_pemilik');
 })->name('pemilik.pengeluaran');
 
-// Rute Registrasi Staff oleh Pemilik Kos
-Route::get('/registrasistaff', function () {
-    return view('registrasi_sfaff'); // Perbaiki nama view jika salah
-})->name('pemilik.registrasi_staff');
-
 // Rute Keamanan Pemilik Kos
 Route::get('/keamananpemilik', function () {
     return view('keamanan_pemilik');
@@ -87,7 +77,22 @@ Route::get('/datapenyewapemilik', function () {
     return view('data_penyewa_pemilik');
 })->name('pemilik.datapenyewa');
 
+
+// =======================================================
+// RUTE UNTUK STAFF KOS
+// =======================================================
+
+// Rute Registrasi Staff oleh Pemilik Kos
+Route::get('/registrasistaff', function () {
+    return view('registrasi_sfaff'); // Perbaiki nama view jika salah
+})->name('pemilik.registrasi_staff');
+
 // Rute Data Staff Pemilik Kos
 Route::get('/datastaffpemilik', function () {
     return view('data_staff_pemilik');
 })->name('pemilik.datastaff');
+
+// Rute Menu Staff
+Route::get('/staff/menu', function () {
+    return view('menu_staff');
+})->name('staff.menu');
