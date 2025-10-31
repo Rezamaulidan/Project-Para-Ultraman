@@ -18,12 +18,17 @@ tampilan-penyewa
 |
 */
 
+#Route default (Ga boleh di rubah!)
+Route::get('/', function () {
+    return view('welcome');
+});
+
 // =======================================================
 // RUTE UNTUK PENYEWA (Tampilan Penyewa)
 // =======================================================
 
 // Rute Halaman Utama (Home) Penyewa
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 // Rute Registrasi Penyewa
 Route::get('/pilihan-daftar', [RegisterController::class, 'pilihan'])->name('register.pilihan');
