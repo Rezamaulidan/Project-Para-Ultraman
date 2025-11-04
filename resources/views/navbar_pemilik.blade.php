@@ -79,5 +79,5 @@
         </nav>
     </div>
 </div>
-<form id="logout-form" action="/loginpenyewa" method="HEAD" style="display: none;">
+<form id="logout-form" action="/login" method="HEAD" style="display: none;">
 </form>
