@@ -38,6 +38,6 @@ class RegisterController extends Controller
         Auth::login($user);
 
         // 5. Arahkan pengguna ke halaman dashboard booking
-        return redirect('/dashboard-booking');
+        return redirect('/');
     }
 }
