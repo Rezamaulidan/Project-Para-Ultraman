@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('no_hp');
             $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan']);
             $table->string('email')->unique();
-            $table->string('password');
             $table->timestamps();
         });
     }

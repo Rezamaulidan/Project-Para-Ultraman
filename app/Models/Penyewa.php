@@ -21,7 +21,6 @@ class Penyewa extends Authenticatable
         'nama_penyewa',
         'jenis_kelamin',
         'email',
-        'password',
     ];
 
     public function booking()
