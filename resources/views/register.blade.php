@@ -53,9 +53,9 @@
 
                         {{-- Nama Penyewa --}}
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" placeholder="Nama Anda" value="{{ old('name') }}" required>
-                            <label for="name">Nama Penyewa</label>
-                            @error('name')
+                            <input type="text" class="form-control @error('nama_penyewa') is-invalid @enderror" id="nama_penyewa" name="nama_penyewa" placeholder="Nama Anda" value="{{ old('nama_penyewa') }}" required>
+                            <label for="name_penyewa">Nama Penyewa</label>
+                            @error('nama_penyewa')
                                 <div class="invalid-feedback text-start">{{ $message }}</div>
                             @enderror
                         </div>

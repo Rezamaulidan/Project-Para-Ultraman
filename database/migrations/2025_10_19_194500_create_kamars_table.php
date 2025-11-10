@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('foto_kamar')->nullable();
             $table->enum('status', ['tersedia', 'terisi'])->default('tersedia');
             $table->string('ukuran', 50);
+            $table->enum('tipe_kamar', ['kosongan', 'basic', 'ekslusif'])->default('basic');
             $table->decimal('harga', 10, 2);
             $table->text('fasilitas')->nullable();
             $table->integer('lantai');

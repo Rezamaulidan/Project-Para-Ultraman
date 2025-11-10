@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('akuns', function (Blueprint $table) {
             $table->string('username')->primary();
-            $table->enum('jenis_akun', ['pemilik', 'staf']);
+            $table->enum('jenis_akun', ['pemilik', 'staf', 'penyewa']);
             $table->string('password');
             $table->timestamps();
         });
