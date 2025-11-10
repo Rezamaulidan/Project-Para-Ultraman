@@ -46,14 +46,22 @@
                     <h3 class="mb-4 fw-bold">Login</h3>
 
                     {{-- Formulir Login --}}
-                    <form id="loginForm" method="POST">
+                    {{-- PASTIKAN action-nya mengarah ke route 'login' --}}
+                    <form action="{{ route('login') }}" method="POST">
                         @csrf
 
                         {{-- Username --}}
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+                            {{-- Tambahkan @error untuk menampilkan error dari controller --}}
+                            <input type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username" placeholder="Username" required value="{{ old('username') }}">
                             <label for="username">Username</label>
-                            <div id="usernameError" class="invalid-feedback text-start d-none">Username tidak valid.</div>
+
+                            {{-- Tampilkan pesan error dari controller --}}
+                            @error('username')
+                                <div class="invalid-feedback text-start">
+                                    {{ $message }}
+                                </div>
+                            @enderror
                         </div>
 
                         {{-- Password --}}
@@ -64,7 +72,8 @@
 
                         {{-- Lupa Kata Sandi --}}
                         <div class="text-end mb-4">
-                            <a href="#" class="text-decoration-none small">Lupa Kata Sandi?</a>
+                            {{-- Ganti '#' dengan route lupa password jika sudah ada --}}
+                            <a href="{{ route('password.request') }}" class="text-decoration-none small">Lupa Kata Sandi?</a>
                         </div>
 
                         {{-- Tombol Login --}}
@@ -79,35 +88,6 @@
 
     {{-- Link untuk memuat JavaScript Bootstrap --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    {{-- JAVASCRIPT UNTUK IDENTIFIKASI USER --}}
-    <script>
-        const loginForm = document.getElementById('loginForm');
-
-        loginForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const usernameInput = document.getElementById('username');
-            const username = usernameInput.value.toLowerCase();
-            const usernameError = document.getElementById('usernameError');
-
-            // Lakukan pengecekan username
-            if (username === 'louis1234') {
-                // Arahkan ke dashboard penyewa
-                window.location.href = '/dashboard-booking';
-
-            } else if (username === 'bril1234') {
-                // Arahkan ke dashboard pemilik
-                window.location.href = '/homepemilik';
-
-            } else {
-                // Tampilkan pesan error
-                usernameInput.classList.add('is-invalid');
-                usernameError.classList.remove('d-none');
-                usernameError.textContent = 'Username yang Anda masukkan salah.';
-            }
-        });
-    </script>
 
 </body>
 </html>

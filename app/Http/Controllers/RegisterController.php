@@ -26,7 +26,7 @@ class RegisterController extends Controller
             'username'      => 'required|min:3|max:255|unique:akuns', // Validasi username
             'jenis_kelamin' => 'required',
             'no_hp'         => 'required|min:10|max:15',
-            'email'         => 'required|email:dns|unique:users',
+            'email'         => 'required|email:dns|unique:penyewas',
             'password'      => 'required|min:5|max:255'
         ]);
 
