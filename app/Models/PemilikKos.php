@@ -18,12 +18,11 @@ class PemilikKos extends Authenticatable
         'username',
         'nama_pemilik',
         'no_hp',
-        'password',
     ];
 
     public function akuns()
     {
-        return $this->hasOne(Akun::class, 'username', 'username');
+        return $this->belongsTo(Akun::class, 'username', 'username');
     }
 
     public function akunStaf()
@@ -34,13 +33,11 @@ class PemilikKos extends Authenticatable
 
     public function kamars()
     {
-        // Langsung query ke model Kamar dan ambil semua data.
         return Kamar::all();
     }
 
     public function pengeluarans()
     {
-        // Langsung query ke model Pengeluaran dan ambil semua datanya.
         return Pengeluaran::all();
     }
 
