@@ -17,6 +17,7 @@ class PemilikKos extends Authenticatable
     protected $fillable = [
         'username',
         'nama_pemilik',
+        'email',
         'no_hp',
     ];
 

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-// Pastikan Anda sudah membuat kedua Model ini di app/Models/
 use App\Models\PemilikKos;
 use App\Models\Staf;
 

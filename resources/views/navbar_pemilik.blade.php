@@ -1,12 +1,15 @@
+<!-- resources/views/partials/navbar_pemilik.blade.php -->
+
 <div class="header-container">
     <div class="container-fluid">
 
         <div class="d-flex justify-content-between align-items-center">
-            <a class="navbar-brand d-flex align-items-center" href="#">
+            <a class="navbar-brand d-flex align-items-center" href="{{ route('pemilik.home') }}">
                 <img src="{{ asset('images/logo-simk.png') }}" alt="Logo SIMK" class="me-3">
                 Sistem Informasi Manajemen Kos
             </a>
 
+            <!-- Ikon profil, Anda bisa tambahkan modal di sini jika perlu -->
             <a href="#" class="text-white" onclick="openModal(); return false;">
                 <i class="fa-solid fa-user-circle fa-2x"></i>
             </a>
@@ -22,55 +25,63 @@
                 <ul class="navbar-nav d-flex justify-content-between w-100">
 
                     <li class="nav-item">
+                        <!-- Menggunakan route() helper -->
                         <a class="nav-link {{ Request::is('homepemilik') ? 'active' : '' }} text-center"
-                            aria-current="page" href="/homepemilik">
+                            aria-current="page" href="{{ route('pemilik.home') }}">
                             <i class="fa-solid fa-house me-1"></i> Beranda
                         </a>
                     </li>
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-center {{ Request::is('datakamarpemilik') || Request::is('datapenyewapemilik') || Request::is('datastaffpemilik') ? 'active' : '' }}"
-                            href="/datakamarpemilik" id="infoDataDropdown" role="button" data-bs-toggle="dropdown"
+                        <!-- Menggunakan route() helper -->
+                        <a class="nav-link dropdown-toggle text-center {{ Request::is('datakamarpemilik', 'datapenyewapemilik', 'datastaffpemilik') ? 'active' : '' }}"
+                            href="#" id="infoDataDropdown" role="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
                             <i class="fa-solid fa-circle-info me-1"></i> Informasi Data
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="infoDataDropdown">
-                            <li><a class="dropdown-item" href="/datakamarpemilik">Kamar</a></li>
-                            <li><a class="dropdown-item" href="/datapenyewapemilik">Penyewa</a></li>
-                            <li><a class="dropdown-item" href="/datastaffpemilik">Staff</a></li>
+                            <li><a class="dropdown-item" href="{{ route('pemilik.datakamar') }}">Kamar</a></li>
+                            <li><a class="dropdown-item" href="{{ route('pemilik.datapenyewa') }}">Penyewa</a></li>
+                            <li><a class="dropdown-item" href="{{ route('pemilik.datastaff') }}">Staff</a></li>
                         </ul>
                     </li>
 
                     <li class="nav-item">
+                        <!-- Menggunakan route() helper -->
                         <a class="nav-link {{ Request::is('transaksipemilik') ? 'active' : '' }} text-center"
-                            aria-current="page" href="/transaksipemilik">
+                            aria-current="page" href="{{ route('pemilik.transaksi') }}">
                             <i class="fa-solid fa-receipt me-1"></i> Transaksi
                         </a>
                     </li>
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-center {{ Request::is('pengeluaranpemilik') || Request::is('keamananpemilik') ? 'active' : '' }}"
-                            href="/laporanpemilik" id="infoDataDropdown" role="button" data-bs-toggle="dropdown"
+                        <!-- Menggunakan route() helper -->
+                        <a class="nav-link dropdown-toggle text-center {{ Request::is('pengeluaranpemilik', 'keamananpemilik') ? 'active' : '' }}"
+                            href="#" id="laporanDropdown" role="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
                             <i class="fa-solid fa-chart-line me-1"></i> Laporan
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="laporanDropdown">
-                            <li><a class="dropdown-item" href="/pengeluaranpemilik">Pengeluaran</a></li>
-                            <li><a class="dropdown-item" href="/keamananpemilik">Keamanan</a></li>
+                            <li><a class="dropdown-item" href="{{ route('pemilik.pengeluaran') }}">Pengeluaran</a></li>
+                            <li><a class="dropdown-item" href="{{ route('pemilik.keamanan') }}">Keamanan</a></li>
                         </ul>
                     </li>
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-center {{ Request::is('registrasistaff') ? 'active' : '' }}"
-                            href="/laporanpemilik" id="infoDataDropdown" role="button" data-bs-toggle="dropdown"
+                            href="#" id="lainnyaDropdown" role="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
                             <i class="fa-solid fa-sitemap me-1"></i> Lainnya
                         </a>
 
                         <ul class="dropdown-menu" aria-labelledby="lainnyaDropdown">
-                            <li><a class="dropdown-item" href="/registrasistaff">Registrasi staff</a></li>
-                            <li><a class="dropdown-item" href="/loginpenyewa"
-                                    onclick="event.preventDefault(); if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) { document.getElementById('logout-form').submit(); }">Logout</a>
+                            <!-- Menggunakan route() helper -->
+                            <li><a class="dropdown-item" href="{{ route('pemilik.registrasi_staff') }}">Registrasi staff</a></li>
+                            <li>
+                                <a class="dropdown-item" href="#"
+                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    Logout
+                                </a>
                             </li>
                         </ul>
                     </li>
@@ -79,5 +90,7 @@
         </nav>
     </div>
 </div>
-<form id="logout-form" action="/login" method="HEAD" style="display: none;">
+
+<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+    @csrf
 </form>
