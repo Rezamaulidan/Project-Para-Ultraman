@@ -28,7 +28,7 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        // 2. Coba lakukan login HANYA dengan username & password
+        // 2. melakukan login HANYA dengan username & password
         if (Auth::attempt($credentials)) {
 
             // 3. Jika berhasil, regenerate session
@@ -50,10 +50,12 @@ class LoginController extends Controller
 
             } elseif ($user->jenis_akun === 'staf') {
 
+                // Jika 'staf', arahkan ke menu staf
                 return redirect()->route('staff.menu');
             }
 
-            return redirect('/');
+            // Fallback jika ada jenis akun lain
+            return redirect()->route('home');
 
         }
 
@@ -63,14 +65,24 @@ class LoginController extends Controller
         ])->onlyInput('username');
     }
 
-    /**
-     * Menangani proses logout.
-     */
     public function logout(Request $request): RedirectResponse
     {
-        Auth::logout(); // Mengakhiri sesi pengguna
-        $request->session()->invalidate(); // Membatalkan data sesi
-        $request->session()->regenerateToken(); // Membuat ulang token keamanan
-        return redirect('/'); // <-- Kembali ke view home.blade
+        // 1. Ambil data pengguna (termasuk jenis_akun) SEBELUM logout
+        $user = Auth::user();
+
+        // 2. Lakukan proses logout standar
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // 3. Periksa jenis_akun dari pengguna yang baru saja logout
+        if ($user && ($user->jenis_akun === 'pemilik' || $user->jenis_akun === 'staf')) {
+
+            // 4. Jika pemilik atau staf, arahkan ke halaman login
+            return redirect()->route('login');
+        }
+
+        // 5. Jika penyewa (atau peran lain), arahkan ke halaman home
+        return redirect()->route('home');
     }
 }

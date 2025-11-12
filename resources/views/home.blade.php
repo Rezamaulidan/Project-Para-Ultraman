@@ -58,7 +58,7 @@
                     <div class="card-body card-kamar-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="card-title fw-bold mb-0">Kamar No. 2</h5>
-                            <span class="badge bg-success-subtle text-success-emphasis rounded-pill fw-medium">Kosong</span>
+                            <span class="badge bg-danger-subtle text-danger-emphasis rounded-pill fw-medium">Terisi</span>
                         </div>
                         <p class="card-text text-muted mb-1">Lantai: 1</p>
                         <p class="card-text fw-bold fs-5 mb-0">Rp 1.000.000</p>

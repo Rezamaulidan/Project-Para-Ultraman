@@ -3,19 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistem Informasi Manajemen Kos</title>
+    <title>Reset Password - Sistem Informasi Manajemen Kos</title>
 
     {{-- Link untuk memuat CSS Bootstrap --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        /* Custom style untuk background gradient */
         body,
         html {
             height: 100%;
             overflow: hidden;
         }
-
         .gradient-background {
             background: linear-gradient(135deg, #007bff, #0056b3);
             height: 100vh;
@@ -24,7 +22,6 @@
             justify-content: center;
             padding: 1rem;
         }
-
         .login-card {
             max-width: 450px;
             width: 100%;
@@ -43,49 +40,47 @@
 
                     <img src="{{ asset('img/login.svg') }}" class="img-fluid" alt="Login Illustration" style="max-height: 140px;">
 
-                    <h3 class="mb-4 fw-bold">Login</h3>
+                    <h3 class="mb-4 fw-bold">Reset Password</h3>
+                    <p class="text-muted mb-4">Masukkan password baru Anda.</p>
 
-                    {{-- Blok ini akan menampilkan pesan sukses setelah reset password --}}
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
-                        </div>
-                    @endif
-                    {{-- ====================================================== --}}
-
-
-                    {{-- Formulir Login --}}
-                    <form action="{{ route('login') }}" method="POST">
+                    {{-- Formulir Reset Password --}}
+                    <form action="{{ route('password.update') }}" method="POST">
                         @csrf
 
-                        {{-- Username --}}
-                        <div class="form-floating mb-3">
-                            {{-- Tambahkan @error untuk menampilkan error dari controller --}}
-                            <input type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username" placeholder="Username" required value="{{ old('username') }}">
-                            <label for="username">Username</label>
+                        {{-- Token (wajib ada dan harus hidden) --}}
+                        <input type="hidden" name="token" value="{{ $token }}">
 
-                            {{-- Tampilkan pesan error dari controller --}}
-                            @error('username')
+                        {{-- Email (wajib ada) --}}
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="Email" required value="{{ $email ?? old('email') }}">
+                            <label for="email">Alamat Email</label>
+                            @error('email')
                                 <div class="invalid-feedback text-start">
                                     {{ $message }}
                                 </div>
                             @enderror
                         </div>
 
-                        {{-- Password --}}
+                        {{-- Password Baru --}}
                         <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
-                            <label for="password">Password</label>
+                            <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="Password Baru" required>
+                            <label for="password">Password Baru</label>
+                            @error('password')
+                                <div class="invalid-feedback text-start">
+                                    {{ $message }}
+                                </div>
+                            @enderror
                         </div>
 
-                        {{-- Lupa Kata Sandi --}}
-                        <div class="text-end mb-4">
-                            <a href="{{ route('password.request') }}" class="text-decoration-none small">Lupa Kata Sandi?</a>
+                        {{-- Konfirmasi Password Baru --}}
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Konfirmasi Password" required>
+                            <label for="password_confirmation">Konfirmasi Password</label>
                         </div>
 
-                        {{-- Tombol Login --}}
+                        {{-- Tombol Submit --}}
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg rounded-pill">Login</button>
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill">Reset Password</button>
                         </div>
                     </form>
                 </div>
