@@ -110,8 +110,19 @@ Route::middleware(['auth'])->group(function () {
     // --- GRUP PENYEWA ---
     // Hanya bisa diakses oleh 'penyewa'
     Route::middleware(['role:penyewa'])->group(function () {
+        // Rute untuk penyewa baru (menunggu acc)
         Route::get('/dashboard-booking', [DashboardBookingController::class, 'booking'])->name('dashboard.booking');
-    });
+
+        // Rute untuk penyewa yang sudah di-acc
+        Route::get('/dashboard-penyewa', function () {
+            return view('dashboard_penyewa');
+        })->name('penyewa.dashboard');
+
+        // Rute untuk menampilkan data profil penyewa
+        Route::get('/informasi-penyewa', function () {
+            return view('informasi_penyewa');
+        })->name('penyewa.informasi');
+        });
 
     // --- GRUP PEMILIK KOS ---
     // Hanya bisa diakses oleh 'pemilik'
