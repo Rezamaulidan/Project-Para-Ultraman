@@ -1,0 +1,178 @@
+/* Variabel Warna Tema */
+:root {
+    --navy-dark: #001931;
+    --accent-blue: #007bff;
+    --soft-blue: #e8f0ff;
+    --highlight-blue: #cce5ff;
+    --white: #ffffff;
+    --soft-cream: #f9f9f9;
+    --text-dark: #343a40;
+    --text-muted: #6c757d;
+    --success-green: #38b000;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+}
+
+/* CONTAINER UTAMA (Wrapper) - Untuk membatasi lebar dan memusatkan konten di dalam area master */
+.main-wrapper {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+/* ************************************** */
+/* KONTEN UTAMA (DUA KOLOM BERDIRI SENDIRI)*/
+/* ************************************** */
+.detail-content {
+    display: flex;
+    padding: 0; /* Padding vertikal dipindahkan ke content-inner */
+    background-color: var(--soft-cream);
+    border-radius: 15px;
+    overflow: hidden; /* Agar border radius terlihat rapi */
+}
+
+.content-inner {
+    display: flex;
+    gap: 60px; /* Jarak antara card (sedikit dikurangi dari 80px) */
+    width: 100%;
+    padding: 40px; /* Padding di sekitar card, di dalam main-wrapper */
+}
+@media (max-width: 992px) {
+    .content-inner {
+        flex-direction: column;
+        gap: 20px;
+    }
+}
+
+/* Card Base Styling */
+.card-base {
+    background-color: var(--white);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--soft-blue);
+    height: fit-content;
+}
+
+/* ------------------------------------------- */
+/* KOLOM CARD KIRI (FOTO & JUDUL) */
+/* ------------------------------------------- */
+.card-photo-sidebar {
+    flex: 0 0 40%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* STYLING JUDUL UTAMA DI CARD KIRI - RATA TENGAH */
+.kamar-photo-wrapper h2 {
+    font-size: 1.5em;
+    font-weight: 800;
+    margin: 0 0 15px 0;
+    text-align: center;
+    color: var(--navy-dark);
+}
+.kamar-photo-wrapper h4 {
+    color: var(--text-dark);
+    font-size: 1em;
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+.kamar-photo-wrapper {
+    width: 100%;
+    margin-bottom: 30px;
+}
+.kamar-photo-frame {
+    border: 2px solid var(--soft-blue);
+    border-radius: 10px;
+    width: 100%;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--soft-cream);
+}
+.btn-edit {
+    background: var(--navy-dark);
+    color: var(--white);
+    border: none;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+    display: block;
+    width: fit-content;
+}
+.btn-edit:hover {
+    background: var(--accent-blue);
+    transform: translateY(-2px);
+}
+
+/* ------------------------------------------- */
+/* KOLOM CARD KANAN (DETAIL MODULAR) */
+/* ------------------------------------------- */
+.card-detail-main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+/* Card Status */
+#card-status {
+    background-color: var(--highlight-blue);
+    border: 1px solid var(--accent-blue);
+    text-align: center;
+    padding: 30px 25px;
+    border-radius: 10px;
+}
+.price-text {
+    font-size: 3em;
+    font-weight: 900;
+    color: var(--navy-dark);
+    margin: 0;
+    line-height: 1.1;
+}
+
+/* Modular Card */
+.modular-card {
+    padding: 25px;
+    border: 1px solid var(--soft-cream);
+    border-radius: 10px;
+    background-color: var(--white);
+}
+
+/* Peregangan Fasilitas */
+.fasilitas-content {
+    line-height: 1.8; /* Menambah tinggi baris (aesthetic) */
+    font-size: 0.95em;
+}
+
+/* Peregangan Informasi Umum */
+.info-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 20px;
+}
+.info-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0; /* Padding vertikal lebih besar (aesthetic) */
+    border-bottom: 1px dashed var(--soft-blue);
+    font-size: 0.95em;
+}
+.info-item:last-child {
+    border-bottom: none;
+}

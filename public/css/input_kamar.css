@@ -1,0 +1,322 @@
+/* Variabel Warna */
+:root {
+    --navy-dark: #001931;
+    --white: #ffffff;
+    --accent-blue: #007bff;
+    --soft-cream: #fcfcfc;
+    --soft-baby-blue: #e8f0ff;
+    --box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    margin: 0;
+    padding: 50px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+
+    /* Aesthetic Radial Gradient */
+    background: radial-gradient(
+        circle at center,
+        var(--white) 3%,
+        var(--soft-baby-blue) 50%,
+        var(--soft-cream) 100%
+    );
+}
+
+/* ************************************** */
+/* CONTAINER UTAMA & ELEMEN INTERAKSI    */
+/* ************************************** */
+.form-container {
+    background-color: var(--white);
+    border-radius: 20px;
+    box-shadow: var(--box-shadow);
+    width: 70%;
+    max-width: 750px;
+    padding: 0;
+    overflow: hidden;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+    z-index: 10;
+}
+
+.form-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+.form-header {
+    background-color: var(--navy-dark);
+    color: var(--white);
+    text-align: center;
+    padding: 30px 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.form-header h1 {
+    font-size: 2.2em;
+    margin: 0 0 5px 0;
+    letter-spacing: 1px;
+}
+
+.form-header p {
+    font-size: 0.9em;
+    opacity: 0.8;
+    margin: 0;
+}
+
+form {
+    padding: 40px;
+}
+
+/* CARD SECTIONING */
+.form-section {
+    background-color: var(--white);
+    border: 1px solid #e0e6ed;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.section-title {
+    color: var(--navy-dark);
+    font-size: 1.4em;
+    font-weight: 700;
+    margin-bottom: 25px;
+    border-bottom: 3px solid var(--accent-blue);
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+/* GRID TATA LETAK INPUT */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px 35px;
+}
+
+/* GAYA INPUT FIELD (MODERN UNDERLINE & FLOATING LABEL) */
+.form-group {
+    position: relative;
+    margin-top: 10px;
+}
+
+.form-group label {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    color: #6c757d;
+    font-size: 1em;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 15px 0 5px 0;
+    border: none;
+    border-bottom: 2px solid #ced4da;
+    background: transparent;
+    color: var(--navy-dark);
+    font-size: 1.05em;
+    transition: border-bottom-color 0.3s;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-bottom-color: var(--accent-blue);
+}
+
+/* FLOATING LABEL EFFECT */
+.form-group input:focus + label,
+.form-group input:not(:placeholder-shown) + label,
+.form-group select:focus + label,
+.form-group select:valid + label,
+.form-group select.valid + label {
+    top: -5px;
+    font-size: 0.8em;
+    color: var(--accent-blue);
+    font-weight: 600;
+}
+
+/* WRAPPER UNTUK SELECT DENGAN ICON */
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper .select-icon {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    color: #6c757d;
+    transition: color 0.3s;
+}
+
+.form-group select:focus + .select-icon {
+    color: var(--accent-blue);
+}
+
+.select-wrapper select {
+    padding-right: 30px;
+}
+
+/* FASILITAS & FOTO KAMAR (Full-width) */
+#fasilitas-group {
+    grid-column: 1 / -1;
+}
+
+.file-upload-wrapper {
+    grid-column: 1 / -1;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.file-upload-label-button {
+    background-color: var(--navy-dark);
+    color: var(--white);
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s, transform 0.2s;
+    align-self: flex-start;
+    margin-top: 10px;
+}
+
+.file-upload-label-button:hover {
+    background-color: #002d5a;
+    transform: translateY(-1px);
+}
+
+#file-name-display-v2 {
+    color: #6c757d;
+    font-style: italic;
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+/* TOMBOL SUBMIT */
+.submit-group {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.btn-simpan-v2 {
+    background: linear-gradient(45deg, var(--navy-dark), var(--accent-blue));
+    color: var(--white);
+    border: none;
+    padding: 15px 40px;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 10px 20px rgba(0, 25, 49, 0.3);
+    letter-spacing: 0.5px;
+}
+
+.btn-simpan-v2:hover {
+    background: linear-gradient(45deg, #002d5a, #0056b3);
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(0, 25, 49, 0.4);
+}
+
+/* Responsif */
+@media (max-width: 650px) {
+    form {
+        padding: 30px;
+    }
+
+    .form-section {
+        padding: 20px;
+    }
+}
+
+/* ************************************** */
+/* CSS POP-UP LUCU & MENARIK */
+/* ************************************** */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s;
+}
+
+.modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background-color: var(--white);
+    border-radius: 20px;
+    padding: 35px;
+    text-align: center;
+    width: 88%;
+    max-width: 385px;
+    max-height: 57vh;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+    transform: scale(0.8);
+    transition: transform 0.3s ease-out;
+}
+
+.modal.show .modal-content {
+    transform: scale(1);
+}
+
+.modal-body {
+    margin-bottom: 20px;
+}
+
+.success-icon {
+    font-size: 3em;
+    color: var(--accent-blue);
+    background-color: var(--soft-baby-blue);
+    border-radius: 50%;
+    padding: 20px;
+    margin-bottom: 20px;
+    animation: bounce 1s infinite alternate;
+    /* Animasi lucu */
+}
+
+.modal-content h2 {
+    color: var(--navy-dark);
+    font-size: 1.8em;
+    margin-bottom: 5px;
+}
+
+.modal-content p {
+    color: #495057;
+    margin-top: 10px;
+}
+
+/* Animasi */
+@keyframes bounce {
+    from {
+        transform: translateY(0px) rotate(5deg);
+    }
+
+    to {
+        transform: translateY(-5px) rotate(-5deg);
+    }
+}
