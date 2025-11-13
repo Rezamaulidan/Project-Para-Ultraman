@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\KamarController;
 use App\Http\Controllers\DashboardBookingController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
@@ -127,38 +128,62 @@ Route::middleware(['auth'])->group(function () {
     // --- GRUP PEMILIK KOS ---
     // Hanya bisa diakses oleh 'pemilik'
     Route::middleware(['role:pemilik'])->group(function () {
+        // Rute Home Pemilik Kos
         Route::get('/homepemilik', function () {
             return view('home_pemilik');
         })->name('pemilik.home');
 
+        // Rute Data Kamar Pemilik Kos
         Route::get('/datakamarpemilik', function () {
             return view('data_kamar_pemilik');
         })->name('pemilik.datakamar');
 
+        // Rute Transaksi Pemilik Kos
         Route::get('/transaksipemilik', function () {
             return view('transaksi_pemilik');
         })->name('pemilik.transaksi');
 
+        // Rute Pengeluaran Pemilik Kos
         Route::get('/pengeluaranpemilik', function () {
             return view('pengeluaran_pemilik');
         })->name('pemilik.pengeluaran');
 
+        // Rute Keamanan Pemilik Kos
         Route::get('/keamananpemilik', function () {
             return view('keamanan_pemilik');
         })->name('pemilik.keamanan');
 
+        // Rute Data Penyewa Pemilik Kos
         Route::get('/datapenyewapemilik', function () {
             return view('data_penyewa_pemilik');
         })->name('pemilik.datapenyewa');
 
-        // Rute untuk Staf (dikelola oleh Pemilik)
+        // Route::get('/inputkamar', function () {
+        //     return view('input_data_kamar');
+        // })->name('pemilik.inputkamar');
+
+        Route::get('/infokamar', function () {
+            return view('info_data_kamar');
+        })->name('pemilik.infokamar');
+
+        // Rute Registrasi Staff oleh Pemilik Kos
         Route::get('/registrasistaff', function () {
-            return view('registrasi_sfaff');
+            return view('registrasi_sfaff'); // Perbaiki nama view jika salah
         })->name('pemilik.registrasi_staff');
 
+        // Rute Data Staff Pemilik Kos
         Route::get('/datastaffpemilik', function () {
             return view('data_staff_pemilik');
         })->name('pemilik.datastaff');
+
+        // Route untuk menampilkan form input
+        Route::get('/inputkamar', [KamarController::class, 'create'])->name('pemilik.create');
+
+        // Route untuk menerima data dari form dan menyimpannya (POST)
+        Route::post('/kamar', [KamarController::class, 'store'])->name('pemilik.store');
+
+        // Route untuk menampilkan semua data kamar (opsional, untuk melihat hasilnya)
+        Route::get('/kamar', [KamarController::class, 'index'])->name('pemilik.index');
     });
 
     // --- GRUP STAF ---
