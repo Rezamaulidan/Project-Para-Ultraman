@@ -6,6 +6,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardBookingController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PenyewaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Notification;
@@ -63,14 +64,14 @@ Route::post('/lupa-kata-sandia', function (Request $request) {
         return back()->withInput()->withErrors(['email' => 'Gagal mengirim email. Silakan coba lagi nanti.']);
     }
     return back()->with('status', 'Kami telah mengirimkan link reset password ke email Anda!');
-})->name('password.email');
+    })->name('password.email');
 
-Route::get('/reset-password/{token}', function ($token, Request $request) {
+    Route::get('/reset-password/{token}', function ($token, Request $request) {
     $email = $request->query('email');
     return view('reset-password', ['token' => $token, 'email' => $email]);
-})->name('password.reset');
+    })->name('password.reset');
 
-Route::post('/reset-password', function (Request $request) {
+    Route::post('/reset-password', function (Request $request) {
     $request->validate([
         'token' => 'required',
         'email' => 'required|email',
@@ -119,9 +120,16 @@ Route::middleware(['auth'])->group(function () {
         })->name('penyewa.dashboard');
 
         // Rute untuk menampilkan data profil penyewa
-        Route::get('/informasi-penyewa', function () {
-            return view('informasi_penyewa');
-        })->name('penyewa.informasi');
+        Route::get('/informasi-penyewa', [PenyewaController::class, 'showInformasi'])
+             ->name('penyewa.informasi');
+
+        // Rute untuk menampilkan HALAMAN EDIT
+        Route::get('/edit-informasi-penyewa', [PenyewaController::class, 'editInformasi'])
+             ->name('penyewa.edit_informasi');
+
+        // Rute untuk MENAMPILKAN halaman informasi keamanan
+        Route::get('/informasi-keamanan', [PenyewaController::class, 'showKeamanan'])
+             ->name('penyewa.keamanan');
         });
 
     // --- GRUP PEMILIK KOS ---
