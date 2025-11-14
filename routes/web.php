@@ -104,7 +104,11 @@ Route::post('/lupa-kata-sandia', function (Request $request) {
 // =======================================================
 // RUTE YANG DILINDUNGI (Wajib Login)
 // =======================================================
+tampilan-penyewa
+    Route::middleware(['auth'])->group(function () {
+
 Route::middleware(['auth'])->group(function () {
+master
 
     // Rute Logout (Bisa diakses semua peran)
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -121,7 +125,6 @@ Route::middleware(['auth'])->group(function () {
         })->name('penyewa.dashboard');
 
         // Rute untuk menampilkan data profil penyewa
- tampilan-penyewa
         Route::get('/informasi-penyewa', [PenyewaController::class, 'showInformasi'])
              ->name('penyewa.informasi');
 
@@ -136,6 +139,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/informasi-penyewa', function () {
             return view('informasi_penyewa');
         })->name('penyewa.informasi');
+tampilan-penyewa
+        });
+
+    // --- GRUP PEMILIK KOS ---
+    // Hanya bisa diakses oleh 'pemilik'
+     Route::middleware(['role:pemilik'])->group(function () {
+
 pemilikkos
         });
 
@@ -146,6 +156,7 @@ master
     // --- GRUP PEMILIK KOS ---
     // Hanya bisa diakses oleh 'pemilik'
     Route::middleware(['role:pemilik'])->group(function () {
+master
         // Rute Home Pemilik Kos
         Route::get('/homepemilik', function () {
             return view('home_pemilik');
@@ -176,13 +187,18 @@ master
             return view('data_penyewa_pemilik');
         })->name('pemilik.datapenyewa');
 
-        // Route::get('/inputkamar', function () {
-        //     return view('input_data_kamar');
-        // })->name('pemilik.inputkamar');
 
-        // Route::get('/infokamar', function () {
-        //     return view('info_data_kamar');
-        // })->name('pemilik.infokamar');
+        Route::get('/infokamar', function () {
+            return view('info_data_kamar');
+        })->name('pemilik.infokamar');
+
+         Route::get('/inputkamar', function () {
+             return view('input_data_kamar');
+         })->name('pemilik.inputkamar');
+
+         Route::get('/infokamar', function () {
+             return view('info_data_kamar');
+         })->name('pemilik.infokamar');
 
         // Route untuk menampilkan detail kamar (saat ini dinamis ke satu halaman)
         Route::get('/infokamar/{nomor}', [KamarController::class, 'infoKamarDetail'])->name('pemilik.infokamar');
@@ -215,4 +231,8 @@ master
         })->name('staff.menu');
     });
 
+tampilan-penyewa
 });
+
+});
+master

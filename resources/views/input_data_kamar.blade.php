@@ -16,15 +16,16 @@
             <p>Kelola dan perbarui detail properti kamar secara efisien.</p>
         </div>
 
-        <form id="form-input-kamar-v2" action="{{ route('pemilik.store') }}" method="POST">
+        <form id="form-input-kamar-v2" action="{{ route('pemilik.store') }}" method="POST"
+            enctype="multipart/form-data">
             @csrf
             <div class="form-section">
                 <h2 class="section-title">Informasi Dasar</h2>
                 <div class="form-grid">
 
                     <div class="form-group">
-                        <input type="text" id="nomor-kamar" name="nomor-kamar" placeholder=" " required>
-                        <label for="nomor-kamar"><i class="fas fa-hashtag"></i> Nomor Kamar</label>
+                        <input type="text" id="no_kamar" name="no_kamar" placeholder=" " required>
+                        <label for="no_kamar"><i class="fas fa-hashtag"></i> Nomor Kamar</label>
                     </div>
 
                     <div class="form-group">
@@ -42,19 +43,19 @@
 
                     <div class="form-group">
                         <div class="select-wrapper">
-                            <select id="status-kamar" name="status-kamar" required>
+                            <select id="status" name="status" required>
                                 <option value="" disabled selected></option>
-                                <option value="kosong">Kosong</option>
+                                <option value="tersedia">Kosong</option>
                                 <option value="terisi">Terisi</option>
                             </select>
-                            <label for="status-kamar"><i class="fas fa-calendar-check"></i> Status Kamar</label>
+                            <label for="status"><i class="fas fa-calendar-check"></i> Status Kamar</label>
                             <span class="select-icon"><i class="fas fa-chevron-down"></i></span>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <input type="number" id="harga-sewa" name="harga-sewa" placeholder=" " min="0" required>
-                        <label for="harga-sewa"><i class="fas fa-wallet"></i> Harga Sewa per Bulan (Rp)</label>
+                        <input type="number" id="harga" name="harga" placeholder=" " min="0" required>
+                        <label for="harga"><i class="fas fa-wallet"></i> Harga Sewa per Bulan (Rp)</label>
                     </div>
 
                 </div>
@@ -66,32 +67,32 @@
 
                     <div class="form-group">
                         <div class="select-wrapper">
-                            <select id="tipe-kamar" name="tipe-kamar" required>
+                            <select id="tipe_kamar" name="tipe_kamar" required>
                                 <option value="" disabled selected></option>
                                 <option value="kosongan">Kosongan (Tanpa Perabot)</option>
                                 <option value="basic">Basic (Standar)</option>
-                                <option value="deluxe">Deluxe (Premium)</option>
+                                <option value="ekslusif">Deluxe (Premium)</option>
                             </select>
-                            <label for="tipe-kamar"><i class="fas fa-bed"></i> Tipe Kamar</label>
+                            <label for="tipe_kamar"><i class="fas fa-bed"></i> Tipe Kamar</label>
                             <span class="select-icon"><i class="fas fa-chevron-down"></i></span>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <input type="text" id="ukuran-kamar" name="ukuran-kamar" placeholder=" " required>
-                        <label for="ukuran-kamar"><i class="fas fa-ruler-combined"></i> Ukuran Kamar (m²)</label>
+                        <input type="text" id="ukuran" name="ukuran" placeholder=" " required>
+                        <label for="ukuran"><i class="fas fa-ruler-combined"></i> Ukuran Kamar (m²)</label>
                     </div>
 
                     <div class="form-group" id="fasilitas-group">
-                        <input type="text" id="fasilitas" name="fasilitas" placeholder=" ">
+                        <input type="text" id="fasilitas" name="fasilitas" placeholder=" " required>
                         <label for="fasilitas"><i class="fas fa-list-check"></i> Fasilitas Tambahan</label>
                     </div>
 
                     <div class="file-upload-wrapper">
-                        <label for="foto-kamar" style="font-weight: 600; color: var(--navy-dark);"><i
+                        <label for="foto_kamar" style="font-weight: 600; color: var(--navy-dark);"><i
                                 class="fas fa-camera"></i> Upload Foto Kamar</label>
-                        <input type="file" id="foto-kamar" name="foto-kamar" style="display: none;" accept="image/*">
-                        <label for="foto-kamar" class="file-upload-label-button">
+                        <input type="file" id="foto_kamar" name="foto_kamar" style="display: none;" accept="image/*">
+                        <label for="foto_kamar" class="file-upload-label-button">
                             Pilih File Foto
                         </label>
                         <span id="file-name-display-v2">Tidak ada file yang dipilih</span>
@@ -107,78 +108,41 @@
         </form>
     </div>
 
-    <div id="success-modal" style="display: none;" class="modal">
-        <div class="modal-content">
-            <div class="modal-body">
-                <i class="fas fa-paw success-icon"></i>
-                <h2>Data Kamar Tersimpan! 🎉</h2>
-                <p>Yeeeaaayyy! Data kamar baru kamu sudah aman dan siap menampung penghuni~</p>
-            </div>
-            <button id="modal-ok-button" class="btn-simpan-v2">Lanjut</button>
-        </div>
-    </div>
-
     <script>
-    const form = document.getElementById('form-input-kamar-v2');
-    const modal = document.getElementById('success-modal');
-    const modalOkButton = document.getElementById('modal-ok-button');
-    const fileInput = document.getElementById('foto-kamar');
-    // Menggunakan nama file target (data_kamar_pemilik.html) sebagai contoh redirect
-    const redirectURL = '/datakamarpemilik';
+        const form = document.getElementById('form-input-kamar-v2');
+        const modal = document.getElementById('success-modal');
+        const modalOkButton = document.getElementById('modal-ok-button');
+        const fileInput = document.getElementById('foto_kamar');
+        const redirectURL = '/datakamarpemilik';
 
-    // A. Script untuk menampilkan nama file yang dipilih
-    fileInput.addEventListener('change', function() {
-        const fileNameDisplay = document.getElementById('file-name-display-v2');
-        if (this.files && this.files.length > 0) {
-            fileNameDisplay.textContent = 'File terpilih: ' + this.files[0].name;
-        } else {
-            fileNameDisplay.textContent = 'Tidak ada file yang dipilih';
-        }
-    });
-
-    // B. Script untuk Floating Label di Select
-    document.querySelectorAll('.form-group select').forEach(select => {
-        // Cek status saat load
-        if (select.value) {
-            select.classList.add('valid');
-        } else {
-            select.classList.remove('valid');
-        }
-
-        // Cek status saat berubah
-        select.addEventListener('change', function() {
-            if (this.value) {
-                this.classList.add('valid');
+        // A. Script untuk menampilkan nama file yang dipilih
+        fileInput.addEventListener('change', function() {
+            const fileNameDisplay = document.getElementById('file-name-display-v2');
+            if (this.files && this.files.length > 0) {
+                fileNameDisplay.textContent = 'File terpilih: ' + this.files[0].name;
             } else {
-                this.classList.remove('valid');
+                fileNameDisplay.textContent = 'Tidak ada file yang dipilih';
             }
         });
-    });
 
-    // C. LOGIKA UTAMA: Validasi dan Pop-up
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
+        // B. Script untuk Floating Label di Select
+        document.querySelectorAll('.form-group select').forEach(select => {
+            // Cek status saat load
+            if (select.value) {
+                select.classList.add('valid');
+            } else {
+                select.classList.remove('valid');
+            }
 
-        if (form.checkValidity()) {
-            // Jika form valid, tampilkan pop-up
-            modal.style.display = 'flex'; // Tampilkan modal
-            setTimeout(() => {
-                modal.classList.add('show'); // Tambahkan efek transisi
-            }, 10);
-
-        } else {
-            // Jika form tidak valid (kosong), biarkan browser menampilkan pesan error bawaan
-            form.reportValidity();
-        }
-    });
-
-    // D. Logika Tombol OK/Lanjut pada Pop-up
-    modalOkButton.addEventListener('click', function() {
-        modal.classList.remove('show');
-
-        // Alihkan halaman ke tampilan data kamar setelah pop-up diklik
-        window.location.href = redirectURL;
-    });
+            // Cek status saat berubah
+            select.addEventListener('change', function() {
+                if (this.value) {
+                    this.classList.add('valid');
+                } else {
+                    this.classList.remove('valid');
+                }
+            });
+        });
     </script>
 </body>
 
