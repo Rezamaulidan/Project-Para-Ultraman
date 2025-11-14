@@ -31,15 +31,7 @@
 
         <ul class="list-group list-group-flush">
 
-            {{-- ======================================================= --}}
-            {{-- ▼▼▼ MENU TAMBAHAN ANDA ▼▼▼ --}}
-            {{-- ======================================================= --}}
-
-            {{-- CATATAN: 'route('...')' di bawah ini adalah placeholder. --}}
-            {{-- Anda harus membuat rute ini di web.php nanti. --}}
-
             <li class="list-group-item p-0">
-                {{-- Ganti 'route('penyewa.kamar')' dengan rute Anda yang sebenarnya --}}
                 <a href="#" class="btn btn-light text-start p-3 d-flex align-items-center w-100">
                     <i class="fa-solid fa-bed me-3" style="width: 24px; text-align: center;"></i>
                     <span class="fw-semibold fs-5">Informasi Kamar</span>
@@ -47,7 +39,6 @@
             </li>
 
             <li class="list-group-item p-0">
-                {{-- Ganti 'route('penyewa.pembayaran')' dengan rute Anda yang sebenarnya --}}
                 <a href="#" class="btn btn-light text-start p-3 d-flex align-items-center w-100">
                     <i class="fa-solid fa-money-check-dollar me-3" style="width: 24px; text-align: center;"></i>
                     <span class="fw-semibold fs-5">Menu Pembayaran</span>
@@ -55,8 +46,7 @@
             </li>
 
             <li class="list-group-item p-0">
-                {{-- Ganti 'route('penyewa.keamanan')' dengan rute Anda yang sebenarnya --}}
-                <a href="#" class="btn btn-light text-start p-3 d-flex align-items-center w-100">
+                <a href="{{ route('penyewa.keamanan') }}" class="btn btn-light text-start p-3 d-flex align-items-center w-100">
                     <i class="fa-solid fa-shield-halved me-3" style="width: 24px; text-align: center;"></i>
                     <span class="fw-semibold fs-5">Informasi Keamanan</span>
                 </a>

@@ -88,6 +88,12 @@
                             <button type="submit" class="btn btn-primary btn-lg rounded-pill">Login</button>
                         </div>
                     </form>
+
+                    <div class="text-center mt-4 small">
+                        <span class="text-muted">Belum punya akun?</span>
+                            <a href="{{ route('register.pilihan') }}" class="text-decoration-none fw-bold">Daftar di sini</a>
+                    </div>
+                    
                 </div>
             </div>
         </div>
