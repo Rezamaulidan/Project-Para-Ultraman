@@ -55,6 +55,22 @@ class KamarController extends Controller
     /**
      * Display the specified resource.
      */
+    public function infoKamarDetail($nomor)
+    {
+        // 1. Ambil data kamar dari database menggunakan nomor kamar.
+        // Ganti 'nomor_kamar' jika nama kolom di DB Anda berbeda (misalnya 'id').
+        $kamar = Kamar::where('nomor_kamar', $nomor)->first(); 
+
+        // 2. Cek jika kamar tidak ditemukan (opsional, tapi disarankan)
+        if (!$kamar) {
+            // Jika kamar tidak ada, kembalikan response 404
+            abort(404, 'Data Kamar Tidak Ditemukan.');
+        }
+
+        // 3. Kirim data kamar ($kamar) ke view info_data_kamar.blade.php
+        return view('info_data_kamar', compact('kamar'));
+    }
+    
     public function show(kamar $kamar)
     {
         //

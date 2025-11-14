@@ -11,30 +11,31 @@
         <div class="content-inner">
 
             <div class="card-photo-sidebar card-base">
-
                 <div class="kamar-photo-wrapper">
-                    <h2><span style="color: gold;">⭐</span> Data Kamar No 101 <span style="color: gold;">⭐</span>
+                    {{-- Ganti '101' dengan data dinamis --}}
+                    <h2><span style="color: gold;">⭐</span> Data Kamar No {{ $kamar->nomor_kamar }} <span
+                            style="color: gold;">⭐</span>
                     </h2>
-
                     <h4>Foto Kamar</h4>
                     <div class="kamar-photo-frame">
                         <p style="color: var(--text-muted); font-style: italic;">[Area Foto Kamar]</p>
                     </div>
                 </div>
-
-                <a href="/editkamar/101" class="btn-edit">
+                <a href="/editkamar/{{ $kamar->nomor_kamar }}" class="btn-edit">
                     <i class="fas fa-pencil-alt me-2"></i> Edit Data
                 </a>
             </div>
 
             <div class="card-detail-main card-base">
 
+                <!-- Di info_data_kamar.blade.php -->
                 <div class="modular-card" id="card-status">
-                    <span class="badge-status">Status: KOSONG! 🎉</span>
+                    <span class="badge-status">Status: {{ $kamar->status }}! 🎉</span>
                     <p class="price-text">
-                        Rp 1.500.000 <span class="price-suffix">/perbulan</span>
+                        Rp {{ number_format($kamar->harga, 0, ',', '.') }} <span class="price-suffix">/perbulan</span>
                     </p>
                 </div>
+
 
                 <div class="modular-card" id="card-fasilitas">
                     <h3 class="modular-card-title"><i class="fas fa-list-check"></i> Fasilitas Utama</h3>

@@ -104,7 +104,7 @@ Route::post('/lupa-kata-sandia', function (Request $request) {
 // =======================================================
 // RUTE YANG DILINDUNGI (Wajib Login)
 // =======================================================
-Route::middleware(['auth'])->group(function () {
+    Route::middleware(['auth'])->group(function () {
 
     // Rute Logout (Bisa diakses semua peran)
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -132,10 +132,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/informasi-keamanan', [PenyewaController::class, 'showKeamanan'])
              ->name('penyewa.keamanan');
         });
+        Route::get('/informasi-penyewa', function () {
+            return view('informasi_penyewa');
+        })->name('penyewa.informasi');
+        });
 
     // --- GRUP PEMILIK KOS ---
     // Hanya bisa diakses oleh 'pemilik'
-    Route::middleware(['role:pemilik'])->group(function () {
+     Route::middleware(['role:pemilik'])->group(function () {
         // Rute Home Pemilik Kos
         Route::get('/homepemilik', function () {
             return view('home_pemilik');
@@ -166,9 +170,21 @@ Route::middleware(['auth'])->group(function () {
             return view('data_penyewa_pemilik');
         })->name('pemilik.datapenyewa');
 
+
         Route::get('/infokamar', function () {
             return view('info_data_kamar');
         })->name('pemilik.infokamar');
+
+         Route::get('/inputkamar', function () {
+             return view('input_data_kamar');
+         })->name('pemilik.inputkamar');
+
+         Route::get('/infokamar', function () {
+             return view('info_data_kamar');
+         })->name('pemilik.infokamar');
+
+        // Route untuk menampilkan detail kamar (saat ini dinamis ke satu halaman)
+        Route::get('/infokamar/{nomor}', [KamarController::class, 'infoKamarDetail'])->name('pemilik.infokamar');
 
         // Rute Registrasi Staff oleh Pemilik Kos
         Route::get('/registrasistaff', function () {
@@ -188,7 +204,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Route untuk menampilkan semua data kamar (opsional, untuk melihat hasilnya)
         Route::get('/kamar', [KamarController::class, 'index'])->name('pemilik.index');
-    });
+    // });
 
     // --- GRUP STAF ---
     // Hanya bisa diakses oleh 'staf'
@@ -199,3 +215,4 @@ Route::middleware(['auth'])->group(function () {
     });
 
 });
+
