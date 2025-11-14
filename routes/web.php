@@ -166,10 +166,6 @@ Route::middleware(['auth'])->group(function () {
             return view('data_penyewa_pemilik');
         })->name('pemilik.datapenyewa');
 
-        // Route::get('/inputkamar', function () {
-        //     return view('input_data_kamar');
-        // })->name('pemilik.inputkamar');
-
         Route::get('/infokamar', function () {
             return view('info_data_kamar');
         })->name('pemilik.infokamar');

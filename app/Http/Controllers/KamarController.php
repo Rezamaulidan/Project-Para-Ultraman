@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\kamar;
+use App\Models\Kamar;
 use Illuminate\Http\Request;
 
 class KamarController extends Controller
@@ -47,9 +47,9 @@ class KamarController extends Controller
             $validatedData['foto_kamar'] = 'images/kamar/' . $imageName;
         }
 
-        kamar::create($validatedData);
+        Kamar::create($validatedData);
 
-        return redirect('/kamar')->back('/datakamarpemilik')->with('success', 'Data kamar berhasil disimpan.');
+        return redirect()->route('pemilik.datakamar')->with('success', 'Data kamar berhasil disimpan.');
     }
 
     /**
