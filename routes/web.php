@@ -204,7 +204,7 @@ Route::post('/lupa-kata-sandia', function (Request $request) {
 
         // Route untuk menampilkan semua data kamar (opsional, untuk melihat hasilnya)
         Route::get('/kamar', [KamarController::class, 'index'])->name('pemilik.index');
-    // });
+        });
 
     // --- GRUP STAF ---
     // Hanya bisa diakses oleh 'staf'
@@ -214,5 +214,4 @@ Route::post('/lupa-kata-sandia', function (Request $request) {
         })->name('staff.menu');
     });
 
-});
 
