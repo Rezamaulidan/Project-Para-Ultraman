@@ -1,5 +1,5 @@
 :root {
-    --biru-cerah: #0089ffff;
+    --biru-cerah: #001931;
     --putih: #ffffff;
     --teks-gelap: #333333;
     --teks-abu: #555555;
@@ -7,7 +7,7 @@
 }
 
 .header-container {
-    background-color: #0089ffff !important;
+    background-color: var(--biru-cerah) !important;
     padding: 15px 30px;
 }
 
@@ -37,16 +37,16 @@
 
 .main-nav-menu .nav-item:hover,
 .main-nav-menu .active {
-    background-color: #0068cc;
+    background-color: #02284d;
 }
 
 .main-nav-menu .dropdown-menu {
-    background-color: #0056a1ff;
+    background-color: var(--biru-cerah);
     border: none;
 }
 
 .main-nav-menu .dropdown-item:hover {
-    background-color: #0089ffff;
+    background-color: #003264;
 }
 
 .main-content {
@@ -236,7 +236,7 @@
 }
 
 .cta-button:hover {
-    background-color: #0060c0;
+    background-color: #003c79;
 }
 
 .clear-photo-button {

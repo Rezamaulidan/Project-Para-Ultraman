@@ -1,336 +1,185 @@
-{{-- resources/views/partials/kamar_input.blade.php --}}
+<!DOCTYPE html>
+<html lang="id">
 
-{{-- 2. Tampilan Input Data Kamar (Pilihan Lantai) --}}
-<div id="input-data-kamar-lantai-selection-view" class="app-view" style="display: none;">
-    <h2 style="color: #007bff; margin-bottom: 30px;">Input Data Kamar</h2>
-    <div style="display: flex; flex-direction: column; gap: 15px;">
-        <div id="listfield-lantai-1" class="list-expander">
-            Lantai 1
-            <span>&#9660;</span>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Data Kamar - SIMK</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/input_kamar.css') }}">
+</head>
+
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <h1>Input Data Kamar Kos 🏡</h1>
+            <p>Kelola dan perbarui detail properti kamar secara efisien.</p>
         </div>
-        <div id="listfield-lantai-2" class="list-expander">
-            Lantai 2
-            <span>&#9660;</span>
-        </div>
-        <button id="btn-tambah-kamar-1" class="btn-primary" style="margin-top: 20px;">
-            Tambah Kamar
-        </button>
+
+        <form id="form-input-kamar-v2" action="{{ route('pemilik.store') }}" method="POST">
+            @csrf
+            <div class="form-section">
+                <h2 class="section-title">Informasi Dasar</h2>
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <input type="text" id="nomor-kamar" name="nomor-kamar" placeholder=" " required>
+                        <label for="nomor-kamar"><i class="fas fa-hashtag"></i> Nomor Kamar</label>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="select-wrapper">
+                            <select id="lantai" name="lantai" required>
+                                <option value="" disabled selected></option>
+                                <option value="1">Lantai 1</option>
+                                <option value="2">Lantai 2</option>
+                                <option value="3">Lantai 3</option>
+                            </select>
+                            <label for="lantai"><i class="fas fa-layer-group"></i> Lantai</label>
+                            <span class="select-icon"><i class="fas fa-chevron-down"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="select-wrapper">
+                            <select id="status-kamar" name="status-kamar" required>
+                                <option value="" disabled selected></option>
+                                <option value="kosong">Kosong</option>
+                                <option value="terisi">Terisi</option>
+                            </select>
+                            <label for="status-kamar"><i class="fas fa-calendar-check"></i> Status Kamar</label>
+                            <span class="select-icon"><i class="fas fa-chevron-down"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="number" id="harga-sewa" name="harga-sewa" placeholder=" " min="0" required>
+                        <label for="harga-sewa"><i class="fas fa-wallet"></i> Harga Sewa per Bulan (Rp)</label>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">Detail Properti</h2>
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <div class="select-wrapper">
+                            <select id="tipe-kamar" name="tipe-kamar" required>
+                                <option value="" disabled selected></option>
+                                <option value="kosongan">Kosongan (Tanpa Perabot)</option>
+                                <option value="basic">Basic (Standar)</option>
+                                <option value="deluxe">Deluxe (Premium)</option>
+                            </select>
+                            <label for="tipe-kamar"><i class="fas fa-bed"></i> Tipe Kamar</label>
+                            <span class="select-icon"><i class="fas fa-chevron-down"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" id="ukuran-kamar" name="ukuran-kamar" placeholder=" " required>
+                        <label for="ukuran-kamar"><i class="fas fa-ruler-combined"></i> Ukuran Kamar (m²)</label>
+                    </div>
+
+                    <div class="form-group" id="fasilitas-group">
+                        <input type="text" id="fasilitas" name="fasilitas" placeholder=" ">
+                        <label for="fasilitas"><i class="fas fa-list-check"></i> Fasilitas Tambahan</label>
+                    </div>
+
+                    <div class="file-upload-wrapper">
+                        <label for="foto-kamar" style="font-weight: 600; color: var(--navy-dark);"><i
+                                class="fas fa-camera"></i> Upload Foto Kamar</label>
+                        <input type="file" id="foto-kamar" name="foto-kamar" style="display: none;" accept="image/*">
+                        <label for="foto-kamar" class="file-upload-label-button">
+                            Pilih File Foto
+                        </label>
+                        <span id="file-name-display-v2">Tidak ada file yang dipilih</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="submit-group">
+                <button type="submit" class="btn-simpan-v2" id="submit-button">
+                    <i class="fas fa-save"></i> Simpan Data Kamar Sekarang
+                </button>
+            </div>
+        </form>
     </div>
-</div>
 
-<!-- Tampilan Daftar Kamar Lantai 1 -->
-<div id="input-data-kamar-lantai-1-view" class="app-view" style="display: none;">
-    <h2 style="color: #007bff; text-align: center; margin-bottom: 30px;">Input Data Kamar Lantai 1</h2>
-
-    <div class="list-expander active-floor" style="margin-bottom: 15px;">
-        <span>Lantai 1</span>
-        <span>&#9650;</span>
-    </div>
-
-    <div class="room-list" style="margin-bottom: 20px;">
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 1</p>
-                <p class="room-status status-kosong">Status Kamar: Kosong</p>
+    <div id="success-modal" style="display: none;" class="modal">
+        <div class="modal-content">
+            <div class="modal-body">
+                <i class="fas fa-paw success-icon"></i>
+                <h2>Data Kamar Tersimpan! 🎉</h2>
+                <p>Yeeeaaayyy! Data kamar baru kamu sudah aman dan siap menampung penghuni~</p>
             </div>
-            <div class="room-item-price">
-                <p class="price">Rp 500.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
-
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 2</p>
-                <p class="room-status status-terisi"><b>Status Kamar: Terisi</b></p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 500.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
-
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 3</p>
-                <p class="room-status status-terisi"><b>Status Kamar: Terisi</b></p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 500.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
-
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 4</p>
-                <p class="room-status status-terisi"><b>Status Kamar: Terisi</b></p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 500.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
-
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 5</p>
-                <p class="room-status status-terisi"><b>Status Kamar: Terisi</b></p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 500.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
-
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 6</p>
-                <p class="room-status status-terisi"><b>Status Kamar: Terisi</b></p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 700.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
-
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 7</p>
-                <p class="room-status status-terisi"><b>Status Kamar: Terisi</b></p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 700.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
-
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 8</p>
-                <p class="room-status status-kosong">Status Kamar: Kosong</p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 700.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
-
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 9</p>
-                <p class="room-status status-kosong">Status Kamar: Kosong</p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 700.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
-
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 10</p>
-                <p class="room-status status-terisi"><b>Status Kamar: Terisi</b></p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 1.000.000</p>
-                <p class="period">/Bulan</p>
-            </div>
+            <button id="modal-ok-button" class="btn-simpan-v2">Lanjut</button>
         </div>
     </div>
 
-    <!-- Tampilan Daftar Kamar Lantai 2 -->
-    <div id="btn-lantai-2-from-1" class="list-expander switch-floor" style="margin-bottom: 20px;">
-        <span>Lantai 2</span>
-        <span>&#9660;</span>
-    </div>
+    <script>
+    const form = document.getElementById('form-input-kamar-v2');
+    const modal = document.getElementById('success-modal');
+    const modalOkButton = document.getElementById('modal-ok-button');
+    const fileInput = document.getElementById('foto-kamar');
+    // Menggunakan nama file target (data_kamar_pemilik.html) sebagai contoh redirect
+    const redirectURL = '/datakamarpemilik';
 
-    <button id="btn-tambah-kamar-2" class="btn-primary">
-        Tambah Kamar
-    </button>
-</div>
+    // A. Script untuk menampilkan nama file yang dipilih
+    fileInput.addEventListener('change', function() {
+        const fileNameDisplay = document.getElementById('file-name-display-v2');
+        if (this.files && this.files.length > 0) {
+            fileNameDisplay.textContent = 'File terpilih: ' + this.files[0].name;
+        } else {
+            fileNameDisplay.textContent = 'Tidak ada file yang dipilih';
+        }
+    });
 
-<div id="input-data-kamar-lantai-2-view" class="app-view" style="display: none;">
-    <h2 style="color: #007bff; text-align: center; margin-bottom: 30px;">Input Data Kamar Lantai 2</h2>
+    // B. Script untuk Floating Label di Select
+    document.querySelectorAll('.form-group select').forEach(select => {
+        // Cek status saat load
+        if (select.value) {
+            select.classList.add('valid');
+        } else {
+            select.classList.remove('valid');
+        }
 
-    <div id="btn-lantai-1-from-2" class="list-expander switch-floor" style="margin-bottom: 15px;">
-        <span>Lantai 1</span>
-        <span>&#9660;</span>
-    </div>
+        // Cek status saat berubah
+        select.addEventListener('change', function() {
+            if (this.value) {
+                this.classList.add('valid');
+            } else {
+                this.classList.remove('valid');
+            }
+        });
+    });
 
-    <div class="list-expander active-floor" style="margin-bottom: 15px;">
-        <span>Lantai 2</span>
-        <span>&#9650;</span>
-    </div>
+    // C. LOGIKA UTAMA: Validasi dan Pop-up
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
 
-    <div class="room-list" style="margin-bottom: 20px;">
-        {{-- Item Kamar 11 (Kosong) --}}
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 11</p>
-                <p class="room-status status-kosong">Status Kamar: Kosong</p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 950.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
+        if (form.checkValidity()) {
+            // Jika form valid, tampilkan pop-up
+            modal.style.display = 'flex'; // Tampilkan modal
+            setTimeout(() => {
+                modal.classList.add('show'); // Tambahkan efek transisi
+            }, 10);
 
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 12</p>
-                <p class="room-status status-terisi"><b>Status Kamar: Terisi</b></p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 950.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
+        } else {
+            // Jika form tidak valid (kosong), biarkan browser menampilkan pesan error bawaan
+            form.reportValidity();
+        }
+    });
 
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 13</p>
-                <p class="room-status status-terisi"><b>Status Kamar: Terisi</b></p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 950.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
+    // D. Logika Tombol OK/Lanjut pada Pop-up
+    modalOkButton.addEventListener('click', function() {
+        modal.classList.remove('show');
 
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 14</p>
-                <p class="room-status status-terisi"><b>Status Kamar: Terisi</b></p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 950.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
+        // Alihkan halaman ke tampilan data kamar setelah pop-up diklik
+        window.location.href = redirectURL;
+    });
+    </script>
+</body>
 
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 15</p>
-                <p class="room-status status-terisi"><b>Status Kamar: Terisi</b></p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 950.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
-
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 16</p>
-                <p class="room-status status-terisi"><b>Status Kamar: Terisi</b></p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 500.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
-
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 17</p>
-                <p class="room-status status-terisi"><b>Status Kamar: Terisi</b></p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 800.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
-
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 18</p>
-                <p class="room-status status-kosong">Status Kamar: Kosong</p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 800.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
-
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 19</p>
-                <p class="room-status status-kosong">Status Kamar: Kosong</p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 800.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
-
-        <div class="room-item">
-            <div>
-                <p class="room-number">No. 20</p>
-                <p class="room-status status-terisi"><b>Status Kamar: Terisi</b></p>
-            </div>
-            <div class="room-item-price">
-                <p class="price">Rp 800.000,-</p>
-                <p class="period">/Bulan</p>
-            </div>
-        </div>
-    </div>
-
-    <button id="btn-tambah-kamar-3" class="btn-primary">
-        Tambah Kamar
-    </button>
-</div>
-
-<!-- Tampilan Formulir Input Data Kamar -->
-<div id="input-data-kamar-form-view" class="app-view" style="display: none;">
-    <h2 style="color: #007bff; text-align: center; margin-bottom: 30px;">Input Data Kamar</h2>
-
-    <form id="form-input-kamar">
-        <div class="form-group">
-            <label for="nomor-kamar">Nomor Kamar:</label>
-            <input type="text" id="nomor-kamar" name="nomor-kamar">
-        </div>
-        <div class="form-group">
-            <label for="lantai">Lantai:</label>
-            <select id="lantai" name="lantai">
-                <option value="">Pilih Lantai</option>
-                <option value="1">Lantai 1</option>
-                <option value="2">Lantai 2</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="status-kamar">Status Kamar:</label>
-            <select id="status-kamar" name="status-kamar">
-                <option value="">Pilih Status</option>
-                <option value="Kosong">Kosong</option>
-                <option value="Terisi">Terisi</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="harga-per-bulan">Harga per Bulan (Rp):</label>
-            <input type="number" id="harga-per-bulan" name="harga-per-bulan">
-        </div>
-        <div class="form-group">
-            <label for="fasilitas">Fasilitas:</label>
-            <input type="text" id="fasilitas" name="fasilitas" placeholder="Contoh: AC, Kamar Mandi Dalam">
-        </div>
-        <div class="form-group">
-            <label for="ukuran-kamar">Ukuran Kamar (m²):</label>
-            <input type="text" id="ukuran-kamar" name="ukuran-kamar" placeholder="Contoh: 3x4">
-        </div>
-        <div class="form-group">
-            <label>Upload Foto Kamar:</label>
-            <div class="file-upload-container">
-                <input type="file" id="foto-kamar" name="foto-kamar" style="display: none;">
-                <label for="foto-kamar" class="file-upload-label">
-                    Pilih File
-                </label>
-                <span id="file-name-display">Tidak ada file yang dipilih</span>
-            </div>
-        </div>
-
-        <button type="submit" id="btn-simpan" class="btn-primary" style="margin-top: 20px;">
-            Simpan
-        </button>
-    </form>
-</div>
+</html>
