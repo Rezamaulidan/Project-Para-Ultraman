@@ -14,39 +14,44 @@
             </button>
         </div>
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+            {{-- Card Kamar 1 (Contoh) --}}
+            <div class="col">
+                {{-- Tambahkan tag <a> dan arahkan ke rute detail. Diasumsikan nomor kamar adalah 1 --}}
+                <a href="{{ url('/infokamar/1') }}" class="card-link" style="text-decoration: none; color: inherit;">
+                    <div class="card h-100 shadow-sm border-0">
+                        <img src="{{ asset('img/kamar-atas.png') }}" class="card-img-top" alt="Kamar 1">
+                        <div class="card-body card-kamar-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title fw-bold mb-0">Kamar No. 1</h5>
+                                <span
+                                    class="badge bg-success-subtle text-success-emphasis rounded-pill fw-medium">Kosong</span>
+                            </div>
+                            <p class="card-text text-muted mb-1">Lantai: 1</p>
+                            <p class="card-text fw-bold fs-5 mb-0">Rp 1.000.000</p>
+                            <p class="card-text text-muted small">/Perbulan</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
 
             {{-- Card Kamar 1 (Contoh) --}}
             <div class="col">
-                <div class="card h-100 shadow-sm border-0">
-                    <img src="{{ asset('img/kamar-atas.png') }}" class="card-img-top" alt="Kamar 1">
-                    <div class="card-body card-kamar-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="card-title fw-bold mb-0">Kamar No. 1</h5>
-                            <span
-                                class="badge bg-success-subtle text-success-emphasis rounded-pill fw-medium">Kosong</span>
+                {{-- Tambahkan tag <a> dan arahkan ke rute detail. Diasumsikan nomor kamar adalah 1 --}}
+                <a href="{{ url('/infokamar/2') }}" class="card-link" style="text-decoration: none; color: inherit;">
+                    <div class="card h-100 shadow-sm border-0">
+                        <img src="{{ asset('img/kamar-atas.png') }}" class="card-img-top" alt="Kamar 2">
+                        <div class="card-body card-kamar-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title fw-bold mb-0">Kamar No. 2</h5>
+                                <span
+                                    class="badge bg-success-subtle text-success-emphasis rounded-pill fw-medium">Kosong</span>
+                            </div>
+                            <p class="card-text text-muted mb-1">Lantai: 1</p>
+                            <p class="card-text fw-bold fs-5 mb-0">Rp 1.000.000</p>
+                            <p class="card-text text-muted small">/Perbulan</p>
                         </div>
-                        <p class="card-text text-muted mb-1">Lantai: 1</p>
-                        <p class="card-text fw-bold fs-5 mb-0">Rp 1.000.000</p>
-                        <p class="card-text text-muted small">/Perbulan</p>
                     </div>
-                </div>
-            </div>
-
-            {{-- Card Kamar 2 (Contoh) --}}
-            <div class="col">
-                <div class="card h-100 shadow-sm border-0">
-                    <img src="{{ asset('img/kamar-atas.png') }}" class="card-img-top" alt="Kamar 2">
-                    <div class="card-body card-kamar-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="card-title fw-bold mb-0">Kamar No. 2</h5>
-                            <span
-                                class="badge bg-success-subtle text-success-emphasis rounded-pill fw-medium">Kosong</span>
-                        </div>
-                        <p class="card-text text-muted mb-1">Lantai: 1</p>
-                        <p class="card-text fw-bold fs-5 mb-0">Rp 1.000.000</p>
-                        <p class="card-text text-muted small">/Perbulan</p>
-                    </div>
-                </div>
+                </a>
             </div>
 
             {{-- Card Kamar 3 (Contoh) --}}
