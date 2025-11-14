@@ -65,14 +65,14 @@ Route::post('/lupa-kata-sandia', function (Request $request) {
         return back()->withInput()->withErrors(['email' => 'Gagal mengirim email. Silakan coba lagi nanti.']);
     }
     return back()->with('status', 'Kami telah mengirimkan link reset password ke email Anda!');
-    })->name('password.email');
+})->name('password.email');
 
-    Route::get('/reset-password/{token}', function ($token, Request $request) {
+Route::get('/reset-password/{token}', function ($token, Request $request) {
     $email = $request->query('email');
     return view('reset-password', ['token' => $token, 'email' => $email]);
-    })->name('password.reset');
+})->name('password.reset');
 
-    Route::post('/reset-password', function (Request $request) {
+Route::post('/reset-password', function (Request $request) {
     $request->validate([
         'token' => 'required',
         'email' => 'required|email',
@@ -104,7 +104,7 @@ Route::post('/lupa-kata-sandia', function (Request $request) {
 // =======================================================
 // RUTE YANG DILINDUNGI (Wajib Login)
 // =======================================================
-    Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth'])->group(function () {
 
     // Rute Logout (Bisa diakses semua peran)
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -131,15 +131,11 @@ Route::post('/lupa-kata-sandia', function (Request $request) {
         // Rute untuk MENAMPILKAN halaman informasi keamanan
         Route::get('/informasi-keamanan', [PenyewaController::class, 'showKeamanan'])
              ->name('penyewa.keamanan');
-        });
-        Route::get('/informasi-penyewa', function () {
-            return view('informasi_penyewa');
-        })->name('penyewa.informasi');
-        });
+    });
 
     // --- GRUP PEMILIK KOS ---
     // Hanya bisa diakses oleh 'pemilik'
-     Route::middleware(['role:pemilik'])->group(function () {
+    Route::middleware(['role:pemilik'])->group(function () {
         // Rute Home Pemilik Kos
         Route::get('/homepemilik', function () {
             return view('home_pemilik');
@@ -170,41 +166,28 @@ Route::post('/lupa-kata-sandia', function (Request $request) {
             return view('data_penyewa_pemilik');
         })->name('pemilik.datapenyewa');
 
+        // Route untuk menampilkan form input kamar
+        Route::get('/inputkamar', [KamarController::class, 'create'])->name('pemilik.inputkamar');
 
-        Route::get('/infokamar', function () {
-            return view('info_data_kamar');
-        })->name('pemilik.infokamar');
+        // Route untuk menerima data dari form dan menyimpannya (POST)
+        Route::post('/kamar', [KamarController::class, 'store'])->name('pemilik.store');
 
-         Route::get('/inputkamar', function () {
-             return view('input_data_kamar');
-         })->name('pemilik.inputkamar');
+        // Route untuk menampilkan semua data kamar
+        Route::get('/kamar', [KamarController::class, 'index'])->name('pemilik.index');
 
-         Route::get('/infokamar', function () {
-             return view('info_data_kamar');
-         })->name('pemilik.infokamar');
-
-        // Route untuk menampilkan detail kamar (saat ini dinamis ke satu halaman)
+        // Route untuk menampilkan detail kamar berdasarkan nomor
         Route::get('/infokamar/{nomor}', [KamarController::class, 'infoKamarDetail'])->name('pemilik.infokamar');
 
         // Rute Registrasi Staff oleh Pemilik Kos
         Route::get('/registrasistaff', function () {
-            return view('registrasi_sfaff'); // Perbaiki nama view jika salah
+            return view('registrasi_sfaff');
         })->name('pemilik.registrasi_staff');
 
         // Rute Data Staff Pemilik Kos
         Route::get('/datastaffpemilik', function () {
             return view('data_staff_pemilik');
         })->name('pemilik.datastaff');
-
-        // Route untuk menampilkan form input
-        Route::get('/inputkamar', [KamarController::class, 'create'])->name('pemilik.create');
-
-        // Route untuk menerima data dari form dan menyimpannya (POST)
-        Route::post('/kamar', [KamarController::class, 'store'])->name('pemilik.store');
-
-        // Route untuk menampilkan semua data kamar (opsional, untuk melihat hasilnya)
-        Route::get('/kamar', [KamarController::class, 'index'])->name('pemilik.index');
-        });
+    });
 
     // --- GRUP STAF ---
     // Hanya bisa diakses oleh 'staf'
@@ -213,5 +196,4 @@ Route::post('/lupa-kata-sandia', function (Request $request) {
             return view('menu_staff');
         })->name('staff.menu');
     });
-
-
+});
