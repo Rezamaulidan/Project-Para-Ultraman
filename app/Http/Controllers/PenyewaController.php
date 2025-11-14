@@ -5,9 +5,41 @@ namespace App\Http\Controllers;
 use App\Models\Penyewa;
 use App\Http\Requests\StorePenyewaRequest;
 use App\Http\Requests\UpdatePenyewaRequest;
+use Illuminate\Support\Facades\Auth;
 
 class PenyewaController extends Controller
 {
+    public function showKeamanan()
+    {
+        return view('informasi_keamanan_penyewa');
+    }
+
+    public function showInformasi()
+    {
+        // 2. Dapatkan Akun yang sedang login
+        $akun = Auth::user();
+
+        // 3. Cari data Penyewa berdasarkan 'username' dari Akun
+        //    Gunakan firstOrFail() agar otomatis error jika data tidak ada
+        $penyewa = Penyewa::where('username', $akun->username)->firstOrFail();
+
+        // 4. Kirim data 'penyewa' tersebut ke view
+        return view('informasi_penyewa', [
+            'penyewa' => $penyewa
+        ]);
+    }
+
+    public function editInformasi()
+    {
+        // Logika yang sama, ambil data penyewa saat ini
+        $penyewa = Penyewa::where('username', Auth::user()->username)->firstOrFail();
+
+        // Kirim ke view edit
+        return view('edit_informasi_penyewa', [
+            'penyewa' => $penyewa
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      */
