@@ -104,14 +104,14 @@ Route::post('/lupa-kata-sandia', function (Request $request) {
 // =======================================================
 // RUTE YANG DILINDUNGI (Wajib Login)
 // =======================================================
-// Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth'])->group(function () {
 
     // Rute Logout (Bisa diakses semua peran)
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // --- GRUP PENYEWA ---
     // Hanya bisa diakses oleh 'penyewa'
-    // Route::middleware(['role:penyewa'])->group(function () {
+    Route::middleware(['role:penyewa'])->group(function () {
         // Rute untuk penyewa baru (menunggu acc)
         Route::get('/dashboard-booking', [DashboardBookingController::class, 'booking'])->name('dashboard.booking');
 
@@ -136,12 +136,16 @@ Route::post('/lupa-kata-sandia', function (Request $request) {
         Route::get('/informasi-penyewa', function () {
             return view('informasi_penyewa');
         })->name('penyewa.informasi');
+pemilikkos
+        });
+
         // });
- master
+master
+master
 
     // --- GRUP PEMILIK KOS ---
     // Hanya bisa diakses oleh 'pemilik'
-    // Route::middleware(['role:pemilik'])->group(function () {
+    Route::middleware(['role:pemilik'])->group(function () {
         // Rute Home Pemilik Kos
         Route::get('/homepemilik', function () {
             return view('home_pemilik');
@@ -201,7 +205,7 @@ Route::post('/lupa-kata-sandia', function (Request $request) {
 
         // Route untuk menampilkan semua data kamar (opsional, untuk melihat hasilnya)
         Route::get('/kamar', [KamarController::class, 'index'])->name('pemilik.index');
-    // });
+    });
 
     // --- GRUP STAF ---
     // Hanya bisa diakses oleh 'staf'
@@ -211,4 +215,4 @@ Route::post('/lupa-kata-sandia', function (Request $request) {
         })->name('staff.menu');
     });
 
-// });
+});
