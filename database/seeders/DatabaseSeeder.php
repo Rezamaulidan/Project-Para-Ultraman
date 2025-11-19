@@ -24,5 +24,15 @@ class DatabaseSeeder extends Seeder
             'no_hp' => '08123456789'
         ]);
 
+        $usernameStaf = 'staf1';
+        Akun::create([
+            'username' => $usernameStaf,
+            'password' => Hash::make('test1234'),
+            'jenis_akun' => 'staf'
+        ]);
+        $this->call([
+            PenyewaSeeder::class,
+        ]);
+
     }
 }

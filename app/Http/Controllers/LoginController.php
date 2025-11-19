@@ -9,17 +9,13 @@ use Illuminate\Http\RedirectResponse;
 
 class LoginController extends Controller
 {
-    /**
-     * Menampilkan halaman/form login.
-     */
+
     public function index()
     {
         return view('login');
     }
 
-    /**
-     * Menangani proses autentikasi (login).
-     */
+
     public function store(Request $request)
     {
         // 1. Validasi input username dan password
@@ -28,8 +24,13 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        // 2. Coba lakukan login HANYA dengan username & password
-        if (Auth::attempt($credentials)) {
+        $authField = [
+            'username' => $credentials['username'],
+            'password' => $credentials['password'],
+        ];
+
+        // 2. Coba lakukan login menggunakan Auth::attempt yang sudah dimodifikasi
+        if (Auth::attempt($authField)) {
 
             // 3. Jika berhasil, regenerate session
             $request->session()->regenerate();
@@ -62,10 +63,6 @@ class LoginController extends Controller
             'username' => 'Username atau Password yang Anda masukkan salah.',
         ])->onlyInput('username');
     }
-
-    /**
-     * Menangani proses logout.
-     */
     public function logout(Request $request): RedirectResponse
     {
         Auth::logout(); // Mengakhiri sesi pengguna
