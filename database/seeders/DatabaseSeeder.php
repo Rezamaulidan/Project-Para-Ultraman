@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
         PemilikKos::create([
             'username' => $usernamePemilik,
             'nama_pemilik' => 'Reza',
+            'email' => 'brilyanto11@gmail.com',
             'no_hp' => '08123456789'
         ]);
 

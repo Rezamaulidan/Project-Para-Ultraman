@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistem Informasi Manajemen Kos</title>
+    <title>Lupa Kata Sandi - Sistem Informasi Manajemen Kos</title>
 
     {{-- Link untuk memuat CSS Bootstrap --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -41,11 +41,16 @@
             <div class="card-body p-4 p-md-5">
                 <div class="text-center">
 
-                    <img src="{{ asset('img/login.svg') }}" class="img-fluid" alt="Login Illustration" style="max-height: 140px;">
+                    <img src="{{ asset('img/login.svg') }}" class="img-fluid" alt="Lupa Password Illustration" style="max-height: 140px;">
 
-                    <h3 class="mb-4 fw-bold">Login</h3>
+                    <h3 class="mb-3 fw-bold">Lupa Kata Sandi</h3>
+                    <p class="text-muted mb-4 small">
+                        Masukkan alamat email Anda yang terdaftar. Kami akan mengirimkan link untuk mereset password Anda.
+                    </p>
 
-                    {{-- Blok ini akan menampilkan pesan sukses setelah reset password --}}
+                    {{-- ====================================================== --}}
+                    {{-- BLOK UNTUK MENAMPILKAN PESAN SUKSES --}}
+                    {{-- ====================================================== --}}
                     @if (session('status'))
                         <div class="alert alert-success" role="alert">
                             {{ session('status') }}
@@ -54,46 +59,32 @@
                     {{-- ====================================================== --}}
 
 
-                    {{-- Formulir Login --}}
-                    <form action="{{ route('login') }}" method="POST">
+                    {{-- Formulir Lupa Password --}}
+                    <form action="{{ route('password.email') }}" method="POST">
                         @csrf
 
-                        {{-- Username --}}
+                        {{-- Email --}}
                         <div class="form-floating mb-3">
-                            {{-- Tambahkan @error untuk menampilkan error dari controller --}}
-                            <input type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username" placeholder="Username" required value="{{ old('username') }}">
-                            <label for="username">Username</label>
-
-                            {{-- Tampilkan pesan error dari controller --}}
-                            @error('username')
+                            <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="nama@contoh.com" required value="{{ old('email') }}" autofocus>
+                            <label for="email">Alamat Email</label>
+                            @error('email')
                                 <div class="invalid-feedback text-start">
                                     {{ $message }}
                                 </div>
                             @enderror
                         </div>
 
-                        {{-- Password --}}
-                        <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
-                            <label for="password">Password</label>
-                        </div>
-
-                        {{-- Lupa Kata Sandi --}}
-                        <div class="text-end mb-4">
-                            <a href="{{ route('password.request') }}" class="text-decoration-none small">Lupa Kata Sandi?</a>
-                        </div>
-
-                        {{-- Tombol Login --}}
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg rounded-pill">Login</button>
+                        {{-- Tombol Kirim --}}
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill">Kirim Link Reset</button>
                         </div>
                     </form>
 
-                    <div class="text-center mt-4 small">
-                        <span class="text-muted">Belum punya akun?</span>
-                            <a href="{{ route('register.pilihan') }}" class="text-decoration-none fw-bold">Daftar di sini</a>
+                    {{-- Link Kembali ke Login --}}
+                    <div class="text-center mt-4">
+                        <a href="{{ route('login') }}" class="text-decoration-none small">Kembali ke halaman Login</a>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
