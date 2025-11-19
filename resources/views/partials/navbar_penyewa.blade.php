@@ -9,7 +9,8 @@
         </a>
 
         {{-- Tombol Toggler (Hamburger) untuk memicu Offcanvas --}}
-        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuOffcanvas" aria-controls="menuOffcanvas" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuOffcanvas"
+            aria-controls="menuOffcanvas" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -32,28 +33,32 @@
         <ul class="list-group list-group-flush">
 
             <li class="list-group-item p-0">
-                <a href="#" class="btn btn-light text-start p-3 d-flex align-items-center w-100">
+                <a href="{{ route('penyewa.kamar') }}"
+                class="btn btn-light text-start p-3 d-flex align-items-center w-100">
                     <i class="fa-solid fa-bed me-3" style="width: 24px; text-align: center;"></i>
                     <span class="fw-semibold fs-5">Informasi Kamar</span>
                 </a>
             </li>
 
             <li class="list-group-item p-0">
-                <a href="#" class="btn btn-light text-start p-3 d-flex align-items-center w-100">
+                <a href="{{ route('penyewa.pembayaran') }}"
+                    class="btn btn-light text-start p-3 d-flex align-items-center w-100">
                     <i class="fa-solid fa-money-check-dollar me-3" style="width: 24px; text-align: center;"></i>
                     <span class="fw-semibold fs-5">Menu Pembayaran</span>
                 </a>
             </li>
 
             <li class="list-group-item p-0">
-                <a href="{{ route('penyewa.keamanan') }}" class="btn btn-light text-start p-3 d-flex align-items-center w-100">
+                <a href="{{ route('penyewa.keamanan') }}"
+                    class="btn btn-light text-start p-3 d-flex align-items-center w-100">
                     <i class="fa-solid fa-shield-halved me-3" style="width: 24px; text-align: center;"></i>
                     <span class="fw-semibold fs-5">Informasi Keamanan</span>
                 </a>
             </li>
 
             <li class="list-group-item p-0">
-                <a href="{{ route('penyewa.informasi') }}" class="btn btn-light text-start p-3 d-flex align-items-center w-100">
+                <a href="{{ route('penyewa.informasi') }}"
+                    class="btn btn-light text-start p-3 d-flex align-items-center w-100">
                     <i class="fa-solid fa-user me-3" style="width: 24px; text-align: center;"></i>
                     <span class="fw-semibold fs-5">Informasi Penyewa</span>
                 </a>
@@ -71,7 +76,8 @@
                     {{-- Tombol Keluar --}}
                     <button type="submit" class="btn btn-light text-danger text-start p-3 d-flex align-items-center">
                         {{-- Ganti dengan path ikon Anda --}}
-                        <img src="{{ asset('img/ikon-keluar.png') }}" alt="Keluar" style="width: 24px; height: 24px;" class="me-3">
+                        <img src="{{ asset('img/ikon-keluar.png') }}" alt="Keluar" style="width: 24px; height: 24px;"
+                            class="me-3">
                         <span class="fw-semibold fs-5">Keluar</span>
                     </button>
                 </form>

@@ -9,7 +9,8 @@
         </a>
 
         {{-- Tombol Toggler (Hamburger) untuk memicu Offcanvas --}}
-        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuOffcanvas" aria-controls="menuOffcanvas" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuOffcanvas"
+            aria-controls="menuOffcanvas" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -42,7 +43,8 @@
                     <button type="submit" class="btn btn-light text-start p-3 d-flex align-items-center">
 
                         {{-- Ganti dengan path ikon Anda. Ini adalah ikon placeholder --}}
-                        <img src="{{ asset('img/ikon-keluar.png') }}" alt="Keluar" style="width: 24px; height: 24px;" class="me-3">
+                        <img src="{{ asset('img/ikon-keluar.png') }}" alt="Keluar" style="width: 24px; height: 24px;"
+                            class="me-3">
 
                         <span class="fw-semibold fs-5">Keluar</span>
                     </button>

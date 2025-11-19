@@ -23,7 +23,7 @@ class Akun extends Authenticatable
 
     public function pemilikKos()
     {
-        return $this->belongsTo(PemilikKos::class, 'username', 'username');
+        return $this->hasOne(PemilikKos::class, 'username', 'username');
     }
 
     public function stafs()

@@ -1,206 +1,128 @@
 @extends('profil_pemilik')
-@section('title', 'Informasi Data Kamar - SIMK')
+@section('title', 'Data Kamar - SIMK')
 @section('styles')
     <link rel="stylesheet" href="{{ asset('css/style_kamar_pemilik.css') }}">
 @endsection
 
 @section('content')
     <div id="main-content">
-        <div id="success-modal" style="display: none;" class="modal">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <i class="fas fa-paw success-icon"></i>
-                    <h2>{{ session('success') ?? 'Data Berhasil Disimpan!' }} 🎉</h2>
-                    <p>Yeeeaaayyy! Data kamar baru kamu sudah aman dan siap menampung penghuni~</p>
-                </div>
-                <button id="modal-ok-button" class="btn-simpan-v2">Lanjut</button>
-            </div>
-        </div>
 
-        <div class="container my-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Informasi Kamar</h2>
-                <button onclick="window.location.href='/inputkamar'" class="btn btn-primary shadow-sm">
+        <!-- Success Modal -->
+        @if (session('success'))
+            <div id="success-modal">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <i class="fas fa-paw success-icon"></i>
+                        <h2>{{ session('success') }}</h2>
+                        <p>Yeeeaaayyy! Data kamar baru kamu sudah aman dan siap menampung penghuni~</p>
+                    </div>
+                    <div class="text-center pb-3">
+                        <button id="modal-ok-button" class="btn-simpan-v2">Lanjut</button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <div class="cards-container my-4">
+            <!-- Header -->
+            <div class="header-section">
+                <h2>Informasi Kamar</h2>
+                <a href="{{ route('pemilik.inputkamar') }}" class="btn btn-primary shadow-sm">
                     <i class="bi bi-plus-lg me-1"></i> Input Kamar Baru
-                </button>
+                </a>
             </div>
 
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-                {{-- Card Kamar 1 --}}
-                <div class="col">
-                    <a href="{{ url('/infokamar/1') }}" class="card-link" style="text-decoration: none; color: inherit;">
-                        <div class="card h-100 shadow-sm border-0">
-                            <img src="{{ asset('img/kamar-atas.png') }}" class="card-img-top" alt="Kamar 1">
-                            <div class="card-body card-kamar-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h5 class="card-title fw-bold mb-0">Kamar No. 1</h5>
-                                    <span
-                                        class="badge bg-success-subtle text-success-emphasis rounded-pill fw-medium">Kosong</span>
-                                </div>
-                                <p class="card-text text-muted mb-1">Lantai: 1</p>
-                                <p class="card-text fw-bold fs-5 mb-0">Rp 1.000.000</p>
-                                <p class="card-text text-muted small">/Perbulan</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
+            @if ($kamars->count() > 0)
+                <!-- Cards Wrapper -->
+                <div class="cards-wrapper">
+                    @foreach ($kamars as $kamar)
+                        <div class="card-item">
+                            <a href="{{ route('pemilik.infokamar', $kamar->no_kamar) }}"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="card shadow-sm border-0">
+                                    <!-- Foto Kamar -->
+                                    <img src="{{ $kamar->foto_kamar ? asset($kamar->foto_kamar) : asset('img/kamar-atas.png') }}"
+                                        class="card-img-top" alt="Kamar {{ $kamar->no_kamar }}"
+                                        onerror="this.src='{{ asset('img/kamar-atas.png') }}'">
 
-                {{-- Card Kamar 2 --}}
-                <div class="col">
-                    <a href="{{ url('/infokamar/2') }}" class="card-link" style="text-decoration: none; color: inherit;">
-                        <div class="card h-100 shadow-sm border-0">
-                            <img src="{{ asset('img/kamar-atas.png') }}" class="card-img-top" alt="Kamar 2">
-                            <div class="card-body card-kamar-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h5 class="card-title fw-bold mb-0">Kamar No. 2</h5>
-                                    <span
-                                        class="badge bg-success-subtle text-success-emphasis rounded-pill fw-medium">Kosong</span>
-                                </div>
-                                <p class="card-text text-muted mb-1">Lantai: 1</p>
-                                <p class="card-text fw-bold fs-5 mb-0">Rp 1.000.000</p>
-                                <p class="card-text text-muted small">/Perbulan</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
+                                    <div class="card-body card-kamar-body">
+                                        <!-- Nomor & Status -->
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h5 class="card-title fw-bold mb-0">Kamar No. {{ $kamar->no_kamar }}</h5>
+                                            <span
+                                                class="badge rounded-pill fw-medium
+                                                {{ strtolower($kamar->status) == 'tersedia' ? 'bg-success-subtle text-success-emphasis' : 'bg-danger-subtle text-danger-emphasis' }}">
+                                                {{ ucfirst($kamar->status) }}
+                                            </span>
+                                        </div>
 
-                {{-- Card Kamar 3 --}}
-                <div class="col">
-                    <a href="{{ url('/infokamar/3') }}" class="card-link" style="text-decoration: none; color: inherit;">
-                        <div class="card h-100 shadow-sm border-0">
-                            <img src="{{ asset('img/kamar-atas.png') }}" class="card-img-top" alt="Kamar 3">
-                            <div class="card-body card-kamar-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h5 class="card-title fw-bold mb-0">Kamar No. 3</h5>
-                                    <span
-                                        class="badge bg-success-subtle text-success-emphasis rounded-pill fw-medium">Kosong</span>
-                                </div>
-                                <p class="card-text text-muted mb-1">Lantai: 1</p>
-                                <p class="card-text fw-bold fs-5 mb-0">Rp 1.000.000</p>
-                                <p class="card-text text-muted small">/Perbulan</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
+                                        <!-- Lantai -->
+                                        <p class="card-text text-muted mb-1">
+                                            <i class="bi bi-layers me-1"></i>Lantai: {{ $kamar->lantai }}
+                                        </p>
 
-                {{-- Card Kamar 4 --}}
-                <div class="col">
-                    <a href="{{ url('/infokamar/4') }}" class="card-link" style="text-decoration: none; color: inherit;">
-                        <div class="card h-100 shadow-sm border-0">
-                            <img src="{{ asset('img/kamar-atas.png') }}" class="card-img-top" alt="Kamar 4">
-                            <div class="card-body card-kamar-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h5 class="card-title fw-bold mb-0">Kamar No. 4</h5>
-                                    <span
-                                        class="badge bg-success-subtle text-success-emphasis rounded-pill fw-medium">Kosong</span>
-                                </div>
-                                <p class="card-text text-muted mb-1">Lantai: 2</p>
-                                <p class="card-text fw-bold fs-5 mb-0">Rp 1.000.000</p>
-                                <p class="card-text text-muted small">/Perbulan</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
+                                        <!-- Harga -->
+                                        <p class="card-text fw-bold fs-5 mb-0">
+                                            Rp {{ number_format($kamar->harga, 0, ',', '.') }}
+                                        </p>
+                                        <p class="card-text text-muted small">/Perbulan</p>
 
-                {{-- Card Kamar 11 --}}
-                <div class="col">
-                    <a href="{{ url('/infokamar/11') }}" class="card-link" style="text-decoration: none; color: inherit;">
-                        <div class="card h-100 shadow-sm border-0">
-                            <img src="{{ asset('img/kamar-bawah.png') }}" class="card-img-top" alt="Kamar 11">
-                            <div class="card-body card-kamar-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h5 class="card-title fw-bold mb-0">Kamar No. 11</h5>
-                                    <span
-                                        class="badge bg-success-subtle text-success-emphasis rounded-pill fw-medium">Kosong</span>
+                                        <!-- Tipe & Ukuran -->
+                                        <p class="card-text text-muted small mb-1">
+                                            <i class="bi bi-door-open me-1"></i>{{ ucfirst($kamar->tipe_kamar) }}
+                                        </p>
+                                        <p class="card-text text-muted small mb-0">
+                                            <i class="bi bi-rulers me-1"></i>{{ $kamar->ukuran }}
+                                        </p>
+                                    </div>
                                 </div>
-                                <p class="card-text text-muted mb-1">Lantai: 2</p>
-                                <p class="card-text fw-bold fs-5 mb-0">Rp 1.500.000</p>
-                                <p class="card-text text-muted small">/Perbulan</p>
-                            </div>
+                            </a>
                         </div>
-                    </a>
+                    @endforeach
                 </div>
-
-                {{-- Card Kamar 12 --}}
-                <div class="col">
-                    <a href="{{ url('/infokamar/12') }}" class="card-link" style="text-decoration: none; color: inherit;">
-                        <div class="card h-100 shadow-sm border-0">
-                            <img src="{{ asset('img/kamar-bawah.png') }}" class="card-img-top" alt="Kamar 12">
-                            <div class="card-body card-kamar-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h5 class="card-title fw-bold mb-0">Kamar No. 12</h5>
-                                    <span
-                                        class="badge bg-success-subtle text-success-emphasis rounded-pill fw-medium">Kosong</span>
-                                </div>
-                                <p class="card-text text-muted mb-1">Lantai: 2</p>
-                                <p class="card-text fw-bold fs-5 mb-0">Rp 1.500.000</p>
-                                <p class="card-text text-muted small">/Perbulan</p>
-                            </div>
-                        </div>
-                    </a>
+            @else
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <div class="alert alert-info border-0 shadow-sm py-5" role="alert">
+                        <i class="bi bi-inbox d-block mb-3"></i>
+                        <h4 class="mb-3">Belum Ada Data Kamar</h4>
+                        <p class="text-muted.mb-4">
+                            Mulai tambahkan kamar untuk mengelola properti kos Anda dengan lebih baik.
+                        </p>
+                        <a href="{{ route('pemilik.inputkamar') }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-plus-lg me-2"></i> Tambah Kamar Sekarang
+                        </a>
+                    </div>
                 </div>
-
-                {{-- Card Kamar 13 --}}
-                <div class="col">
-                    <a href="{{ url('/infokamar/13') }}" class="card-link"
-                        style="text-decoration: none; color: inherit;">
-                        <div class="card h-100 shadow-sm border-0">
-                            <img src="{{ asset('img/kamar-bawah.png') }}" class="card-img-top" alt="Kamar 13">
-                            <div class="card-body card-kamar-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h5 class="card-title fw-bold mb-0">Kamar No. 13</h5>
-                                    <span
-                                        class="badge bg-success-subtle text-success-emphasis rounded-pill fw-medium">Kosong</span>
-                                </div>
-                                <p class="card-text text-muted mb-1">Lantai: 2</p>
-                                <p class="card-text fw-bold fs-5 mb-0">Rp 1.500.000</p>
-                                <p class="card-text text-muted small">/Perbulan</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                {{-- Card Kamar 14 --}}
-                <div class="col">
-                    <a href="{{ url('/infokamar/14') }}" class="card-link"
-                        style="text-decoration: none; color: inherit;">
-                        <div class="card h-100 shadow-sm border-0">
-                            <img src="{{ asset('img/kamar-bawah.png') }}" class="card-img-top" alt="Kamar 14">
-                            <div class="card-body card-kamar-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h5 class="card-title fw-bold mb-0">Kamar No. 14</h5>
-                                    <span
-                                        class="badge bg-success-subtle text-success-emphasis rounded-pill fw-medium">Kosong</span>
-                                </div>
-                                <p class="card-text text-muted mb-1">Lantai: 2</p>
-                                <p class="card-text fw-bold fs-5 mb-0">Rp 1.500.000</p>
-                                <p class="card-text text-muted small">/Perbulan</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-            </div> {{-- End row --}}
-        </div> {{-- End container --}}
-    </div> {{-- End main-content --}}
+            @endif
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
     <script>
         @if (session('success'))
-            const modal = document.getElementById('success-modal');
-            const modalOkButton = document.getElementById('modal-ok-button');
+            document.addEventListener('DOMContentLoaded', function() {
+                const modal = document.getElementById('success-modal');
+                const modalOkButton = document.getElementById('modal-ok-button');
 
-            modal.style.display = 'flex';
-            setTimeout(function() {
-                modal.classList.add('show');
-            }, 10);
+                // Tampilkan modal
+                setTimeout(() => modal.classList.add('show'), 100);
 
-            modalOkButton.addEventListener('click', function() {
-                modal.classList.remove('show');
-                setTimeout(function() {
-                    modal.style.display = 'none';
-                }, 300);
+                // Tutup saat klik tombol
+                modalOkButton.addEventListener('click', closeModal);
+
+                // Tutup saat klik luar
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) closeModal();
+                });
+
+                function closeModal() {
+                    modal.classList.remove('show');
+                    setTimeout(() => {
+                        modal.style.display = 'none';
+                    }, 300);
+                }
             });
         @endif
     </script>
