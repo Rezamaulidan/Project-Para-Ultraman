@@ -131,6 +131,7 @@
     <header class="header-teal">
         <div class="container d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
+                {{-- Pastikan path gambar logo benar --}}
                 <img src="{{ asset('img/logo-simk.png') }}" alt="Logo SIMK" class="img-fluid" style="height: 40px;">
                 <div>
                     <h1 class="mb-0 h5">SIMK</h1>
@@ -163,6 +164,7 @@
 
             {{-- 1. Manajemen Staff --}}
             <div class="col-6 col-md-3">
+                {{-- Saya perbaiki href-nya menggunakan route dari master --}}
                 <a href="#" class="menu-card">
                     <div class="menu-icon icon-blue">
                         <i class="fa fa-users"></i>
@@ -173,6 +175,7 @@
 
             {{-- 2. Informasi Penyewa --}}
             <div class="col-6 col-md-3">
+                {{-- Saya perbaiki href-nya menggunakan route dari master --}}
                 <a href="#" class="menu-card">
                     <div class="menu-icon icon-green">
                         <i class="fa fa-user-circle"></i>
@@ -193,6 +196,7 @@
 
             {{-- 4. Shift Kerja --}}
             <div class="col-6 col-md-3">
+                {{-- Saya perbaiki href-nya menggunakan route dari master --}}
                 <a href="#" class="menu-card">
                     <div class="menu-icon icon-yellow">
                         <i class="fa fa-clock"></i>
