@@ -7,6 +7,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\KamarController;
 use App\Http\Controllers\DashboardBookingController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PemilikKosController;
 use App\Http\Controllers\PenyewaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -171,7 +172,8 @@ Route::middleware(['auth'])->group(function () {
 
     // ====================== PEMILIK KOS ======================
     Route::middleware(['role:pemilik'])->group(function () {
-        Route::get('/homepemilik', fn() => view('home_pemilik'))->name('pemilik.home');
+        Route::get('/homepemilik', [PemilikKosController::class, 'index'])->name('pemilik.home');
+        // Route::get('/homepemilik', fn() => view('home_pemilik'))->name('pemilik.home');
 
         // Daftar Kamar (Pemilik)
         Route::get('/datakamarpemilik', [KamarController::class, 'index'])->name('pemilik.datakamar');
@@ -196,6 +198,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/keamananpemilik', fn() => view('keamanan_pemilik'))->name('pemilik.keamanan');
         Route::get('/datapenyewapemilik', fn() => view('data_penyewa_pemilik'))->name('pemilik.datapenyewa');
         Route::get('/registrasistaff', fn() => view('registrasi_sfaff'))->name('pemilik.registrasi_staff');
+        Route::post('/registrasi-staff', [PemilikKosController::class, 'storeStaff'])->name('pemilik.store_staff');
         Route::get('/datastaffpemilik', fn() => view('data_staff_pemilik'))->name('pemilik.datastaff');
     });
 
