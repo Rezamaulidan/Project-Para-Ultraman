@@ -1,4 +1,4 @@
-<nav class="navbar navbar-dark" style="background-color: #0089FF;">
+<nav class="navbar navbar-dark" style="background-color: #001931;">
     <div class="container-fluid position-relative py-2">
 
         {{-- 1. Tombol Kembali (Panah Kiri) --}}

@@ -20,7 +20,7 @@
         }
 
         .gradient-background {
-            background: linear-gradient(135deg, #007bff, #0056b3);
+            background: linear-gradient(135deg, #001931, #033f7e);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -36,7 +36,7 @@
         /* Improved focus state untuk input */
         .form-control:focus,
         .form-select:focus {
-            border-color: #007bff;
+            border-color: #001931;
             box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
             transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
         }
@@ -48,7 +48,7 @@
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+            box-shadow: 0 4px 12px #001931;
         }
 
         .btn-primary:active {
@@ -85,12 +85,12 @@
         }
 
         .password-toggle:hover {
-            color: #007bff;
+            color: #001931;
         }
 
         .password-toggle:focus {
             outline: none;
-            color: #007bff;
+            color: #001931;
         }
 
         .form-floating-password {

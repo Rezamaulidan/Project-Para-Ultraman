@@ -45,6 +45,21 @@ Route::post('/login', [LoginController::class, 'store']);
 Route::get('/pilihan-daftar', [RegisterController::class, 'pilihan'])->name('register.pilihan');
 Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
+// ✅ TAMBAHKAN INI - Laporan Keamanan (Sementara di luar middleware)
+Route::get('/staff/menu', fn() => view('menu_staff'))->name('staff.menu');
+
+Route::get('/staff/laporan-keamanan', function () {
+    return view('laporan_keamanan_staf');
+})->name('staff.laporan_keamanan');
+
+Route::get('/staff/laporan-keamanan/create', function () {
+    return view('tambah_laporan_staf');
+})->name('staff.laporan_keamanan.create');
+
+Route::post('/staff/laporan-keamanan', function () {
+    return redirect()->route('staff.laporan_keamanan')->with('success', 'Laporan berhasil ditambahkan!');
+})->name('staff.laporan_keamanan.store');
+
 // --- Rute Lupa & Reset Password ---
 Route::get('/lupa-kata-sandia', function () {
     return view('forgot-password');
@@ -169,7 +184,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/infokamar/{no_kamar}', [KamarController::class, 'infoKamarDetail'])->name('pemilik.infokamar');
 
         // Edit Kamar (SPA Style - semua kamar)
-        Route::get('/editkamar', [KamarController::class, 'edit'])->name('pemilik.editkamar');
+        Route::get('/editkamar/{no_kamar}', [KamarController::class, 'edit'])->name('pemilik.editkamar');
         Route::put('/editkamar/{no_kamar}', [KamarController::class, 'update'])->name('pemilik.editkamar.update');
 
         // Hapus Kamar
@@ -186,6 +201,6 @@ Route::middleware(['auth'])->group(function () {
 
     // ====================== STAF ======================
     Route::middleware(['role:staf'])->group(function () {
-        Route::get('/staff/menu', fn() => view('menu_staff'))->name('staff.menu');
+        // Route::get('/staff/menu', fn() => view('menu_staff'))->name('staff.menu');
     });
 });

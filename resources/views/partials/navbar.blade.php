@@ -1,9 +1,9 @@
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0089ffff;">
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #001931;">
     <div class="container-fluid py-2">
 
         {{-- Logo (Link mengarah ke home) --}}
         <a class="navbar-brand ms-3" href="{{ route('home') }}">
-            <img src="{{ asset('img/gambar5.svg') }}" alt="Logo SIMK" style="width: 60px; height: auto;">
+            <img src="{{ asset('images/logo-simk.png') }}" alt="Logo SIMK" style="width: 60px; height: auto;">
         </a>
 
         {{-- Tombol Toggler (Hamburger) untuk mobile view --}}

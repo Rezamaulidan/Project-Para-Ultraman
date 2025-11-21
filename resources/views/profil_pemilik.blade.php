@@ -21,7 +21,7 @@
         .profile-header {
             height: 80px;
             /* Mengurangi tinggi header biru */
-            background: linear-gradient(135deg, #007bff, #0056b3);
+            background: linear-gradient(135deg, #012b52, #001931, #000000);
             border-radius: 15px 15px 0 0;
         }
 
@@ -46,7 +46,7 @@
         }
 
         .btn-tutup-profil {
-            background-color: #0d6efd !important;
+            background-color: #001931 !important;
             border-color: #0d6efd !important;
             color: white !important;
             padding: 10px 40px !important;
@@ -63,7 +63,7 @@
         }
 
         .btn-tutup-profil:hover {
-            background-color: #0b5ed7 !important;
+            background-color: #063d90 !important;
             transform: translateY(-2px);
         }
     </style>

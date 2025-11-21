@@ -17,7 +17,7 @@
         }
 
         .gradient-background {
-            background: linear-gradient(135deg, #007bff, #0056b3);
+            background: linear-gradient(135deg, #001931, #033f7e);
             height: 100vh;
             display: flex;
             align-items: center;

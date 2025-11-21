@@ -19,7 +19,7 @@
         }
 
         .header-penyewa {
-            background-color: #0089FF;
+            background-color: #001931;
             color: white;
             padding: 1rem;
         }
