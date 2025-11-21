@@ -165,7 +165,7 @@
             {{-- 1. Manajemen Staff --}}
             <div class="col-6 col-md-3">
                 {{-- Saya perbaiki href-nya menggunakan route dari master --}}
-                <a href="#" class="menu-card">
+                <a href="{{ route('staff.manajemen') }}" class="menu-card">
                     <div class="menu-icon icon-blue">
                         <i class="fa fa-users"></i>
                     </div>
@@ -176,7 +176,7 @@
             {{-- 2. Informasi Penyewa --}}
             <div class="col-6 col-md-3">
                 {{-- Saya perbaiki href-nya menggunakan route dari master --}}
-                <a href="#" class="menu-card">
+                <a href="{{ route('staff.penyewa') }}" class="menu-card">
                     <div class="menu-icon icon-green">
                         <i class="fa fa-user-circle"></i>
                     </div>
@@ -197,7 +197,7 @@
             {{-- 4. Shift Kerja --}}
             <div class="col-6 col-md-3">
                 {{-- Saya perbaiki href-nya menggunakan route dari master --}}
-                <a href="#" class="menu-card">
+                <a href="{{ route('staff.shift_kerja') }}" class="menu-card">
                     <div class="menu-icon icon-yellow">
                         <i class="fa fa-clock"></i>
                     </div>
@@ -217,5 +217,4 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
-
 </html>
