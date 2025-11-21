@@ -9,89 +9,64 @@ use Illuminate\Http\RedirectResponse;
 
 class LoginController extends Controller
 {
-
     public function index()
     {
         return view('login');
     }
 
-
     public function store(Request $request)
     {
-        // 1. Validasi input username dan password
+        // 1. Validasi input
         $credentials = $request->validate([
             'username' => ['required'],
             'password' => ['required'],
         ]);
 
-staff_kos
-        $authField = [
-            'username' => $credentials['username'],
-            'password' => $credentials['password'],
-        ];
-
-        // 2. Coba lakukan login menggunakan Auth::attempt yang sudah dimodifikasi
-        if (Auth::attempt($authField)) {
-
-        // 2. melakukan login HANYA dengan username & password
+        // 2. Lakukan Login
+        // Auth::attempt akan otomatis mengecek username & password ke tabel users/akuns
         if (Auth::attempt($credentials)) {
-master
 
-            // 3. Jika berhasil, regenerate session
+            // 3. Regenerasi Session (Keamanan)
             $request->session()->regenerate();
 
-            // 4. Dapatkan data user (model Akun) yang sedang login
+            // 4. Ambil data user login
             $user = Auth::user();
 
-            // 5. Cek jenis_akun dan arahkan ke rute yang sesuai
+            // 5. Cek Role/Jenis Akun dan Redirect
             if ($user->jenis_akun === 'pemilik') {
-
-                // Jika 'pemilik', arahkan ke home pemilik
                 return redirect()->route('pemilik.home');
-
-            } elseif ($user->jenis_akun === 'penyewa') {
-
-                // Jika 'penyewa', arahkan ke dashboard booking
+            }
+            elseif ($user->jenis_akun === 'penyewa') {
                 return redirect()->route('dashboard.booking');
-
-            } elseif ($user->jenis_akun === 'staf') {
-
-                // Jika 'staf', arahkan ke menu staf
+            }
+            elseif ($user->jenis_akun === 'staf') {
                 return redirect()->route('staff.menu');
             }
 
-            // Fallback jika ada jenis akun lain
+            // Fallback jika role tidak dikenali
             return redirect()->route('home');
-
         }
 
-        // 6. Jika login gagal, kembalikan ke form login dengan pesan error
+        // 6. Jika Gagal Login
         return back()->withErrors([
             'username' => 'Username atau Password yang Anda masukkan salah.',
         ])->onlyInput('username');
     }
-staff_kos
 
-
-master
     public function logout(Request $request): RedirectResponse
     {
-        // 1. Ambil data pengguna (termasuk jenis_akun) SEBELUM logout
         $user = Auth::user();
 
-        // 2. Lakukan proses logout standar
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // 3. Periksa jenis_akun dari pengguna yang baru saja logout
+        // Redirect khusus untuk pemilik/staf ke halaman login
         if ($user && ($user->jenis_akun === 'pemilik' || $user->jenis_akun === 'staf')) {
-
-            // 4. Jika pemilik atau staf, arahkan ke halaman login
             return redirect()->route('login');
         }
 
-        // 5. Jika penyewa (atau peran lain), arahkan ke halaman home
+        // Default redirect ke home
         return redirect()->route('home');
     }
 }
