@@ -153,6 +153,36 @@ Route::post('/reset-password', function (Request $request) {
 // =======================================================
 // RUTE YANG MEMERLUKAN LOGIN
 // =======================================================
+staff_kos
+
+// resources/views/menu_staff.blade.php
+Route::get('/staff/menu', function () {
+    // Rute yang memuat menu utama
+    return view('menu_staff');
+})->name('staff.menu');
+
+// Rute Manajemen Staff
+Route::get('/staff/manajemen', function () {
+    return '<h1>Halaman Manajemen Staff...</h1>';
+})->name('staff.manajemen');
+
+// Rute Informasi Penyewa
+Route::get('/staff/penyewa', function () {
+    return '<h1>Halaman Informasi Penyewa Staff (Segera Hadir)</h1>';
+})->name('staff.penyewa');
+
+// Rute Laporan Keamanan (Saatnya ganti return text ke return view)
+Route::get('/staff/laporan-keamanan', function () {
+    // --- GANTI BARIS INI! ---
+    // Pastikan Anda sudah menyimpan kode UI Laporan Keamanan di file 'laporan_keamanan.blade.php'
+    return view('laporan_keamanan');
+})->name('staff.laporan_keamanan');
+
+// Rute Shift Kerja
+Route::get('/staff/shift-kerja', function () {
+    return '<h1>Halaman Shift Kerja (Segera Hadir)</h1>';
+})->name('staff.shift_kerja');
+=======
 Route::middleware(['auth'])->group(function () {
 
     // Logout (untuk semua role)
@@ -204,3 +234,4 @@ Route::middleware(['auth'])->group(function () {
         // Route::get('/staff/menu', fn() => view('menu_staff'))->name('staff.menu');
     });
 });
+master
