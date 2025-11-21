@@ -70,6 +70,11 @@
             padding-right: 3.5rem;
         }
 
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none;
+        }
+
         /* Animation */
         @keyframes fadeInUp {
             from {

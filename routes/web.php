@@ -23,15 +23,10 @@ use Illuminate\Support\Facades\DB;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
 
 // =======================================================
-// RUTE PUBLIK (Bisa diakses tanpa login)
+// 1. RUTE PUBLIK (Bisa diakses tanpa login)
 // =======================================================
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -45,21 +40,6 @@ Route::post('/login', [LoginController::class, 'store']);
 
 Route::get('/pilihan-daftar', [RegisterController::class, 'pilihan'])->name('register.pilihan');
 Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
-
-// ✅ TAMBAHKAN INI - Laporan Keamanan (Sementara di luar middleware)
-Route::get('/staff/menu', fn() => view('menu_staff'))->name('staff.menu');
-
-Route::get('/staff/laporan-keamanan', function () {
-    return view('laporan_keamanan_staf');
-})->name('staff.laporan_keamanan');
-
-Route::get('/staff/laporan-keamanan/create', function () {
-    return view('tambah_laporan_staf');
-})->name('staff.laporan_keamanan.create');
-
-Route::post('/staff/laporan-keamanan', function () {
-    return redirect()->route('staff.laporan_keamanan')->with('success', 'Laporan berhasil ditambahkan!');
-})->name('staff.laporan_keamanan.store');
 
 // --- Rute Lupa & Reset Password ---
 Route::get('/lupa-kata-sandia', function () {
@@ -78,15 +58,12 @@ Route::post('/lupa-kata-sandia', function (Request $request) {
         return back()->withInput()->withErrors(['email' => 'Kami tidak dapat menemukan pengguna dengan alamat email tersebut.']);
     }
 
-    $akun = Akun::find($profile->username); // Mengasumsikan 'username' adalah primary key di tabel Akun
+    $akun = Akun::find($profile->username);
     if (!$akun) {
         return back()->withInput()->withErrors(['email' => 'Terjadi kesalahan: Akun untuk profil ini tidak ditemukan.']);
     }
 
-    // ===== PERBAIKAN 1: TAMBAHKAN EMAIL KE MODEL AKUN =====
-    // Ini diperlukan agar Password::createToken() tahu email mana yang harus digunakan
     $akun->email = $email;
-    // =====================================================
 
     $token = Password::createToken($akun);
     try {
@@ -98,32 +75,28 @@ Route::post('/lupa-kata-sandia', function (Request $request) {
     return back()->with('status', 'Kami telah mengirimkan link reset password ke email Anda!');
 })->name('password.email');
 
-
 Route::get('/reset-password/{token}', function ($token, Request $request) {
     return view('reset-password', ['token' => $token, 'email' => $request->query('email')]);
 })->name('password.reset');
 
-
-// ===== PERBAIKAN 2: GANTI LOGIKA POST /reset-password =====
-// Menggunakan logika manual agar sesuai dengan struktur Akun (tanpa email)
 Route::post('/reset-password', function (Request $request) {
     $request->validate([
         'token' => 'required',
         'email' => 'required|email',
-        'password' => 'required|min:5|confirmed', // Anda bisa ganti min:5 sesuai kebutuhan
+        'password' => 'required|min:5|confirmed',
     ]);
 
-    // 1. Validasi token dari database secara manual
+    // 1. Validasi token manual
     $tokenData = DB::table('password_reset_tokens')
-                   ->where('email', $request->email)
-                   ->first();
+                    ->where('email', $request->email)
+                    ->first();
 
-    // 2. Cek apakah token valid
+    // 2. Cek validitas token
     if (!$tokenData || !Hash::check($request->token, $tokenData->token)) {
         return back()->withInput()->withErrors(['email' => 'Token reset password ini tidak valid atau sudah kedaluwarsa.']);
     }
 
-    // 3. Temukan profil berdasarkan email
+    // 3. Temukan profil
     $profile = PemilikKos::where('email', $request->email)->first() ??
                Penyewa::where('email', $request->email)->first() ??
                Staf::where('email', $request->email)->first();
@@ -132,7 +105,7 @@ Route::post('/reset-password', function (Request $request) {
         return back()->withInput()->withErrors(['email' => 'Email tidak ditemukan.']);
     }
 
-    // 4. Temukan akun dan update password-nya
+    // 4. Update password akun
     $akun = Akun::find($profile->username);
     if ($akun) {
         $akun->password = Hash::make($request->password);
@@ -141,55 +114,23 @@ Route::post('/reset-password', function (Request $request) {
         return back()->withInput()->withErrors(['email' => 'Akun untuk profil ini tidak ditemukan.']);
     }
 
-    // 5. Hapus token setelah digunakan
+    // 5. Hapus token
     DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
-    // 6. Redirect ke login
     return redirect()->route('login')->with('status', 'Password Anda telah berhasil direset! Silakan login.');
-
 })->name('password.update');
-// =====================================================
 
 
 // =======================================================
-// RUTE YANG MEMERLUKAN LOGIN
+// 2. RUTE YANG MEMERLUKAN LOGIN (AUTH)
 // =======================================================
-staff_kos
 
-// resources/views/menu_staff.blade.php
-Route::get('/staff/menu', function () {
-    // Rute yang memuat menu utama
-    return view('menu_staff');
-})->name('staff.menu');
-
-// Rute Manajemen Staff
-Route::get('/staff/manajemen', function () {
-    return '<h1>Halaman Manajemen Staff...</h1>';
-})->name('staff.manajemen');
-
-// Rute Informasi Penyewa
-Route::get('/staff/penyewa', function () {
-    return '<h1>Halaman Informasi Penyewa Staff (Segera Hadir)</h1>';
-})->name('staff.penyewa');
-
-// Rute Laporan Keamanan (Saatnya ganti return text ke return view)
-Route::get('/staff/laporan-keamanan', function () {
-    // --- GANTI BARIS INI! ---
-    // Pastikan Anda sudah menyimpan kode UI Laporan Keamanan di file 'laporan_keamanan.blade.php'
-    return view('laporan_keamanan');
-})->name('staff.laporan_keamanan');
-
-// Rute Shift Kerja
-Route::get('/staff/shift-kerja', function () {
-    return '<h1>Halaman Shift Kerja (Segera Hadir)</h1>';
-})->name('staff.shift_kerja');
-=======
 Route::middleware(['auth'])->group(function () {
 
     // Logout (untuk semua role)
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-    // ====================== PENYEWA ======================
+    // ====================== ROLE: PENYEWA ======================
     Route::middleware(['role:penyewa'])->group(function () {
         Route::get('/dashboard-booking', [DashboardBookingController::class, 'booking'])->name('dashboard.booking');
         Route::get('/dashboard-penyewa', fn() => view('dashboard_penyewa'))->name('penyewa.dashboard');
@@ -200,41 +141,62 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/informasi-kamar-saya', [PenyewaController::class, 'showKamar'])->name('penyewa.kamar');
     });
 
-    // ====================== PEMILIK KOS ======================
+    // ====================== ROLE: PEMILIK KOS ======================
     Route::middleware(['role:pemilik'])->group(function () {
         Route::get('/homepemilik', [PemilikKosController::class, 'index'])->name('pemilik.home');
-        // Route::get('/homepemilik', fn() => view('home_pemilik'))->name('pemilik.home');
 
-        // Daftar Kamar (Pemilik)
+        // Daftar Kamar
         Route::get('/datakamarpemilik', [KamarController::class, 'index'])->name('pemilik.datakamar');
 
         // Input & Simpan Kamar
         Route::get('/inputkamar', [KamarController::class, 'create'])->name('pemilik.inputkamar');
         Route::post('/inputkamar', [KamarController::class, 'store'])->name('pemilik.inputkamar.store');
 
-        // Detail Kamar (Pemilik)
+        // Detail Kamar
         Route::get('/infokamar/{no_kamar}', [KamarController::class, 'infoKamarDetail'])->name('pemilik.infokamar');
 
-        // Edit Kamar (SPA Style - semua kamar)
+        // Edit Kamar
         Route::get('/editkamar/{no_kamar}', [KamarController::class, 'edit'])->name('pemilik.editkamar');
         Route::put('/editkamar/{no_kamar}', [KamarController::class, 'update'])->name('pemilik.editkamar.update');
 
         // Hapus Kamar
         Route::delete('/kamar/{no_kamar}', [KamarController::class, 'destroy'])->name('pemilik.kamar.destroy');
 
-        // Menu Lain
+        // Menu Lain Pemilik
         Route::get('/transaksipemilik', fn() => view('transaksi_pemilik'))->name('pemilik.transaksi');
         Route::get('/pengeluaranpemilik', fn() => view('pengeluaran_pemilik'))->name('pemilik.pengeluaran');
         Route::get('/keamananpemilik', fn() => view('keamanan_pemilik'))->name('pemilik.keamanan');
         Route::get('/datapenyewapemilik', fn() => view('data_penyewa_pemilik'))->name('pemilik.datapenyewa');
+
+        // Manajemen Staff oleh Pemilik
         Route::get('/registrasistaff', fn() => view('registrasi_sfaff'))->name('pemilik.registrasi_staff');
         Route::post('/registrasi-staff', [PemilikKosController::class, 'storeStaff'])->name('pemilik.store_staff');
         Route::get('/datastaffpemilik', fn() => view('data_staff_pemilik'))->name('pemilik.datastaff');
     });
 
-    // ====================== STAF ======================
+    // ====================== ROLE: STAF ======================
     Route::middleware(['role:staf'])->group(function () {
-        // Route::get('/staff/menu', fn() => view('menu_staff'))->name('staff.menu');
+
+        // Menu Utama Staff
+        Route::get('/staff/menu', fn() => view('menu_staff'))->name('staff.menu');
+
+        // Laporan Keamanan Staff
+        Route::get('/staff/laporan-keamanan', function () {
+            return view('laporan_keamanan_staf'); // Pastikan nama file view sesuai
+        })->name('staff.laporan_keamanan');
+
+        Route::get('/staff/laporan-keamanan/create', function () {
+            return view('tambah_laporan_staf');
+        })->name('staff.laporan_keamanan.create');
+
+        Route::post('/staff/laporan-keamanan', function () {
+            // Logika simpan laporan bisa ditambahkan disini atau di controller
+            return redirect()->route('staff.laporan_keamanan')->with('success', 'Laporan berhasil ditambahkan!');
+        })->name('staff.laporan_keamanan.store');
+
+        // Placeholder Menu Lain Staff
+        Route::get('/staff/manajemen', fn() => '<h1>Halaman Manajemen Staff...</h1>')->name('staff.manajemen');
+        Route::get('/staff/penyewa', fn() => '<h1>Halaman Informasi Penyewa Staff (Segera Hadir)</h1>')->name('staff.penyewa');
+        Route::get('/staff/shift-kerja', fn() => '<h1>Halaman Shift Kerja (Segera Hadir)</h1>')->name('staff.shift_kerja');
     });
 });
-master

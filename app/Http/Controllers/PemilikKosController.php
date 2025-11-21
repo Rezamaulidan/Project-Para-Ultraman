@@ -88,9 +88,9 @@ class PemilikKosController extends Controller
         try {
             // 2. Buat Data Akun (Login)
             Akun::create([
-                'username' => $request->username,
-                'password' => Hash::make($request->password), // Password wajib di-hash
-                'role'     => 'staf', // Role otomatis jadi staf
+                'username'  => $request->username,
+                'password'  => Hash::make($request->password), // Password wajib di-hash
+                'jenis_akun'=> 'staf', // Role otomatis jadi staf
             ]);
 
             // 3. Upload Foto (Jika ada)
