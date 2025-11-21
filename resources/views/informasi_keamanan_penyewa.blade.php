@@ -24,7 +24,7 @@
         }
 
         .header-penyewa {
-            background-color: #0089FF;
+            background-color: #001931;
             color: white;
             padding: 1rem;
         }
@@ -104,13 +104,13 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ route('penyewa.pembayaran') }}">
                     <i class="fa-solid fa-money-check-dollar me-1"></i>
                     Menu Pembayaran
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ route('penyewa.kamar') }}">
                     <i class="fa-solid fa-box me-1"></i>
                     Informasi Kamar
                 </a>

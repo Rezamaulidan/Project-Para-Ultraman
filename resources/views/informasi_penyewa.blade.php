@@ -1,50 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informasi Penyewa - SIMK</title>
 
-    {{-- Link untuk memuat file CSS Bootstrap --}}
+    {{-- Link CSS Bootstrap --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    {{-- Link Font Awesome (agar ikon berfungsi) --}}
+    {{-- Link Font Awesome --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* Mengatur warna background utama */
+        /* Background utama */
         body {
             background-color: #f0f2f5;
-            /* Abu-abu muda */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Header kustom (biru) */
         .header-penyewa {
-            background-color: #0089FF;
-            /* Biru dari navbar Anda */
+            background-color: #001931;
             color: white;
             padding: 1rem;
         }
 
-        /* Profile card (biru gradient) */
+        /* Kartu Profil (Gradient Biru) */
         .profile-card {
             background: linear-gradient(135deg, #007bff, #0056b3);
             color: white;
+            border-radius: 10px;
         }
 
-        /* Avatar icon kustom */
+        /* Avatar Bulat (Huruf) */
         .profile-avatar {
             width: 80px;
             height: 80px;
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.95);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 1rem auto;
-            color: #0d6efd;
-            font-size: 2.5rem;
+            color: #0056b3;
+            font-size: 2.8rem;
+            font-weight: 700;
+            font-family: sans-serif;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+        }
+
+        /* Tombol Edit Profil */
+        .btn-edit-profile {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .btn-edit-profile:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
         }
 
         /* Animasi Sliding Indicator untuk Tab */
@@ -70,163 +90,160 @@
             border-top-left-radius: 0.5rem;
             border-top-right-radius: 0.5rem;
             transition: color 0.3s ease;
-            border: 1px solid transparent;
         }
 
         .nav-tabs .nav-link.active {
             color: #000;
             font-weight: 600;
             background-color: white;
-            border-color: #dee2e6 #dee2e6 white;
-            /* Border standar Bootstrap */
             border-bottom-color: white;
         }
 
-        /* Styling untuk input readonly agar terlihat seperti di gambar */
+        /* Styling Input Readonly */
         .form-control[readonly] {
             background-color: #f8f9fa;
-            /* Abu-abu sangat muda */
             opacity: 1;
-            border: 1px solid #ced4da;
+            border-left: none;
         }
 
-        .btn-edit-profile {
-            color: rgba(255, 255, 255, 0.85);
-            /* Putih agak transparan */
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.2s;
+        /* Styling Group Input (Icon + Field) */
+        .input-group-text {
+            background-color: #f8f9fa;
+            border-right: none;
+            color: #0089FF;
         }
 
-        .btn-edit-profile:hover {
-            color: #fff;
-            /* Putih penuh saat di-hover */
-            text-decoration: underline;
+        /* Styling Label Form */
+        .form-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
 
 <body>
 
-    {{-- 1. Memanggil navbar utama penyewa (dari file sebelumnya) --}}
+    {{-- 1. Navbar --}}
     @include('partials.navbar_menu_penyewa')
 
-    {{-- 2. Header Halaman (Biru) --}}
+    {{-- 2. Header Halaman --}}
     <div class="header-penyewa shadow-sm">
         <div class="container-fluid d-flex align-items-center">
-            <a href="" class="text-white me-3">
-            </a>
-            <h5 class="mb-0"></h5>
         </div>
     </div>
 
-    {{-- 3. Tab Navigasi (Abu-abu) --}}
-    <div class="container-fluid bg-light pt-2">
-        <ul class="nav nav-tabs nav-fill">
+    {{-- 3. Tab Navigasi --}}
+    <div class="container-fluid bg-light pt-2 shadow-sm">
+        <ul class="nav nav-tabs nav-fill justify-content-center">
             <li class="nav-item">
                 <a class="nav-link active" aria-current="page" href="{{ route('penyewa.informasi') }}">
-                    <i class="fa-solid fa-circle-info me-1"></i>
-                    Informasi Penyewa
-                    </a>
-                </li>
+                    <i class="fa-solid fa-circle-info me-2"></i>Informasi Penyewa
+                </a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('penyewa.keamanan') }}">
-                    <i class="fa-solid fa-shield-halved me-1"></i>
-                    Informasi Keamanan
-                    </a>
-                </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fa-solid fa-money-check-dollar me-1"></i>
-                    Menu Pembayaran
-                    </a>
-                </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fa-solid fa-box me-1"></i>
-                    Informasi Kamar
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-    {{-- 4. Konten Utama (Informasi Penyewa) --}}
-    <div class="container-fluid p-3 p-md-4">
-
-        {{-- Profile Card (Biru) --}}
-        <div class="card profile-card border-0 p-3 mb-4">
-            <div class="card-body text-center">
-                <div class="profile-avatar">
-                    <i class="fa-solid fa-user"></i>
-                </div>
-                <h4 class="mb-0">Denis</h4>
-                <a href="{{ route('penyewa.edit_informasi') }}" class="btn-edit-profile mt-2 d-block">
-                    <i class="fa-solid fa-pen-to-square fa-fw me-1"></i>Edit Informasi
+                    <i class="fa-solid fa-shield-halved me-2"></i>Informasi Keamanan
                 </a>
-            </div>
-        </div>
-
-        {{-- Detail Card (Putih) --}}
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-4">
-
-                <div class="row g-4">
-
-                    {{-- Kolom Kiri --}}
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="nomorKamar" class="form-label small text-muted">Nomor Kamar</label>
-                            <input type="text" id="nomorKamar" class="form-control" value="1" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label for="tanggalLahir" class="form-label small text-muted">Tanggal Lahir</label>
-                            <input type="text" id="tanggalLahir" class="form-control" value="13-02-2004" readonly>
-                        </div>
-                        <div>
-                            <label class="form-label small text-muted">Jenis Kelamin</label>
-                            <div class="mt-2">
-                                <div class="form-check form-check-inline">
-                                    {{-- 'checked' dan 'disabled' akan dikontrol oleh data Anda nanti --}}
-                                    <input class="form-check-input" type="radio" name="jenisKelamin" id="laki"
-                                        value="Laki-laki" checked disabled>
-                                    <label class="form-check-label" for="laki">Laki-laki</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="jenisKelamin" id="perempuan"
-                                        value="Perempuan" disabled>
-                                    <label class="form-check-label" for="perempuan">Perempuan</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Kolom Kanan --}}
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="noTelepon" class="form-label small text-muted">No Telepon</label>
-                            <input type="text" id="noTelepon" class="form-control" value="081387863100" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label for="tenggat" class="form-label small text-muted">Tenggat Penyewaan</label>
-                            <input type="text" id="tenggat" class="form-control" value="31 Desember 2026" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label for="tagihan" class="form-label small text-muted">Tagihan</label>
-                            <input type="text" id="tagihan" class="form-control" value="Rp 1.000.000" readonly>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('penyewa.pembayaran') }}">
+                    <i class="fa-solid fa-money-check-dollar me-2"></i>Menu Pembayaran
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('penyewa.kamar') }}">
+                    <i class="fa-solid fa-box me-2"></i>Informasi Kamar
+                </a>
+            </li>
+        </ul>
     </div>
 
-    {{-- Link untuk memuat JavaScript Bootstrap --}}
+    {{-- 4. Konten Utama --}}
+    <div class="container-fluid p-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-9 col-xl-7">
+
+                {{-- Kartu Profil (Atas) --}}
+                <div class="card profile-card border-0 p-4 mb-4 shadow">
+                    <div class="card-body text-center">
+                        {{-- Avatar Huruf --}}
+                        <div class="profile-avatar">
+                            {{ strtoupper(substr($penyewa->nama_penyewa ?? 'User', 0, 1)) }}
+                        </div>
+
+                        <h3 class="mb-1 fw-bold">{{ $penyewa->nama_penyewa ?? 'Nama Penyewa' }}</h3>
+                        <p class="mb-3 opacity-75 small"></p>
+
+                        <a href="{{ route('penyewa.edit_informasi') }}" class="btn-edit-profile">
+                            <i class="fa-solid fa-pen-to-square me-1"></i> Edit Data Diri
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Kartu Detail Informasi (Bawah) --}}
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-4 pb-2 border-bottom text-primary fw-bold">
+                            <i class="fa-solid fa-list-ul me-2"></i>Detail Informasi
+                        </h5>
+
+                        {{-- Grid Form (Semua disejajarkan vertikal ke bawah) --}}
+                        <div class="row g-4">
+
+                            {{-- 1. Nomor Kamar --}}
+                            <div class="col-12">
+                                <div class="mb-1">
+                                    <label for="nomorKamar" class="form-label">Nomor Kamar</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-door-open"></i></span>
+                                        <input type="text" id="nomorKamar" class="form-control"
+                                            value="{{ $penyewa->nomor_kamar ?? '-' }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- 2. No Telepon (Di bawah Nomor Kamar) --}}
+                            <div class="col-12">
+                                <div class="mb-1">
+                                    <label for="noTelepon" class="form-label">No Telepon (WhatsApp)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-brands fa-whatsapp"></i></span>
+                                        <input type="text" id="noTelepon" class="form-control"
+                                            value="{{ $penyewa->no_hp ?? '-' }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- 3. Jenis Kelamin (Di bawah No Telepon) --}}
+                            <div class="col-12">
+                                <div>
+                                    <label for="jenisKelamin" class="form-label">Jenis Kelamin</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-venus-mars"></i></span>
+                                        <input type="text" id="jenisKelamin" class="form-control"
+                                            value="{{ $penyewa->jenis_kelamin ?? '-' }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div> {{-- End row g-4 --}}
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+    {{-- Script untuk Animasi Indikator Tab --}}
     <script>
-        // Fungsi untuk mengatur posisi sliding indicator
         function setActiveIndicator() {
             const activeTab = document.querySelector('.nav-tabs .nav-link.active');
             const navTabs = document.querySelector('.nav-tabs');
@@ -235,24 +252,18 @@
                 const tabRect = activeTab.getBoundingClientRect();
                 const navRect = navTabs.getBoundingClientRect();
 
-                // Hitung posisi relatif terhadap nav-tabs
                 const left = tabRect.left - navRect.left;
                 const width = tabRect.width;
 
-                // Set properti CSS untuk indicator
                 navTabs.style.setProperty('--indicator-left', `${left}px`);
                 navTabs.style.setProperty('--indicator-width', `${width}px`);
             }
         }
 
-        // Jalankan saat halaman dimuat
         document.addEventListener('DOMContentLoaded', function() {
             setActiveIndicator();
-
-            // Update indicator saat window diresize
             window.addEventListener('resize', setActiveIndicator);
 
-            // Tambahkan hover effect
             const navLinks = document.querySelectorAll('.nav-tabs .nav-link');
             navLinks.forEach(link => {
                 link.addEventListener('mouseenter', function() {
@@ -267,7 +278,6 @@
                 });
             });
 
-            // Kembalikan ke posisi active saat mouse leave
             document.querySelector('.nav-tabs').addEventListener('mouseleave', function() {
                 setActiveIndicator();
             });

@@ -176,3 +176,48 @@ body {
 .info-item:last-child {
     border-bottom: none;
 }
+
+.info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+}
+
+.info-table td {
+            padding: 0.75rem 0;
+            border-bottom: 1px dashed #dee2e6;
+            vertical-align: middle;
+}
+
+.info-table .icon-col {
+            width: 30px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 1.1rem;
+}
+
+.info-table .label-col {
+            font-weight: 600;
+            color: #495057;
+            width: 80px;
+            white-space: nowrap;
+}
+
+.info-table .value-col {
+            color: #212529;
+            font-weight: 500;
+}
+
+.info-table tr:last-child td {
+            border-bottom: none;
+}
+
+.gold-star {
+            color: gold;
+            font-size: 1.1em;
+}
+
+.badge-status .text-success {
+            color: #28a745 !important;
+}

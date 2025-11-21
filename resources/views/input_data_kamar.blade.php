@@ -16,7 +16,7 @@
             <p>Kelola dan perbarui detail properti kamar secara efisien.</p>
         </div>
 
-        <form id="form-input-kamar-v2" action="{{ route('pemilik.store') }}" method="POST"
+        <form id="form-input-kamar-v2" action="{{ route('pemilik.inputkamar.store') }}" method="POST"
             enctype="multipart/form-data">
             @csrf
             <div class="form-section">

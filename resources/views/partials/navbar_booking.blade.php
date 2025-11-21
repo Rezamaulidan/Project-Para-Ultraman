@@ -1,15 +1,16 @@
 {{-- 1. NAVBAR --}}
 {{-- Navbar ini sekarang HANYA berisi Logo dan Tombol Hamburger --}}
-<nav class="navbar navbar-dark" style="background-color: #0089FF;">
+<nav class="navbar navbar-dark" style="background-color: #001931;">
     <div class="container-fluid py-2">
 
         {{-- Logo (Link mengarah ke home) --}}
         <a class="navbar-brand ms-3" href="{{ route('home') }}">
-            <img src="{{ asset('img/gambar5.svg') }}" alt="Logo SIMK" style="width: 60px; height: auto;">
+            <img src="{{ asset('images/logo-simk.png') }}" alt="Logo SIMK" style="width: 60px; height: auto;">
         </a>
 
         {{-- Tombol Toggler (Hamburger) untuk memicu Offcanvas --}}
-        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuOffcanvas" aria-controls="menuOffcanvas" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuOffcanvas"
+            aria-controls="menuOffcanvas" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -42,7 +43,8 @@
                     <button type="submit" class="btn btn-light text-start p-3 d-flex align-items-center">
 
                         {{-- Ganti dengan path ikon Anda. Ini adalah ikon placeholder --}}
-                        <img src="{{ asset('img/ikon-keluar.png') }}" alt="Keluar" style="width: 24px; height: 24px;" class="me-3">
+                        <img src="{{ asset('img/ikon-keluar.png') }}" alt="Keluar" style="width: 24px; height: 24px;"
+                            class="me-3">
 
                         <span class="fw-semibold fs-5">Keluar</span>
                     </button>

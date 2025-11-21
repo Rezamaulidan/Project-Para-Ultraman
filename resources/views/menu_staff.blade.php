@@ -1,148 +1,220 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMK - Menu Staff</title>
-    {{-- Memuat Tailwind CSS melalui CDN --}}
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Menu Staff - SIMK</title>
+
+    {{-- Bootstrap CSS --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    {{-- Font Awesome --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
-        /* Mengatur warna biru kustom yang mendekati tema ASTON */
-        .aston-blue {
-            background-color: #008080; /* Teal/Biru Kehijauan Kustom */
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Gaya tambahan untuk efek hover yang halus pada item menu */
-        .menu-item {
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
-            /* Memastikan semua kotak menu tingginya sama */
-            height: 100%;
-        }
-        .menu-item:hover {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
-            transform: translateY(-4px) scale(1.02);
-            background-color: #f0fdf4; /* Warna hijau mint muda untuk hover */
+        .header-teal {
+            background: linear-gradient(135deg, #008080, #006666);
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        /* Gaya untuk Hero Section (Gambar Latar Belakang) */
         .hero-section {
-            /* Pastikan ganti dengan path aset gambar Anda! */
-            /* Untuk contoh ini, saya menggunakan warna solid abu-abu dari screenshot Anda */
-            background-color: #A0A0A0;
-            /* Jika ingin gambar seperti ASTON, ganti dengan: background-image: url('{{ asset('images/aston_hero_background.jpg') }}'); */
-            background-size: cover;
-            background-position: center;
-            height: 400px; /* Ketinggian hero section */
-            position: relative;
+            background: linear-gradient(135deg, rgba(0, 128, 128, 0.1), rgba(0, 102, 102, 0.05));
+            padding: 3rem 1rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
         }
 
-        /* Overlay untuk membuat teks lebih mudah dibaca (disesuaikan agar transparan) */
-        .hero-overlay {
-            background-color: rgba(0, 0, 0, 0.1); /* Overlay hitam sangat tipis/transparan */
+        .menu-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem 1rem;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            height: 100%;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+            border-color: #008080;
+        }
+
+        .menu-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-card:hover .menu-icon {
+            transform: scale(1.1);
+        }
+
+        .icon-blue {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            color: #1976d2;
+        }
+
+        .icon-green {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            color: #388e3c;
+        }
+
+        .icon-red {
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            color: #d32f2f;
+        }
+
+        .icon-yellow {
+            background: linear-gradient(135deg, #fff9c4, #fff59d);
+            color: #f57f17;
+        }
+
+        .menu-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            margin-top: 0.5rem;
+        }
+
+        .logout-btn {
+            background: white;
+            color: #008080;
+            border: none;
+            border-radius: 50px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h2 {
+                font-size: 2rem;
+            }
+
+            .menu-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
 
-    {{-- HEADER MIRIP DENGAN SIMK DI SCRENSHOT ANDA --}}
-    <header class="aston-blue text-white shadow-xl">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+<body>
 
-            {{-- Logo dan Judul Sistem --}}
-            <div class="flex items-center space-x-4">
-                {{-- Logo SIMK (Ganti dengan path asset Anda) --}}
-                <img src="{{ asset('img/logo-simk.png') }}" alt="Logo SIMK" class="h-8 w-auto object-contain filter brightness-125">
-                <h1 class="text-xl sm:text-2xl font-bold tracking-wider">SIMK</h1>
-                <span class="hidden sm:inline-block text-lg border-l border-white/50 pl-4 ml-4">Sistem Informasi Manajemen Kepegawaian</span>
+    {{-- Header --}}
+    <header class="header-teal">
+        <div class="container d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+                {{-- Pastikan path gambar logo benar --}}
+                <img src="{{ asset('img/logo-simk.png') }}" alt="Logo SIMK" class="img-fluid" style="height: 40px;">
+                <div>
+                    <h1 class="mb-0 h5">SIMK</h1>
+                    <small class="d-none d-md-block">Sistem Informasi Manajemen Kos</small>
+                </div>
             </div>
 
-            {{-- Tombol Keluar --}}
-            <a href="{{ route('logout') }}"
-               class="bg-white text-gray-800 font-semibold py-2 px-5 rounded-full hover:bg-gray-200 transition duration-150 shadow-md">
-                Keluar
-            </a>
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="logout-btn">
+                    <i class="fa fa-sign-out-alt me-2"></i>
+                    Keluar
+                </button>
+            </form>
         </div>
     </header>
 
-    {{-- HERO SECTION (SEPERTI FOTO LATAR ASTON, diubah menjadi warna abu-abu solid seperti screenshot kedua Anda) --}}
-    <div class="hero-section">
-        <div class="hero-overlay absolute inset-0 flex items-center justify-center">
-            <div class="text-center text-white p-8">
-                <p class="text-xl font-light mb-4 tracking-widest uppercase text-gray-700">Selamat Datang,</p>
-                <h2 class="text-4xl sm:text-6xl font-extrabold leading-tight text-gray-900">
-                    MENU STAFF
-                </h2>
-                <p class="text-lg mt-4 opacity-90 text-gray-700">SIMK - Kemudahan Akses Informasi Anda</p>
-            </div>
+    {{-- Hero Section --}}
+    <div class="container mt-4">
+        <div class="hero-section text-center">
+            <p class="text-muted text-uppercase mb-2" style="letter-spacing: 2px;">Selamat Datang,</p>
+            <h2 class="display-4 fw-bold text-dark mb-2">MENU STAFF</h2>
+            <p class="text-muted">Pilih menu yang ingin Anda akses</p>
         </div>
     </div>
 
-    {{-- MAIN CONTENT - MENU STAFF --}}
-    <main class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 -mt-20 relative z-10">
+    {{-- Main Content - Menu Grid --}}
+    <main class="container pb-5">
+        <div class="row g-4">
 
-        <h3 class="text-xl font-semibold text-gray-800 mb-6 text-center">Pilih Modul yang Ingin Diakses</h3>
+            {{-- 1. Manajemen Staff --}}
+            <div class="col-6 col-md-3">
+                {{-- Saya perbaiki href-nya menggunakan route dari master --}}
+                <a href="{{ route('staff.manajemen') }}" class="menu-card">
+                    <div class="menu-icon icon-blue">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <p class="menu-title">Manajemen Staff</p>
+                </a>
+            </div>
 
-        {{-- Grid 4 Kolom untuk Menu --}}
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {{-- 2. Informasi Penyewa --}}
+            <div class="col-6 col-md-3">
+                {{-- Saya perbaiki href-nya menggunakan route dari master --}}
+                <a href="{{ route('staff.penyewa') }}" class="menu-card">
+                    <div class="menu-icon icon-green">
+                        <i class="fa fa-user-circle"></i>
+                    </div>
+                    <p class="menu-title">Informasi Penyewa</p>
+                </a>
+            </div>
 
-            {{-- 1. Modul Manajemen Staff --}}
-            <a href="{{ route('staff.manajemen') }}"
-               class="menu-item flex flex-col justify-center items-center bg-white rounded-xl shadow-lg hover:shadow-2xl text-center p-6">
-                {{-- Area Ikon --}}
-                <div class="w-12 h-12 mb-3 flex-shrink-0 bg-blue-100 rounded-full p-2 flex items-center justify-center">
-                                         <img src="{{ asset('images/icon_manajemen_staff.png') }}"
-                         alt="Ikon Manajemen Staff"
-                         class="w-full h-full object-contain">
-                </div>
-                <p class="text-base font-semibold text-gray-800">
-                    Manajemen Staff
-                </p>
-            </a>
+            {{-- 3. Laporan Keamanan --}}
+            <div class="col-6 col-md-3">
+                <a href="{{ route('staff.laporan_keamanan') }}" class="menu-card">
+                    <div class="menu-icon icon-red">
+                        <i class="fa fa-shield-alt"></i>
+                    </div>
+                    <p class="menu-title">Laporan Keamanan</p>
+                </a>
+            </div>
 
-            {{-- 2. Modul Informasi Penyewa --}}
-            <a href="{{ route('staff.penyewa') }}"
-               class="menu-item flex flex-col justify-center items-center bg-white rounded-xl shadow-lg hover:shadow-2xl text-center p-6">
-                {{-- Area Ikon --}}
-                <div class="w-12 h-12 mb-3 flex-shrink-0 bg-green-100 rounded-full p-2 flex items-center justify-center">
-                                        <img src="{{ asset('images/icon_informasi_penyewa.png') }}"
-                         alt="Ikon Informasi Penyewa"
-                         class="w-full h-full object-contain">
-                </div>
-                <p class="text-base font-semibold text-gray-800">
-                    Informasi Penyewa
-                </p>
-            </a>
+            {{-- 4. Shift Kerja --}}
+            <div class="col-6 col-md-3">
+                {{-- Saya perbaiki href-nya menggunakan route dari master --}}
+                <a href="{{ route('staff.shift_kerja') }}" class="menu-card">
+                    <div class="menu-icon icon-yellow">
+                        <i class="fa fa-clock"></i>
+                    </div>
+                    <p class="menu-title">Shift Kerja</p>
+                </a>
+            </div>
 
-            {{-- 3. Modul Laporan Keamanan (Baru Ditambahkan) --}}
-            <a href="{{ route('staff.laporan_keamanan') }}"
-               class="menu-item flex flex-col justify-center items-center bg-white rounded-xl shadow-lg hover:shadow-2xl text-center p-6">
-                {{-- Area Ikon --}}
-                <div class="w-12 h-12 mb-3 flex-shrink-0 bg-red-100 rounded-full p-2 flex items-center justify-center">
-                    {{-- Ikon (Ganti dengan aset Anda) --}}
-                                    </div>
-                <p class="text-base font-semibold text-gray-800">
-                    Laporan Keamanan
-                </p>
-            </a>
-
-            {{-- 4. Modul Shift Kerja (Baru Ditambahkan) --}}
-            <a href="{{ route('staff.shift_kerja') }}"
-               class="menu-item flex flex-col justify-center items-center bg-white rounded-xl shadow-lg hover:shadow-2xl text-center p-6">
-                {{-- Area Ikon --}}
-                <div class="w-12 h-12 mb-3 flex-shrink-0 bg-yellow-100 rounded-full p-2 flex items-center justify-center">
-                    {{-- Ikon (Ganti dengan aset Anda) --}}
-                                     </div>
-                <p class="text-base font-semibold text-gray-800">
-                    Shift Kerja (Jadwal)
-                </p>
-            </a>
         </div>
     </main>
 
-    <footer class="mt-20 py-4 text-center text-gray-500 text-sm border-t border-gray-200">
-        &copy; {{ date('Y') }} SIMK - Sistem Informasi Manajemen Kepegawaian
+    {{-- Footer --}}
+    <footer class="text-center py-4 text-muted border-top">
+        <small>&copy; {{ date('Y') }} SIMK - Sistem Informasi Manajemen Kos</small>
     </footer>
+
+    {{-- Bootstrap JS --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
