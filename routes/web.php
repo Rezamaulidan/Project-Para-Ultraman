@@ -6,6 +6,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\KamarController;
 use App\Http\Controllers\DashboardBookingController;
+use App\Http\Controllers\LaporanKeamananController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PemilikKosController;
 use App\Http\Controllers\PenyewaController;
@@ -180,19 +181,19 @@ Route::middleware(['auth'])->group(function () {
         // Menu Utama Staff
         Route::get('/staff/menu', fn() => view('menu_staff'))->name('staff.menu');
 
-        // Laporan Keamanan Staff
-        Route::get('/staff/laporan-keamanan', function () {
-            return view('laporan_keamanan_staf'); // Pastikan nama file view sesuai
-        })->name('staff.laporan_keamanan');
+        // --- LAPORAN KEAMANAN ---
 
-        Route::get('/staff/laporan-keamanan/create', function () {
-            return view('tambah_laporan_staf');
-        })->name('staff.laporan_keamanan.create');
+        // 1. Menampilkan Daftar Laporan (Index)
+        Route::get('/staff/laporan-keamanan', [LaporanKeamananController::class, 'index'])
+            ->name('staff.laporan_keamanan');
 
-        Route::post('/staff/laporan-keamanan', function () {
-            // Logika simpan laporan bisa ditambahkan disini atau di controller
-            return redirect()->route('staff.laporan_keamanan')->with('success', 'Laporan berhasil ditambahkan!');
-        })->name('staff.laporan_keamanan.store');
+        // 2. Menampilkan Form Tambah (Create)
+        Route::get('/staff/laporan-keamanan/create', [LaporanKeamananController::class, 'create'])
+            ->name('staff.laporan_keamanan.create');
+
+        // 3. Menyimpan Data Laporan (Store)
+        Route::post('/staff/laporan-keamanan', [LaporanKeamananController::class, 'store'])
+            ->name('staff.laporan_keamanan.store');
 
         // Placeholder Menu Lain Staff
         Route::get('/staff/manajemen', fn() => '<h1>Halaman Manajemen Staff...</h1>')->name('staff.manajemen');

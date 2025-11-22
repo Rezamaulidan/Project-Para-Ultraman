@@ -6,10 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Keamanan - SIMK</title>
 
-    {{-- Bootstrap CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    {{-- Font Awesome --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
@@ -18,8 +15,9 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .header-blue {
-            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+        /* Header Navy */
+        .header-navy {
+            background-color: #001931;
             color: white;
             padding: 1rem;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -36,29 +34,34 @@
         .report-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            border-color: #1a73e8;
+            border-color: #001931;
         }
 
         .add-button {
-            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            background: #001931;
             border: none;
             border-radius: 50px;
             padding: 14px 40px;
             font-size: 1rem;
             font-weight: 600;
             color: white;
-            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 25, 49, 0.3);
             transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .add-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(26, 115, 232, 0.4);
-            background: linear-gradient(135deg, #155bb5, #0a3d91);
+            box-shadow: 0 6px 16px rgba(0, 25, 49, 0.4);
+            background-color: #033f7e;
+            color: white;
         }
 
         .report-title {
-            color: #1a73e8;
+            color: #001931;
             font-weight: 600;
         }
 
@@ -73,10 +76,13 @@
             line-height: 1.5;
         }
 
+        /* Tombol Kembali */
         .back-button {
             color: white;
             text-decoration: none;
             transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
         }
 
         .back-button:hover {
@@ -84,19 +90,15 @@
             color: white;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: #9e9e9e;
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
+        /* Input Readonly Style di Modal */
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+            opacity: 1;
+            border: 1px solid #ced4da;
         }
 
         @media (max-width: 576px) {
-            .header-blue h1 {
+            .header-navy h1 {
                 font-size: 1.25rem;
             }
 
@@ -110,25 +112,20 @@
 <body>
 
     {{-- Header --}}
-    <header class="header-blue sticky-top">
+    <header class="header-navy sticky-top">
         <div class="container d-flex align-items-center justify-content-between">
+            {{-- 1. Tombol Kembali --}}
             <a href="{{ route('staff.menu') }}" class="back-button">
                 <i class="fa fa-arrow-left fa-lg"></i>
             </a>
-            <h1 class="mb-0 flex-grow-1 text-center me-4">Laporan Keamanan</h1>
+
+            {{-- 2. Judul --}}
+            <h1 class="mb-0 h5 flex-grow-1 text-center">Laporan Keamanan</h1>
+
+            {{-- 3. Penyeimbang Layout --}}
+            <div style="width: 20px;"></div>
         </div>
     </header>
-
-    {{-- Success Alert --}}
-    @if (session('success'))
-        <div class="container mt-3">
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fa fa-check-circle me-2"></i>
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div>
-    @endif
 
     {{-- Main Content --}}
     <main class="container py-4">
@@ -137,100 +134,129 @@
 
                 {{-- List Laporan --}}
                 <div class="mb-4">
-                    {{-- Report Card 1 --}}
-                    <div class="report-card p-3 mb-3">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="report-title mb-0">
-                                <i class="fa fa-exclamation-triangle me-2"></i>
-                                Orang mencurigakan
-                            </h5>
-                            <span class="report-date">19/05/2025 | 19:47</span>
-                        </div>
-                        <p class="report-preview mb-0">
-                            Ditemukan tamu laki-laki yang masuk tanpa izin ke kamar penghuni...
-                        </p>
-                    </div>
 
-                    {{-- Report Card 2 --}}
-                    <div class="report-card p-3 mb-3">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="report-title mb-0">
-                                <i class="fa fa-bolt me-2"></i>
-                                Pemadaman listrik
-                            </h5>
-                            <span class="report-date">11/05/2025 | 02:10</span>
-                        </div>
-                        <p class="report-preview mb-0">
-                            Terjadi pemadaman listrik mendadak sekitar pukul 02.10...
-                        </p>
-                    </div>
+                    @forelse($laporans as $laporan)
+                        {{-- Report Card Dynamic --}}
+                        {{-- [PERBAIKAN] Menambahkan onclick untuk membuka modal --}}
+                        <div class="report-card p-3 mb-3"
+                            onclick="showDetailModal({{ json_encode($laporan) }}, '{{ $laporan->staf->nama_staf ?? 'Staf' }}')">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="report-title mb-0">
+                                    <i class="fa fa-exclamation-triangle me-2"></i>
+                                    {{ $laporan->judul_laporan }}
+                                </h5>
+                                <div class="text-end">
+                                    <span class="report-date d-block">
+                                        {{ \Carbon\Carbon::parse($laporan->tanggal)->format('d/m/Y') }}
+                                    </span>
+                                    <small class="text-muted" style="font-size: 0.75rem;">
+                                        Oleh: {{ $laporan->staf->nama_staf ?? 'Staf' }}
+                                    </small>
+                                </div>
+                            </div>
 
-                    {{-- Report Card 3 --}}
-                    <div class="report-card p-3 mb-3">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="report-title mb-0">
-                                <i class="fa fa-box-open me-2"></i>
-                                Kehilangan barang
-                            </h5>
-                            <span class="report-date">10/05/2025 | 07:00</span>
+                            <p class="report-preview mb-0">
+                                {{ Str::limit($laporan->keterangan, 100) }}
+                            </p>
                         </div>
-                        <p class="report-preview mb-0">
-                            Penghuni kamar 13 melaporkan kehilangan sandal di depan kamar...
-                        </p>
-                    </div>
+                    @empty
+                        {{-- Empty State --}}
+                        <div class="empty-state d-flex flex-column justify-content-center align-items-center"
+                            style="min-height: 50vh;">
 
-                    {{-- Report Card 4 --}}
-                    <div class="report-card p-3 mb-3">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="report-title mb-0">
-                                <i class="fa fa-video-slash me-2"></i>
-                                CCTV mati
-                            </h5>
-                            <span class="report-date">05/05/2025 | 09:05</span>
+                            <i class="fa fa-folder-open text-secondary fa-4x mb-3"></i>
+                            <h5 class="text-dark fw-bold mb-2">Belum Ada Laporan</h5>
+                            <p class="text-muted small mb-4">Klik tombol "Tambah Laporan" untuk membuat laporan baru</p>
+
+                            {{-- Tombol di tengah Empty State (SELALU MUNCUL JIKA KOSONG) --}}
+                            <a href="{{ route('staff.laporan_keamanan.create') }}" class="btn add-button px-4 py-2">
+                                <i class="fa fa-plus-circle me-2"></i> Tambah Laporan
+                            </a>
                         </div>
-                        <p class="report-preview mb-0">
-                            Salah satu CCTV di lorong lantai 2 mati sejak pukul 09.00...
-                        </p>
-                    </div>
+                    @endforelse
 
-                    {{-- Report Card 5 --}}
-                    <div class="report-card p-3 mb-3">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="report-title mb-0">
-                                <i class="fa fa-box-open me-2"></i>
-                                Kehilangan barang
-                            </h5>
-                            <span class="report-date">01/05/2025 | 07:00</span>
-                        </div>
-                        <p class="report-preview mb-0">
-                            Penghuni kamar 7 melaporkan kehilangan helm yang diparkir di area motor...
-                        </p>
-                    </div>
-
-                    {{-- Empty State (untuk saat data kosong) --}}
-                    {{-- Uncomment ini jika ingin tampilkan saat data kosong --}}
-                    {{-- <div class="empty-state">
-                        <i class="fa fa-folder-open"></i>
-                        <h5>Belum Ada Laporan</h5>
-                        <p>Klik tombol "Tambah Laporan" untuk membuat laporan baru</p>
-                    </div> --}}
                 </div>
 
-                {{-- Tombol Tambah Laporan --}}
-                <div class="text-center mt-5 mb-4">
-                    <a href="{{ route('staff.laporan_keamanan.create') }}" class="btn add-button">
-                        <i class="fa fa-plus-circle me-2"></i>
-                        Tambah Laporan
-                    </a>
-                </div>
+                {{-- Tombol Tambah Laporan (Hanya muncul di bawah jika ADA DATA) --}}
+                @if ($laporans->isNotEmpty())
+                    <div class="text-center mt-5 mb-4">
+                        <a href="{{ route('staff.laporan_keamanan.create') }}" class="btn add-button">
+                            <i class="fa fa-plus-circle me-2"></i> Tambah Laporan
+                        </a>
+                    </div>
+                @endif
 
             </div>
         </div>
     </main>
 
-    {{-- Bootstrap JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {{-- [PERBAIKAN] Modal Detail Laporan --}}
+    <div class="modal fade" id="modalDetailLaporan" tabindex="-1" aria-labelledby="modalDetailLaporanLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDetailLaporanLabel">Detail Laporan Keamanan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        {{-- Kolom Kiri --}}
+                        <div class="col-md-5">
+                            <div class="mb-3">
+                                <label class="form-label small text-muted">Tanggal</label>
+                                <input type="text" class="form-control" id="modalTanggal" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small text-muted">Nama Petugas</label>
+                                <input type="text" class="form-control" id="modalPetugas" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small text-muted">Judul Laporan</label>
+                                <input type="text" class="form-control" id="modalJudul" readonly>
+                            </div>
+                        </div>
 
+                        {{-- Kolom Kanan --}}
+                        <div class="col-md-7">
+                            <div class="mb-3">
+                                <label class="form-label small text-muted">Keterangan Lengkap</label>
+                                <textarea class="form-control" rows="10" id="modalKeterangan" readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // [PERBAIKAN] Fungsi untuk menampilkan modal dengan data dinamis
+        function showDetailModal(laporan, namaStaf) {
+            // Set data ke dalam elemen modal
+            document.getElementById('modalTanggal').value = new Date(laporan.tanggal).toLocaleDateString('id-ID');
+            document.getElementById('modalPetugas').value = namaStaf;
+            document.getElementById('modalJudul').value = laporan.judul_laporan;
+            document.getElementById('modalKeterangan').value = laporan.keterangan;
+
+            // Tampilkan modal menggunakan Bootstrap API
+            var myModal = new bootstrap.Modal(document.getElementById('modalDetailLaporan'));
+            myModal.show();
+        }
+
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                showConfirmButton: false,
+                timer: 2000
+            });
+        @endif
+    </script>
 </body>
 
 </html>

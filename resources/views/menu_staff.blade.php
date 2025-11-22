@@ -18,15 +18,16 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .header-teal {
-            background: linear-gradient(135deg, #008080, #006666);
+        /* [UBAH] Warna Header disamakan dengan navbar booking (#001931) */
+        .header-staff {
+            background-color: #001931;
             color: white;
             padding: 1rem;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .hero-section {
-            background: linear-gradient(135deg, rgba(0, 128, 128, 0.1), rgba(0, 102, 102, 0.05));
+            background: linear-gradient(135deg, rgba(0, 25, 49, 0.1), rgba(0, 25, 49, 0.05));
             padding: 3rem 1rem;
             border-radius: 16px;
             margin-bottom: 2rem;
@@ -49,7 +50,7 @@
         .menu-card:hover {
             transform: translateY(-8px);
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-            border-color: #008080;
+            border-color: #001931;
         }
 
         .menu-icon {
@@ -68,23 +69,24 @@
             transform: scale(1.1);
         }
 
+        /* Warna Icon disesuaikan sedikit agar harmonis */
         .icon-blue {
-            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-            color: #1976d2;
+            background: #e3f2fd;
+            color: #0d47a1;
         }
 
         .icon-green {
-            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
-            color: #388e3c;
+            background: #e8f5e9;
+            color: #1b5e20;
         }
 
         .icon-red {
-            background: linear-gradient(135deg, #ffebee, #ffcdd2);
-            color: #d32f2f;
+            background: #ffebee;
+            color: #b71c1c;
         }
 
         .icon-yellow {
-            background: linear-gradient(135deg, #fff9c4, #fff59d);
+            background: #fffde7;
             color: #f57f17;
         }
 
@@ -97,7 +99,7 @@
 
         .logout-btn {
             background: white;
-            color: #008080;
+            color: #001931;
             border: none;
             border-radius: 50px;
             padding: 0.5rem 1.5rem;
@@ -106,7 +108,7 @@
         }
 
         .logout-btn:hover {
-            background: #f0f0f0;
+            background: #e2e6ea;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
@@ -128,10 +130,10 @@
 <body>
 
     {{-- Header --}}
-    <header class="header-teal">
+    <header class="header-staff">
         <div class="container d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
-                {{-- Pastikan path gambar logo benar --}}
+                {{-- Logo --}}
                 <img src="{{ asset('img/logo-simk.png') }}" alt="Logo SIMK" class="img-fluid" style="height: 40px;">
                 <div>
                     <h1 class="mb-0 h5">SIMK</h1>
@@ -158,63 +160,41 @@
         </div>
     </div>
 
-    {{-- Main Content - Menu Grid --}}
+    {{-- Main Content --}}
     <main class="container pb-5">
         <div class="row g-4">
-
-            {{-- 1. Manajemen Staff --}}
             <div class="col-6 col-md-3">
-                {{-- Saya perbaiki href-nya menggunakan route dari master --}}
                 <a href="{{ route('staff.manajemen') }}" class="menu-card">
-                    <div class="menu-icon icon-blue">
-                        <i class="fa fa-users"></i>
-                    </div>
+                    <div class="menu-icon icon-blue"><i class="fa fa-users"></i></div>
                     <p class="menu-title">Manajemen Staff</p>
                 </a>
             </div>
-
-            {{-- 2. Informasi Penyewa --}}
             <div class="col-6 col-md-3">
-                {{-- Saya perbaiki href-nya menggunakan route dari master --}}
                 <a href="{{ route('staff.penyewa') }}" class="menu-card">
-                    <div class="menu-icon icon-green">
-                        <i class="fa fa-user-circle"></i>
-                    </div>
+                    <div class="menu-icon icon-green"><i class="fa fa-user-circle"></i></div>
                     <p class="menu-title">Informasi Penyewa</p>
                 </a>
             </div>
-
-            {{-- 3. Laporan Keamanan --}}
             <div class="col-6 col-md-3">
                 <a href="{{ route('staff.laporan_keamanan') }}" class="menu-card">
-                    <div class="menu-icon icon-red">
-                        <i class="fa fa-shield-alt"></i>
-                    </div>
+                    <div class="menu-icon icon-red"><i class="fa fa-shield-alt"></i></div>
                     <p class="menu-title">Laporan Keamanan</p>
                 </a>
             </div>
-
-            {{-- 4. Shift Kerja --}}
             <div class="col-6 col-md-3">
-                {{-- Saya perbaiki href-nya menggunakan route dari master --}}
                 <a href="{{ route('staff.shift_kerja') }}" class="menu-card">
-                    <div class="menu-icon icon-yellow">
-                        <i class="fa fa-clock"></i>
-                    </div>
+                    <div class="menu-icon icon-yellow"><i class="fa fa-clock"></i></div>
                     <p class="menu-title">Shift Kerja</p>
                 </a>
             </div>
-
         </div>
     </main>
 
-    {{-- Footer --}}
     <footer class="text-center py-4 text-muted border-top">
         <small>&copy; {{ date('Y') }} SIMK - Sistem Informasi Manajemen Kos</small>
     </footer>
 
-    {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
+
 </html>

@@ -12,10 +12,11 @@ class LaporanKeamanan extends Model
     protected $table = 'laporan_keamanans';
     protected $primaryKey = 'id_laporan';
 
+    // Sesuaikan dengan kolom yang ada di migration lama Anda
     protected $fillable = [
         'id_staf',
         'judul_laporan',
-        'keterangan',
+        'keterangan', // Kolom ini akan menampung gabungan data
         'tanggal',
     ];
 
@@ -27,5 +28,4 @@ class LaporanKeamanan extends Model
     {
         return $this->belongsTo(Staf::class, 'id_staf', 'id_staf');
     }
-
 }

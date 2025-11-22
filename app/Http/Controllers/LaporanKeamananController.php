@@ -2,64 +2,64 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\laporan_keamanan;
+use App\Models\LaporanKeamanan;
+use App\Models\Staf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LaporanKeamananController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        // Ambil data laporan urut dari yang terbaru
+        $laporans = LaporanKeamanan::with('staf')
+                    ->orderBy('tanggal', 'desc')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+        return view('laporan_keamanan_staf', compact('laporans'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('tambah_laporan_staf');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
-    }
+        // 1. Validasi semua input dari form
+        $request->validate([
+            'judul'          => 'required|string|max:200',
+            'tanggal'        => 'required|date',
+            'waktu'          => 'required',
+            'jenis_kejadian' => 'required',
+            'lokasi'         => 'required',
+            'deskripsi'      => 'required',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(laporan_keamanan $laporan_keamanan)
-    {
-        //
-    }
+        // 2. Ambil ID Staf dari user yang login
+        $user = Auth::user();
+        $staf = Staf::where('username', $user->username)->first();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(laporan_keamanan $laporan_keamanan)
-    {
-        //
-    }
+        if (!$staf) {
+            return back()->withErrors(['error' => 'Data staf tidak ditemukan.']);
+        }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, laporan_keamanan $laporan_keamanan)
-    {
-        //
-    }
+        // 3. GABUNGKAN DATA (Logika Struktur Lama)
+        // Menggabungkan waktu, jenis, lokasi, dan deskripsi menjadi satu string
+        $keteranganLengkap = "Pukul: " . $request->waktu . "\n" .
+                             "Jenis Kejadian: " . $request->jenis_kejadian . "\n" .
+                             "Lokasi: " . $request->lokasi . "\n" .
+                             "Detail:\n" . $request->deskripsi;
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(laporan_keamanan $laporan_keamanan)
-    {
-        //
+        // 4. Simpan ke Database
+        LaporanKeamanan::create([
+            'id_staf'       => $staf->id_staf,
+            'judul_laporan' => $request->judul,
+            'tanggal'       => $request->tanggal,
+            'keterangan'    => $keteranganLengkap, // Simpan hasil gabungan di sini
+        ]);
+
+        return redirect()->route('staff.laporan_keamanan')->with('success', 'Laporan berhasil ditambahkan!');
     }
 }
