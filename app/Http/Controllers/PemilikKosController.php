@@ -13,6 +13,7 @@ use App\Models\Staf;
 use Carbon\Carbon;
 use App\Models\Booking;
 use App\Models\Kamar; // Model Staf (Profil)
+use App\Models\Pengeluaran;
 
 class PemilikKosController extends Controller
 {
@@ -22,38 +23,109 @@ class PemilikKosController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $now = Carbon::now();
+        $bulanSaatIni = $now->month;
+        $tahunSaatIni = $now->year;
 
         // --- 1. DATA PENDAPATAN BULAN INI ---
-        // Asumsi: status booking yang sudah bayar adalah 'lunas' atau 'confirmed'
-        // Sesuaikan 'lunas' dengan value enum di database Anda
         $pendapatanBulanIni = Booking::where('status_booking', 'lunas')
-            ->whereMonth('tanggal', Carbon::now()->month)
-            ->whereYear('tanggal', Carbon::now()->year)
+            ->whereMonth('tanggal', $bulanSaatIni)
+            ->whereYear('tanggal', $tahunSaatIni)
             ->sum('nominal');
 
-        // --- 2. DATA KAMAR KOSONG ---
-        // Mengambil semua kamar yang statusnya 'tersedia'
+        // --- 5. DATA PENDAPATAN 6 BULAN TERAKHIR UNTUK CHART ---
+        // Menghitung bulan mulai (6 bulan lalu dari bulan ini)
+        $bulanMulai = $now->copy()->subMonths(5)->startOfMonth(); 
+
+        $pendapatan6Bulan = Booking::select(
+                DB::raw('MONTH(tanggal) as bulan'),
+                DB::raw('YEAR(tanggal) as tahun'),
+                DB::raw('SUM(nominal) as total_nominal')
+            )
+            ->where('status_booking', 'lunas') // Hanya hitung yang sudah lunas
+            ->where('tanggal', '>=', $bulanMulai) // Mulai dari 6 bulan terakhir
+            ->groupBy(DB::raw('YEAR(tanggal)'), DB::raw('MONTH(tanggal)'))
+            ->orderBy(DB::raw('YEAR(tanggal)'), 'asc')
+            ->orderBy(DB::raw('MONTH(tanggal)'), 'asc')
+            ->get()
+            ->keyBy(function($item) {
+                // Kunci format YYYY-MM untuk memudahkan penggabungan
+                return $item->tahun . '-' . str_pad($item->bulan, 2, '0', STR_PAD_LEFT);
+            });
+
+        // Membuat array 6 bulan terakhir dengan nilai default 0
+        $dataChart = [];
+        $labelsChart = [];
+        // Nama bulan dalam Bahasa Indonesia (jika perlu diganti)
+        $bulanNama = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        // Isi data untuk 6 bulan terakhir
+        for ($i = 5; $i >= 0; $i--) {
+            $bulanIterasi = $now->copy()->subMonths($i);
+            $key = $bulanIterasi->year . '-' . str_pad($bulanIterasi->month, 2, '0', STR_PAD_LEFT);
+            $namaBulan = $bulanNama[$bulanIterasi->month - 1];
+            
+            // Tambahkan Label Bulan
+            $labelsChart[] = $namaBulan;
+
+            // Ambil data nominal, jika tidak ada, default 0
+            $nominal = $pendapatan6Bulan->has($key) ? $pendapatan6Bulan[$key]->total_nominal : 0;
+            
+            // Konversi ke Juta Rupiah (Pastikan Anda tahu skala chart yang diinginkan)
+            // Jika Anda ingin 1 = Rp 1.000.000, maka gunakan pembagian ini.
+            $dataChart[] = round($nominal / 1000000, 2); 
+        }
+        // END DATA PENDAPATAN 6 BULAN
+
+        // --- 6. DATA PENGELUARAN 6 BULAN TERAKHIR UNTUK CHART ---
+        $pengeluaran6Bulan = Pengeluaran::select( // <-- Query ke tabel pengeluarans
+                DB::raw('MONTH(created_at) as bulan'),
+                DB::raw('YEAR(created_at) as tahun'),
+                DB::raw('SUM(sub_total) as total_pengeluaran') // Asumsi field total adalah 'sub_total'
+            )
+            ->where('created_at', '>=', $bulanMulai)
+            ->groupBy(DB::raw('YEAR(created_at)'), DB::raw('MONTH(created_at)'))
+            ->orderBy(DB::raw('YEAR(created_at)'), 'asc')
+            ->orderBy(DB::raw('MONTH(created_at)'), 'asc')
+            ->get()
+            ->keyBy(function($item) {
+                return $item->tahun . '-' . str_pad($item->bulan, 2, '0', STR_PAD_LEFT);
+            });
+
+        $dataPengeluaranChart = [];
+        
+        // Isi data pengeluaran untuk 6 bulan terakhir
+        for ($i = 5; $i >= 0; $i--) {
+            $bulanIterasi = $now->copy()->subMonths($i);
+            $key = $bulanIterasi->year . '-' . str_pad($bulanIterasi->month, 2, '0', STR_PAD_LEFT);
+
+            // Ambil data pengeluaran nominal, jika tidak ada, default 0
+            $nominalPengeluaran = $pengeluaran6Bulan->has($key) ? $pengeluaran6Bulan[$key]->total_pengeluaran : 0;
+            
+            // Konversi ke Juta Rupiah (skala sama dengan Pendapatan)
+            $dataPengeluaranChart[] = round($nominalPengeluaran / 1000000, 2); 
+        }
+
+        // --- 2. DATA KAMAR KOSONG --- (dst...)
         $daftarKamarKosong = Kamar::where('status', 'tersedia')->get();
         $jumlahKamarKosong = $daftarKamarKosong->count();
         $totalKamar = Kamar::count();
 
         // --- 3. DATA PERMINTAAN SEWA (BARU) ---
-        // Asumsi: Booking baru statusnya 'menunggu' atau 'pending'
-        $permintaanSewa = Booking::where('status_booking', 'menunggu') // Sesuaikan dengan enum DB Anda
-            ->with(['penyewa', 'kamar']) // Eager load relasi agar efisien
+        $permintaanSewa = Booking::where('status_booking', 'menunggu')
+            ->with(['penyewa', 'kamar'])
             ->orderBy('tanggal', 'desc')
             ->get();
         $jumlahPermintaan = $permintaanSewa->count();
 
         // --- 4. DATA BELUM LUNAS / JATUH TEMPO ---
-        // Asumsi: status 'belum_lunas' atau mencari yang telat bayar
-        $belumLunas = Booking::where('status_booking', 'belum_lunas') // Sesuaikan dengan enum DB Anda
+        $belumLunas = Booking::where('status_booking', 'belum_lunas')
             ->with(['penyewa', 'kamar'])
             ->get();
         $jumlahBelumLunas = $belumLunas->count();
         $totalUangBelumLunas = $belumLunas->sum('nominal');
 
-        return view('home_pemilik', compact( // Pastikan nama view sesuai file Anda
+        return view('home_pemilik', compact(
             'user',
             'pendapatanBulanIni',
             'daftarKamarKosong',
@@ -63,7 +135,11 @@ class PemilikKosController extends Controller
             'jumlahPermintaan',
             'belumLunas',
             'jumlahBelumLunas',
-            'totalUangBelumLunas'
+            'totalUangBelumLunas',
+            // Variabel Baru
+            'dataChart',
+            'labelsChart',
+            'dataPengeluaranChart'
         ));
     }
 
