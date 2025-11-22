@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,127 +17,172 @@
     <link rel="stylesheet" href="{{ asset('css/style_info_kamar.css') }}">
 
     <style>
-        /* [BARU] Basic setup untuk halaman standalone */
-        body {
-            background-color: #f4f7f6; /* Warna latar belakang abu-abu muda */
-            font-family: 'Inter', sans-serif; /* Ganti font jika mau */
-        }
-        /* Menggantikan .container-fluid py-4 */
-        .page-container {
-            max-width: 900px; /* Batasi lebar form */
-            margin: 40px auto; /* Posisi di tengah */
-            padding: 0 20px;
+    /* [BARU] Basic setup untuk halaman standalone */
+    body {
+        background-color: #f4f7f6;
+        /* Warna latar belakang abu-abu muda */
+        font-family: 'Inter', sans-serif;
+        /* Ganti font jika mau */
+    }
+
+    /* Menggantikan .container-fluid py-4 */
+    .page-container {
+        max-width: 900px;
+        /* Batasi lebar form */
+        margin: 40px auto;
+        /* Posisi di tengah */
+        padding: 0 20px;
+    }
+
+    /* ... (CSS dari @section('styles') Anda sebelumnya) ... */
+    .app-view {
+        display: none;
+    }
+
+    .app-view.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
         }
 
-        /* ... (CSS dari @section('styles') Anda sebelumnya) ... */
-        .app-view { display: none; }
-        .app-view.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        to {
+            opacity: 1;
+        }
+    }
 
-        .header-container {
-            background-color: #0c3b69;
-            color: white;
-            padding: 24px 30px;
-            border-radius: 12px;
-            margin-bottom: 24px;
-        }
-        .header-container h2 { margin: 0; font-weight: 700; }
-        .header-container p { margin: 0; opacity: 0.9; font-size: 1rem; }
+    .header-container {
+        background-color: #0c3b69;
+        color: white;
+        padding: 24px 30px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+    }
 
-        .form-card-container {
-            background: white;
-            padding: 20px 30px 30px 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
-        }
+    .header-container h2 {
+        margin: 0;
+        font-weight: 700;
+    }
 
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #007bff;
-            display: inline-block;
-        }
+    .header-container p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
 
-        .form-group { margin-bottom: 1.25rem; }
-        .form-group label {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            display: block;
-            color: #495057;
-            font-size: 0.95rem;
-        }
-        .form-group label i {
-            width: 20px;
-            margin-right: 8px;
-            color: #007bff;
-        }
+    .form-card-container {
+        background: white;
+        padding: 20px 30px 30px 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+    }
 
-        .form-control, .form-select {
-            border-radius: 6px;
-            padding: 0.75rem 1rem;
-            border: 1px solid #ced4da;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-        }
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 3px solid #007bff;
+        display: inline-block;
+    }
 
-        .file-upload-label {
-            background-color: var(--navy-dark);
-            color: var(--white);
-            padding: 12px 20px;
-            border-radius: 8px;
-            width:30%
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.3s, transform 0.2s;
-            align-self: flex-start;
-            margin-top: 10px;
-        }
-        .file-upload-label:hover {
-            background-color: #002d5a;
-            transform: translateY(-1px);
-        }
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
 
-        #file-name-display {
-            color: #6c757d;
-            font-style: italic;
-            font-size: 0.9em;
-            margin-top: 10px;
-        }
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+        color: #495057;
+        font-size: 0.95rem;
+    }
 
-        /* [CSS BARU] Untuk Tombol Simpan yang Keren */
-        .btn-submit-main {
-            background: linear-gradient(45deg, var(--navy-dark), var(--accent-blue));
-            color: var(--white);
-            border: none;
-            padding: 15px 40px;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 10px 20px rgba(0, 25, 49, 0.3);
-            letter-spacing: 0.5px;
-        }
-        .btn-submit-main i {
-            margin-right: 10px; /* Jarak ikon */
-        }
-        .btn-submit-main:hover {
-            background-color: #082a4d; /* Biru lebih tua saat hover */
-            color: white;
-        }
-        .btn-submit-main:active {
-             transform: scale(0.98); /* Efek ditekan */
-        }
+    .form-group label i {
+        width: 20px;
+        margin-right: 8px;
+        color: #007bff;
+    }
 
-        /* [CSS LAMA DIHAPUS] .btn-primary, .btn-secondary, .gap-2 */
+    .form-control,
+    .form-select {
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        border: 1px solid #ced4da;
+    }
 
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+    }
+
+    .file-upload-label {
+        background-color: var(--navy-dark);
+        color: var(--white);
+        padding: 12px 20px;
+        border-radius: 8px;
+        width: 10;
+        /* Mengganti width: 30% menjadi auto */
+        display: inline-block;
+        /* width: 30% cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.3s, transform 0.2s;
+        align-self: flex-start;
+        margin-top: 10px; */
+    }
+
+    .file-upload-label:hover {
+        background-color: #002d5a;
+        transform: translateY(-1px);
+    }
+
+    #file-name-display {
+        color: #6c757d;
+        font-style: italic;
+        font-size: 0.9em;
+        margin-top: 10px;
+    }
+
+    /* [CSS BARU] Untuk Tombol Simpan yang Keren */
+    .btn-submit-main {
+        background: linear-gradient(45deg, var(--navy-dark), var(--accent-blue));
+        color: var(--white);
+        border: none;
+        padding: 15px 40px;
+        border-radius: 10px;
+        font-size: 1.1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 10px 20px rgba(0, 25, 49, 0.3);
+        letter-spacing: 0.5px;
+    }
+
+    .btn-submit-main i {
+        margin-right: 10px;
+        /* Jarak ikon */
+    }
+
+    .btn-submit-main:hover {
+        background-color: #082a4d;
+        /* Biru lebih tua saat hover */
+        color: white;
+    }
+
+    .btn-submit-main:active {
+        transform: scale(0.98);
+        /* Efek ditekan */
+    }
+
+    /* [CSS LAMA DIHAPUS] .btn-primary, .btn-secondary, .gap-2 */
     </style>
 </head>
+
 <body>
 
     <div class="page-container">
@@ -161,7 +207,8 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="edit-nomor-kamar"><i class="fas fa-hashtag"></i> Nomor Kamar:</label>
-                                <input type="text" id="edit-nomor-kamar" class="form-control" value="{{ $kamar->no_kamar }}" disabled>
+                                <input type="text" id="edit-nomor-kamar" class="form-control"
+                                    value="{{ $kamar->no_kamar }}" disabled>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -179,14 +226,17 @@
                             <div class="form-group">
                                 <label for="edit-status-kamar"><i class="fas fa-check-circle"></i> Status Kamar:</label>
                                 <select id="edit-status-kamar" name="status" class="form-select" required>
-                                    <option value="tersedia" {{ $kamar->status == 'tersedia' ? 'selected' : '' }}>Tersedia</option>
-                                    <option value="terisi" {{ $kamar->status == 'terisi' ? 'selected' : '' }}>Terisi</option>
+                                    <option value="tersedia" {{ $kamar->status == 'tersedia' ? 'selected' : '' }}>
+                                        Tersedia</option>
+                                    <option value="terisi" {{ $kamar->status == 'terisi' ? 'selected' : '' }}>Terisi
+                                    </option>
                                 </select>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="edit-harga-per-bulan"><i class="fas fa-dollar-sign"></i> Harga per Bulan (Rp):</label>
+                                <label for="edit-harga-per-bulan"><i class="fas fa-dollar-sign"></i> Harga per Bulan
+                                    (Rp):</label>
                                 <input type="number" id="edit-harga-per-bulan" name="harga" class="form-control"
                                     value="{{ $kamar->harga }}" required>
                             </div>
@@ -199,15 +249,19 @@
                             <div class="form-group">
                                 <label for="edit-tipe-kamar"><i class="fas fa-bed"></i> Tipe Kamar:</label>
                                 <select id="edit-tipe-kamar" name="tipe_kamar" class="form-select" required>
-                                    <option value="kosongan" {{ $kamar->tipe_kamar == 'kosongan' ? 'selected' : '' }}>Kosongan</option>
-                                    <option value="basic" {{ $kamar->tipe_kamar == 'basic' ? 'selected' : '' }}>Basic</option>
-                                    <option value="ekslusif" {{ $kamar->tipe_kamar == 'ekslusif' ? 'selected' : '' }}>Ekslusif</option>
+                                    <option value="kosongan" {{ $kamar->tipe_kamar == 'kosongan' ? 'selected' : '' }}>
+                                        Kosongan</option>
+                                    <option value="basic" {{ $kamar->tipe_kamar == 'basic' ? 'selected' : '' }}>Basic
+                                    </option>
+                                    <option value="ekslusif" {{ $kamar->tipe_kamar == 'ekslusif' ? 'selected' : '' }}>
+                                        Ekslusif</option>
                                 </select>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="edit-ukuran-kamar"><i class="fas fa-ruler-combined"></i> Ukuran Kamar (m²):</label>
+                                <label for="edit-ukuran-kamar"><i class="fas fa-ruler-combined"></i> Ukuran Kamar
+                                    (m²):</label>
                                 <input type="text" id="edit-ukuran-kamar" name="ukuran" class="form-control"
                                     placeholder="Contoh: 3x4" value="{{ $kamar->ukuran }}" required>
                             </div>
@@ -227,12 +281,14 @@
                             <div class="form-group">
                                 <label><i class="fas fa-image"></i> Upload Foto Kamar (Opsional):</label>
                                 <div class="file-upload-container">
-                                    <input type="file" id="foto-kamar" name="foto_kamar" accept="image/*" style="display: none;">
+                                    <input type="file" id="foto-kamar" name="foto_kamar" accept="image/*"
+                                        style="display: none;">
                                     <label for="foto-kamar" class="file-upload-label">Pilih File</label>
                                     <span id="file-name-display">Tidak ada file yang dipilih</span>
                                 </div>
                                 @if ($kamar->foto_kamar)
-                                    <small class="form-text text-muted mt-2">Foto saat ini: {{ basename($kamar->foto_kamar) }}</small>
+                                <small class="form-text text-muted mt-2">Foto saat ini:
+                                    {{ basename($kamar->foto_kamar) }}</small>
                                 @endif
                             </div>
                         </div>
@@ -256,63 +312,67 @@
 
     {{-- Kode JavaScript Anda dari @section('scripts') --}}
     <script>
-        const kamar = @json($kamar);
-        const baseUrl = '{{ url('/') }}';
-        const assetUrl = '{{ asset('') }}'.slice(0, -1);
-        const updateRoute = '{{ route('pemilik.editkamar.update', $kamar->no_kamar) }}';
+    const kamar = @json($kamar);
+    const baseUrl = '{{ url(' / ') }}';
+    const assetUrl = '{{ asset('
+    ') }}'.slice(0, -1);
+    const updateRoute = '{{ url(' /
+        editkamar / ' . $kamar->no_kamar) }}';
 
-        function showView(viewId) {
-            document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-        }
+    function showView(viewId) {
+        document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+    }
 
-        function asset(path) {
-            return assetUrl + (path.startsWith('/') ? '' : '/') + path;
-        }
+    function asset(path) {
+        return assetUrl + (path.startsWith('/') ? '' : '/') + path;
+    }
 
-        function ucfirst(str) {
-            return str.charAt(0).toUpperCase() + str.slice(1);
-        }
+    function ucfirst(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
 
-        document.getElementById('foto-kamar').addEventListener('change', function() {
-            const fileName = this.files[0]?.name || 'Tidak ada file yang dipilih';
-            document.getElementById('file-name-display').textContent = fileName;
-        });
+    document.getElementById('foto-kamar').addEventListener('change', function() {
+        const fileName = this.files[0]?.name || 'Tidak ada file yang dipilih';
+        document.getElementById('file-name-display').textContent = fileName;
+    });
 
-        document.getElementById('form-edit-kamar').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const url = updateRoute;
+    document.getElementById('form-edit-kamar').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const url = updateRoute;
 
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-
-                const result = await response.json();
-
-                if (response.ok && result.success) {
-                    alert('Data kamar berhasil diperbarui!');
-                    // Redirect ke halaman sebelumnya (atau halaman daftar kamar)
-                    // window.history.back() mungkin lebih baik drpd reload
-                    window.location.href = document.referrer || '{{ route('pemilik.datakamar') }}'; // Asumsi Anda punya route ini
-                } else {
-                    alert(result.message || 'Gagal menyimpan data.');
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
-            } catch (err) {
-                console.error(err);
-                alert('Terjadi kesalahan: ' + err.message);
-            }
-        });
+            });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            showView('edit-data-kamar-form-view');
-        });
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                alert('Data kamar berhasil diperbarui!');
+                // Redirect ke halaman sebelumnya (atau halaman daftar kamar)
+                // window.history.back() mungkin lebih baik drpd reload
+                window.location.href = document.referrer || '{{ url(' /
+                    editkamar / ' . $kamar->no_kamar) }}'; // Asumsi Anda punya route ini
+            } else {
+                alert(result.message || 'Gagal menyimpan data.');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Terjadi kesalahan: ' + err.message);
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        showView('edit-data-kamar-form-view');
+    });
     </script>
 </body>
+
 </html>
