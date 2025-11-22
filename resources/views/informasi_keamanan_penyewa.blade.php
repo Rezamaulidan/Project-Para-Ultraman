@@ -2,19 +2,14 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Informasi Keamanan - SIMK</title>
 
     {{-- Link untuk memuat file CSS Bootstrap --}}
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     {{-- Link Font Awesome (agar ikon berfungsi) --}}
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
@@ -71,6 +66,18 @@
         /* Style agar item list bisa diklik */
         .list-group-item-action {
             cursor: pointer;
+        }
+
+        /* Style for empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #9e9e9e;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
@@ -129,51 +136,25 @@
             <div class="card-body p-4 pt-2">
 
                 <div class="list-group">
-
-
-                    {{-- Contoh Laporan 1 (dari gambar 1) --}}
-                    <a class="list-group-item list-group-item-action" data-bs-toggle="modal"
-                        data-bs-target="#modalDetailLaporan">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">Orang mencurigakan</h6>
-                            <small class="text-muted">19/05/2025 | 19:47</small>
+                    @forelse($laporans as $laporan)
+                        {{-- Laporan Item --}}
+                        <a class="list-group-item list-group-item-action"
+                           onclick="showDetailModal({{ json_encode($laporan) }}, '{{ $laporan->staf->nama_staf ?? 'Staf' }}')">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ $laporan->judul_laporan }}</h6>
+                                <small class="text-muted">{{ \Carbon\Carbon::parse($laporan->tanggal)->format('d/m/Y') }}</small>
+                            </div>
+                            <p class="mb-1 small text-muted text-truncate" style="max-width: 90%;">
+                                {{ Str::limit($laporan->keterangan, 80) }}
+                            </p>
+                        </a>
+                    @empty
+                        {{-- Empty State --}}
+                        <div class="empty-state">
+                            <i class="fa-regular fa-folder-open"></i>
+                            <p>Belum ada laporan keamanan saat ini.</p>
                         </div>
-                        <p class="mb-1 small text-muted">Ditemukan tamu laki-laki yang masuk
-                            tanpa izin ke kamar penghuni...</p>
-                    </a>
-
-                    {{-- Contoh Laporan 2 (dari gambar 2) --}}
-                    <a class="list-group-item list-group-item-action" data-bs-toggle="modal"
-                        data-bs-target="#modalDetailLaporan">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">Pemadaman listrik</h6>
-                            <small class="text-muted">11/05/2025 | 02:10</small>
-                        </div>
-                        <p class="mb-1 small text-muted">Terjadi pemadaman listrik mendadak
-                            sekitar pukul 02.10...</p>
-                    </a>
-
-                    {{-- Contoh Laporan 3 (dari gambar 2) --}}
-                    <a class="list-group-item list-group-item-action" data-bs-toggle="modal"
-                        data-bs-target="#modalDetailLaporan">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">Kehilangan Barang</h6>
-                            <small class="text-muted">10/05/2025 | 07:00</small>
-                        </div>
-                        <p class="mb-1 small text-muted">Penghuni kamar 13 melaporkan kehilangan
-                            sandal di de...</p>
-                    </a>
-
-                    {{-- Contoh Laporan 4 (dari gambar 2) --}}
-                    <a class="list-group-item list-group-item-action" data-bs-toggle="modal"
-                        data-bs-target="#modalDetailLaporan">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">CCTV Mati</h6>
-                            <small class="text-muted">5/05/2025 | 09:05</small>
-                        </div>
-                        <p class="mb-1 small text-muted">Salah satu CCTV di lorong lantai 2 mati
-                            sejak pukul 09.00...</p>
-                    </a>
+                    @endforelse
                 </div>
 
             </div>
@@ -192,41 +173,29 @@
                 </div>
                 <div class="modal-body">
 
-                    {{-- Konten modal diisi dengan data dari gambar 1 --}}
+                    {{-- Konten modal dinamis --}}
                     <div class="row g-3">
                         {{-- Kolom Kiri --}}
                         <div class="col-md-5">
                             <div class="mb-3">
-                                <label class="form-label small text-muted">Tanggal &
-                                    Waktu</label>
-                                <div class="row g-2">
-                                    <div class="col-7">
-                                        <input type="text" class="form-control" value="19/05/2025" readonly>
-                                    </div>
-                                    <div class="col-5">
-                                        <input type="text" class="form-control" value="19:47" readonly>
-                                    </div>
-                                </div>
+                                <label class="form-label small text-muted">Tanggal</label>
+                                <input type="text" class="form-control" id="modalTanggal" readonly>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small text-muted">Nama
-                                    Petugas</label>
-                                <input type="text" class="form-control" value="Joshua Andru" readonly>
+                                <label class="form-label small text-muted">Nama Petugas</label>
+                                <input type="text" class="form-control" id="modalPetugas" readonly>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small text-muted">Jenis
-                                    Kejadian</label>
-                                <input type="text" class="form-control" value="Orang mencurigakan" readonly>
+                                <label class="form-label small text-muted">Judul Laporan</label>
+                                <input type="text" class="form-control" id="modalJudul" readonly>
                             </div>
                         </div>
 
                         {{-- Kolom Kanan --}}
                         <div class="col-md-7">
                             <div class="mb-3">
-                                <label class="form-label small text-muted">Keterangan</label>
-
-                                <textarea class="form-control" rows="8" readonly>Ditemukan tamu laki-laki yang masuk tanpa izin ke kamar penghuni (kamar 6) pada pukul 19:47. Tamu tidak melapor ke pos keamanan dan langsung masuk melalui pintu samping.</textarea>
-
+                                <label class="form-label small text-muted">Keterangan Lengkap</label>
+                                <textarea class="form-control" rows="10" id="modalKeterangan" readonly></textarea>
                             </div>
                         </div>
 
@@ -241,8 +210,21 @@
     {{-- Link untuk memuat JavaScript Bootstrap --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    {{-- JavaScript untuk Sliding Indicator --}}
+    {{-- JavaScript untuk Sliding Indicator & Modal Logic --}}
     <script>
+        // Fungsi untuk menampilkan modal dengan data dinamis
+        function showDetailModal(laporan, namaStaf) {
+            // Set data ke dalam elemen modal
+            document.getElementById('modalTanggal').value = new Date(laporan.tanggal).toLocaleDateString('id-ID');
+            document.getElementById('modalPetugas').value = namaStaf;
+            document.getElementById('modalJudul').value = laporan.judul_laporan;
+            document.getElementById('modalKeterangan').value = laporan.keterangan;
+
+            // Tampilkan modal menggunakan Bootstrap API
+            var myModal = new bootstrap.Modal(document.getElementById('modalDetailLaporan'));
+            myModal.show();
+        }
+
         // Fungsi untuk mengatur posisi sliding indicator
         function setActiveIndicator() {
             const activeTab = document.querySelector('.nav-tabs .nav-link.active');

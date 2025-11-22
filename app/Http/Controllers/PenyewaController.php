@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Penyewa;
 use App\Models\Kamar;
+use App\Models\LaporanKeamanan;
 use App\Http\Requests\StorePenyewaRequest;
 use App\Http\Requests\UpdatePenyewaRequest;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +13,13 @@ class PenyewaController extends Controller
 {
     public function showKeamanan()
     {
-        return view('informasi_keamanan_penyewa');
+        // Fetch security reports, ordered by date (newest first)
+        $laporans = LaporanKeamanan::with('staf') // Load staff data if you want to show who reported it
+                    ->orderBy('tanggal', 'desc')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+        return view('informasi_keamanan_penyewa', compact('laporans'));
     }
 
     public function showPembayaran()
