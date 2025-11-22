@@ -160,7 +160,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/editkamar/{no_kamar}', [KamarController::class, 'edit'])->name('pemilik.editkamar');
         Route::put('/editkamar/{no_kamar}', [KamarController::class, 'update'])->name('pemilik.editkamar.update');
 
-        // Hapus Kamar
+        // // Hapus Kamar
         Route::delete('/kamar/{no_kamar}', [KamarController::class, 'destroy'])->name('pemilik.kamar.destroy');
 
         // Menu Lain Pemilik
