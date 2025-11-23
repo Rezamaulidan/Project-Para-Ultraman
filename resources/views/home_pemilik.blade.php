@@ -117,9 +117,9 @@ body {
 <div class="container-fluid py-4">
     <div class="row mb-4 align-items-center">
         <div class="col-md-8">
-            <h2 style="color: #001931; font-weight: 700;">Dashboard Pemilik</h2>
-            <p class="text-muted">Selamat datang kembali, <b>{{ $user->nama_pemilik ?? 'Pemilik' }}</b>! Berikut
-                ringkasan kos Anda.</p>
+            <h2 style="color: #001931; font-weight: 700;">Hallo Bos <b>{{ $user->nama_pemilik ?? 'pemilik' }}!</b>
+            </h2>
+            <p class="text-muted">Selamat Datang di SMIK, Berikut adalah ringkasan manajemen kos Anda.</p>
         </div>
     </div>
 
@@ -333,10 +333,10 @@ body {
 
                 </div>
                 <div class="card-footer bg-white text-center border-0 py-3">
-                    <a href="#" class="text-decoration-none fw-bold small text-uppercase"
+                    <!-- <a href="#" class="text-decoration-none fw-bold small text-uppercase"
                         style="color: #001931; letter-spacing: 1px;">
                         Lihat Semua Data <i class="fas fa-arrow-right ms-1"></i>
-                    </a>
+                    </a> -->
                 </div>
             </div>
         </div>

@@ -23,6 +23,7 @@ class PemilikKosController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $user = $user->load('PemilikKos')->PemilikKos;
         $now = Carbon::now();
         $bulanSaatIni = $now->month;
         $tahunSaatIni = $now->year;
