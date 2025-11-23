@@ -6,35 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Data Kamar - SIMK</title>
 
-    {{-- Aset yang Diperlukan (Karena @extends dihapus) --}}
-    {{-- 1. Bootstrap CSS (Untuk layout grid row/col) --}}
+    {{-- Aset yang Diperlukan --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    {{-- 2. Font Awesome (Untuk Ikon) --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    {{-- 3. CSS Kustom Anda --}}
     <link rel="stylesheet" href="{{ asset('css/style_info_kamar.css') }}">
 
     <style>
-    /* [BARU] Basic setup untuk halaman standalone */
     body {
         background-color: #f4f7f6;
-        /* Warna latar belakang abu-abu muda */
         font-family: 'Inter', sans-serif;
-        /* Ganti font jika mau */
     }
 
-    /* Menggantikan .container-fluid py-4 */
     .page-container {
         max-width: 900px;
-        /* Batasi lebar form */
         margin: 40px auto;
-        /* Posisi di tengah */
         padding: 0 20px;
     }
 
-    /* ... (CSS dari @section('styles') Anda sebelumnya) ... */
     .app-view {
         display: none;
     }
@@ -122,18 +110,15 @@
     }
 
     .file-upload-label {
-        background-color: var(--navy-dark);
-        color: var(--white);
+        background-color: #0c3b69;
+        color: white;
         padding: 12px 20px;
         border-radius: 8px;
-        width: 10;
-        /* Mengganti width: 30% menjadi auto */
         display: inline-block;
-        /* width: 30% cursor: pointer;
-        font-weight: 500;
-        transition: background-color 0.3s, transform 0.2s;
-        align-self: flex-start;
-        margin-top: 10px; */
+        cursor: pointer;
+        width: 13%;
+        transition: all 0.3s;
+
     }
 
     .file-upload-label:hover {
@@ -142,16 +127,15 @@
     }
 
     #file-name-display {
-        color: #6c757d;
+        color: #ffffffff;
         font-style: italic;
         font-size: 0.9em;
         margin-top: 10px;
     }
 
-    /* [CSS BARU] Untuk Tombol Simpan yang Keren */
     .btn-submit-main {
-        background: linear-gradient(45deg, var(--navy-dark), var(--accent-blue));
-        color: var(--white);
+        background: linear-gradient(45deg, #0c3b69, #007bff);
+        color: white;
         border: none;
         padding: 15px 40px;
         border-radius: 10px;
@@ -160,34 +144,31 @@
         cursor: pointer;
         transition: all 0.3s;
         box-shadow: 0 10px 20px rgba(0, 25, 49, 0.3);
-        letter-spacing: 0.5px;
+        width: 50%;
+        text-align: center;
+        align-items: center;
+        transition: all 0.3s;
     }
 
     .btn-submit-main i {
         margin-right: 10px;
-        /* Jarak ikon */
     }
 
     .btn-submit-main:hover {
-        background-color: #082a4d;
-        /* Biru lebih tua saat hover */
+        background: #082a4d;
         color: white;
     }
 
     .btn-submit-main:active {
         transform: scale(0.98);
-        /* Efek ditekan */
     }
-
-    /* [CSS LAMA DIHAPUS] .btn-primary, .btn-secondary, .gap-2 */
     </style>
 </head>
 
 <body>
 
     <div class="page-container">
-
-        {{-- Header Biru Sesuai Gambar --}}
+        {{-- Header --}}
         <div class="header-container">
             <h2>Edit Data Kamar Kos 🏠</h2>
             <p>Kelola dan perbarui detail properti untuk kamar No. {{ $kamar->no_kamar }} secara efisien.</p>
@@ -195,12 +176,10 @@
 
         {{-- Form Edit Kamar --}}
         <div id="edit-data-kamar-form-view" class="app-view active">
-
             <div class="form-card-container">
                 <form id="form-edit-kamar" enctype="multipart/form-data">
                     @csrf
-                    @method('PUT')
-                    <input type="hidden" id="edit-room-id" name="no_kamar" value="{{ $kamar->no_kamar }}">
+                    {{-- FIX: Hapus @method('PUT') dan input hidden no_kamar yang tidak perlu --}}
 
                     <h3 class="section-title">Informasi Dasar</h3>
                     <div class="row">
@@ -283,7 +262,8 @@
                                 <div class="file-upload-container">
                                     <input type="file" id="foto-kamar" name="foto_kamar" accept="image/*"
                                         style="display: none;">
-                                    <label for="foto-kamar" class="file-upload-label">Pilih File</label>
+                                    <label for="foto-kamar" class="file-upload-label" style="color: white;">Pilih
+                                        File</label>
                                     <span id="file-name-display">Tidak ada file yang dipilih</span>
                                 </div>
                                 @if ($kamar->foto_kamar)
@@ -294,42 +274,26 @@
                         </div>
                     </div>
 
-                    {{-- [MODIFIKASI] Tombol Batal dihapus, Tombol Simpan diganti --}}
                     <div class="mt-4">
                         <button type="submit" id="btn-simpan-edit" class="btn-submit-main">
-                            <i class="fas fa-save"></i>
-                            Simpan Data Kamar Sekarang
+                            <i class="fas fa-save"></i> Simpan Data Kamar Sekarang
                         </button>
                     </div>
-
                 </form>
             </div>
         </div>
     </div>
 
-    {{-- Bootstrap JS (Diperlukan untuk komponen interaktif, jika ada) --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    {{-- Kode JavaScript Anda dari @section('scripts') --}}
     <script>
+    // FIX: Membersihkan sintaks Blade agar tidak error di JS
     const kamar = @json($kamar);
-    const baseUrl = '{{ url(' / ') }}';
-    const assetUrl = '{{ asset('
-    ') }}'.slice(0, -1);
-    const updateRoute = '{{ url(' /
-        editkamar / ' . $kamar->no_kamar) }}';
+    const updateRoute = '{{ url("/updatekamar/" . $kamar->no_kamar) }}';
 
     function showView(viewId) {
         document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
         document.getElementById(viewId).classList.add('active');
-    }
-
-    function asset(path) {
-        return assetUrl + (path.startsWith('/') ? '' : '/') + path;
-    }
-
-    function ucfirst(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
     document.getElementById('foto-kamar').addEventListener('change', function() {
@@ -337,14 +301,19 @@
         document.getElementById('file-name-display').textContent = fileName;
     });
 
+    // --- FIX UTAMA DISINI ---
     document.getElementById('form-edit-kamar').addEventListener('submit', async function(e) {
         e.preventDefault();
+
         const formData = new FormData(this);
-        const url = updateRoute;
+
+        // 1. Tambahkan _method: PUT secara manual ke FormData
+        // Ini wajib untuk upload file menggunakan metode update di Laravel
+        formData.append('_method', 'PUT');
 
         try {
-            const response = await fetch(url, {
-                method: 'POST',
+            const response = await fetch(updateRoute, {
+                method: 'POST', // 2. Tetap gunakan POST di fetch, bukan PUT
                 body: formData,
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -356,16 +325,21 @@
 
             if (response.ok && result.success) {
                 alert('Data kamar berhasil diperbarui!');
-                // Redirect ke halaman sebelumnya (atau halaman daftar kamar)
-                // window.history.back() mungkin lebih baik drpd reload
-                window.location.href = document.referrer || '{{ url(' /
-                    editkamar / ' . $kamar->no_kamar) }}'; // Asumsi Anda punya route ini
+                // Arahkan kembali ke halaman index/dashboard
+                window.location.href = '{{ route("pemilik.datakamar") }}';
             } else {
-                alert(result.message || 'Gagal menyimpan data.');
+                // Tampilkan pesan error jika validasi gagal
+                console.log(result);
+                let pesan = result.message || 'Gagal menyimpan data.';
+                if (result.errors) {
+                    pesan += '\n\nDetail Error:\n' + JSON.stringify(result.errors, null, 2).replace(
+                        /[{}"]/g, '');
+                }
+                alert(pesan);
             }
         } catch (err) {
             console.error(err);
-            alert('Terjadi kesalahan: ' + err.message);
+            alert('Terjadi kesalahan koneksi atau server: ' + err.message);
         }
     });
 

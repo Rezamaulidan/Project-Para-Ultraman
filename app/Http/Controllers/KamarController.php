@@ -4,14 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Kamar;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File; // Tambahkan facade File untuk hapus gambar
 
 class KamarController extends Controller
 {
+    // ... (method index, create, store, infoKamarDetail biarkan saja seperti sebelumnya) ...
+
     public function index()
     {
         $kamars = Kamar::orderBy('lantai')->orderBy('no_kamar', 'asc')->get();
         return view('data_kamar_pemilik', compact('kamars'));
-        return view('home', compact('kamars'));
     }
 
     public function create()
@@ -21,6 +23,7 @@ class KamarController extends Controller
 
     public function store(Request $request)
     {
+        // ... (kode store Anda sudah benar) ...
         $validatedData = $request->validate([
             'no_kamar' => 'required|integer|unique:kamars,no_kamar',
             'foto_kamar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -40,7 +43,6 @@ class KamarController extends Controller
         }
 
         Kamar::create($validatedData);
-
         return redirect()->route('pemilik.datakamar')->with('success', 'Data kamar berhasil disimpan!');
     }
 
@@ -50,21 +52,18 @@ class KamarController extends Controller
         return view('info_data_kamar', compact('kamar'));
     }
 
-    // FIXED: Hapus parameter $no_kamar
     public function edit($no_kamar)
     {
-        // 2. Cari SATU kamar berdasarkan no_kamar itu.
-        //    Gunakan firstOrFail() agar error jika tidak ketemu.
         $kamar = Kamar::where('no_kamar', $no_kamar)->firstOrFail();
-
-        // 3. Kirim SATU variabel 'kamar' (singular) ke view
         return view('edit_data_kamar', compact('kamar'));
     }
 
+    // --- BAGIAN INI YANG MENANGANI UPDATE ---
     public function update(Request $request, $no_kamar)
     {
         $kamar = Kamar::where('no_kamar', $no_kamar)->firstOrFail();
 
+        // Validasi
         $validatedData = $request->validate([
             'lantai' => 'required|integer|min:1|max:10',
             'status' => 'required|in:tersedia,terisi',
@@ -72,26 +71,38 @@ class KamarController extends Controller
             'tipe_kamar' => 'required|in:kosongan,basic,ekslusif',
             'fasilitas' => 'nullable|string',
             'ukuran' => 'required|string|max:50',
-            'foto_kamar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            // Gunakan nullable agar jika tidak upload foto baru, foto lama tidak hilang/error
+            'foto_kamar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 
         ]);
 
+        // Cek apakah ada file foto baru yang diupload
         if ($request->hasFile('foto_kamar')) {
-            if ($kamar->foto_kamar && file_exists(public_path($kamar->foto_kamar))) {
+            // Hapus foto lama jika ada
+            if ($kamar->foto_kamar && File::exists(public_path($kamar->foto_kamar))) {
+                File::delete(public_path($kamar->foto_kamar));
+            } elseif ($kamar->foto_kamar && file_exists(public_path($kamar->foto_kamar))) {
                 unlink(public_path($kamar->foto_kamar));
             }
 
+            // Simpan foto baru
             $image = $request->file('foto_kamar');
             $imageName = time() . '_' . $image->getClientOriginalName();
             $image->move(public_path('images/kamar'), $imageName);
             $validatedData['foto_kamar'] = 'images/kamar/' . $imageName;
         }
 
+        // Lakukan Update
         $kamar->update($validatedData);
 
+        // Respon JSON untuk AJAX
         if ($request->expectsJson()) {
-            return response()->json(['success' => true, 'message' => 'Data kamar berhasil diperbarui!']);
+            return response()->json([
+                'success' => true, 
+                'message' => 'Data kamar berhasil diperbarui!'
+            ]);
         }
 
+        // Fallback jika tidak pakai AJAX
         return redirect()->route('pemilik.datakamar')->with('success', 'Data kamar berhasil diperbarui!');
     }
 
@@ -99,8 +110,8 @@ class KamarController extends Controller
     {
         $kamar = Kamar::where('no_kamar', $no_kamar)->firstOrFail();
 
-        if ($kamar->foto_kamar && file_exists(public_path($kamar->foto_kamar))) {
-            unlink(public_path($kamar->foto_kamar));
+        if ($kamar->foto_kamar && File::exists(public_path($kamar->foto_kamar))) {
+            File::delete(public_path($kamar->foto_kamar));
         }
 
         $kamar->delete();
