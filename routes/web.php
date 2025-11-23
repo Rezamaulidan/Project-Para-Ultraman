@@ -6,6 +6,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\KamarController;
 use App\Http\Controllers\DashboardBookingController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\LaporanKeamananController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PemilikKosController;
@@ -137,14 +138,21 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard-penyewa', fn() => view('dashboard_penyewa'))->name('penyewa.dashboard');
         Route::get('/informasi-penyewa', [PenyewaController::class, 'showInformasi'])->name('penyewa.informasi');
         Route::get('/edit-informasi-penyewa', [PenyewaController::class, 'editInformasi'])->name('penyewa.edit_informasi');
+        Route::put('/update-informasi-penyewa', [PenyewaController::class, 'updateInformasi'])->name('penyewa.update_informasi');
         Route::get('/informasi-keamanan', [PenyewaController::class, 'showKeamanan'])->name('penyewa.keamanan');
         Route::get('/menu-pembayaran', [PenyewaController::class, 'showPembayaran'])->name('penyewa.pembayaran');
         Route::get('/informasi-kamar-saya', [PenyewaController::class, 'showKamar'])->name('penyewa.kamar');
+        Route::get('/booking/kamar/{no_kamar}', [BookingController::class, 'create'])->name('penyewa.booking.create');
+        Route::post('/booking/kamar', [BookingController::class, 'store'])->name('penyewa.booking.store');
     });
 
     // ====================== ROLE: PEMILIK KOS ======================
     Route::middleware(['role:pemilik'])->group(function () {
         Route::get('/homepemilik', [PemilikKosController::class, 'index'])->name('pemilik.home');
+
+        // [TAMBAHAN PENTING] Route untuk Foto Profil
+        Route::post('/profile/update-photo', [PemilikKosController::class, 'updatePhoto'])->name('profile.update_photo');
+        Route::post('/profile/delete-photo', [PemilikKosController::class, 'deletePhoto'])->name('profile.delete_photo');
 
         // Daftar Kamar
         Route::get('/datakamarpemilik', [KamarController::class, 'index'])->name('pemilik.datakamar');

@@ -16,9 +16,11 @@ class Booking extends Model
     protected $fillable = [
         'username',
         'no_kamar',
+        'jenis_transaksi',
         'status_booking',
         'tanggal',
         'nominal',
+        'durasi_sewa',
         'keterangan',
     ];
 

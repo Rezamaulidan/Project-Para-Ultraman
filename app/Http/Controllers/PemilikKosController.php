@@ -208,9 +208,21 @@ class PemilikKosController extends Controller
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    public function deletePhoto()
+    {
+        $pemilik = Auth::user()->pemilikKos;
+
+        if ($pemilik->foto_profil) {
+            Storage::disk('public')->delete($pemilik->foto_profil);
+            $pemilik->foto_profil = null; // Set kolom jadi NULL
+            $pemilik->save();
+
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Tidak ada foto untuk dihapus']);
+    }
+
     public function create()
     {
         //
@@ -235,34 +247,44 @@ class PemilikKosController extends Controller
     // edit foto
     public function updatePhoto(Request $request)
     {
+        // 1. Validasi file
         $request->validate([
-            'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB
         ]);
 
-        // Dapatkan pemilik yang sedang login
-        $pemilik = Auth::user();
+        // 2. Ambil Akun yang sedang login
+        $akun = Auth::user();
 
-        // Hapus foto lama jika ada
-        if ($pemilik->foto_profil) {
-            Storage::disk('public')->delete($pemilik->foto_profil);
+        // 3. Ambil data Pemilik Kos dari relasi
+        $pemilik = $akun->pemilikKos;
+
+        // Cek apakah data pemilik ada
+        if (!$pemilik) {
+            return response()->json(['success' => false, 'message' => 'Data pemilik tidak ditemukan.'], 404);
         }
 
-        // Simpan foto baru
-        // 'foto_profil' adalah nama folder di dalam 'storage/app/public'
-        $path = $request->file('foto')->store('foto_profil', 'public');
+        try {
+            // 4. Hapus foto lama jika ada (agar storage tidak penuh)
+            if ($pemilik->foto_profil && Storage::disk('public')->exists($pemilik->foto_profil)) {
+                Storage::disk('public')->delete($pemilik->foto_profil);
+            }
 
-        // Update database
-        $pemilik->foto_profil = $path;
-        // $pemilik->save();
-        // NOTE: Pastikan Auth::user() mengembalikan instance model yang bisa di-save.
-        // Jika Auth::user() adalah model 'Akun' dan relasinya ke 'PemilikKos',
-        // Anda mungkin perlu $pemilik->pemilikKos->foto_profil = ...; $pemilik->pemilikKos->save();
+            // 5. Simpan foto baru ke folder 'foto_profil' di storage public
+            $path = $request->file('foto')->store('foto_profil', 'public');
 
-        // Kembalikan path foto baru agar bisa di-update di halaman
-        return response()->json([
-            'success' => true,
-            'foto_url' => Storage::url($path) // Mengembalikan URL yang bisa diakses publik
-        ]);
+            // 6. Update kolom di database
+            $pemilik->foto_profil = $path;
+            $pemilik->save();
+
+            // 7. Berikan respon sukses
+            return response()->json([
+                'success' => true,
+                'foto_url' => Storage::url($path)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**
