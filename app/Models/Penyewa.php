@@ -17,10 +17,12 @@ class Penyewa extends Authenticatable
 
     protected $fillable = [
         'username',
-        'no_hp',
         'nama_penyewa',
+        'no_hp',
         'jenis_kelamin',
         'email',
+        'foto_ktp',
+        'foto_profil',
     ];
 
     public function booking()
