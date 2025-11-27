@@ -32,21 +32,35 @@
             border-radius: 10px;
         }
 
-        /* Avatar Bulat (Huruf) */
-        .profile-avatar {
+        /* Lingkaran Avatar (Container) */
+        .profile-avatar-container {
             width: 80px;
             height: 80px;
-            background-color: rgba(255, 255, 255, 0.95);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             margin: 0 auto 1rem auto;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            /* Agar gambar tidak bocor */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Gambar Profil */
+        .profile-avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Inisial Huruf (Jika tidak ada foto) */
+        .profile-avatar-initials {
             color: #0056b3;
-            font-size: 2.8rem;
+            font-size: 2.5rem;
             font-weight: 700;
             font-family: sans-serif;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-transform: uppercase;
         }
 
@@ -170,9 +184,19 @@
                 {{-- Kartu Profil (Atas) --}}
                 <div class="card profile-card border-0 p-4 mb-4 shadow">
                     <div class="card-body text-center">
-                        {{-- Avatar Huruf --}}
-                        <div class="profile-avatar">
-                            {{ strtoupper(substr($penyewa->nama_penyewa ?? 'User', 0, 1)) }}
+
+                        {{-- [BARU] Logika Tampilan Foto Profil --}}
+                        <div class="profile-avatar-container">
+                            @if ($penyewa->foto_profil && file_exists(public_path('storage/' . $penyewa->foto_profil)))
+                                {{-- Tampilkan Foto --}}
+                                <img src="{{ asset('storage/' . $penyewa->foto_profil) }}"
+                                    alt="Foto Profil {{ $penyewa->nama_penyewa }}" class="profile-avatar-img">
+                            @else
+                                {{-- Tampilkan Inisial Huruf --}}
+                                <span class="profile-avatar-initials">
+                                    {{ strtoupper(substr($penyewa->nama_penyewa ?? 'U', 0, 1)) }}
+                                </span>
+                            @endif
                         </div>
 
                         <h3 class="mb-1 fw-bold">{{ $penyewa->nama_penyewa ?? 'Nama Penyewa' }}</h3>
@@ -191,7 +215,6 @@
                             <i class="fa-solid fa-list-ul me-2"></i>Detail Informasi
                         </h5>
 
-                        {{-- Grid Form (Semua disejajarkan vertikal ke bawah) --}}
                         <div class="row g-4">
 
                             {{-- 1. Nomor Kamar --}}
@@ -206,7 +229,7 @@
                                 </div>
                             </div>
 
-                            {{-- 2. No Telepon (Di bawah Nomor Kamar) --}}
+                            {{-- 2. No Telepon --}}
                             <div class="col-12">
                                 <div class="mb-1">
                                     <label for="noTelepon" class="form-label">No Telepon (WhatsApp)</label>
@@ -218,7 +241,7 @@
                                 </div>
                             </div>
 
-                            {{-- 3. Jenis Kelamin (Di bawah No Telepon) --}}
+                            {{-- 3. Jenis Kelamin --}}
                             <div class="col-12">
                                 <div>
                                     <label for="jenisKelamin" class="form-label">Jenis Kelamin</label>
@@ -230,8 +253,7 @@
                                 </div>
                             </div>
 
-                        </div> {{-- End row g-4 --}}
-
+                        </div>
                     </div>
                 </div>
 
@@ -283,6 +305,21 @@
             });
         });
     </script>
+
+    {{-- [TAMBAHAN] SweetAlert2 Script untuk Notifikasi Sukses --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                confirmButtonColor: '#001931',
+                timer: 3000
+            });
+        @endif
+    </script>
+
 </body>
 
 </html>

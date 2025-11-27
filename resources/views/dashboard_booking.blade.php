@@ -197,7 +197,8 @@
                             {{-- Bagian Bawah Card (Tombol Pesan) --}}
                             <div class="mt-3">
                                 @if (strtolower($kamar->status) == 'tersedia')
-                                    <a href="#" class="btn btn-primary w-100 rounded-pill">
+                                    <a href="{{ route('penyewa.booking.create', $kamar->no_kamar) }}"
+                                        class="btn btn-primary w-100 rounded-pill">
                                         <i class="bi bi-bookmark-check me-1"></i> Pesan Kamar
                                     </a>
                                 @else
