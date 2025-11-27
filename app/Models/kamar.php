@@ -33,7 +33,7 @@ class Kamar extends Model
 
     public function booking()
     {
-        return $this->hasOne(Booking::class, 'no_kamar', 'no_kamar');
+        return $this->hasMany(Booking::class, 'no_kamar', 'no_kamar');
     }
 
     public function isAvailable()
