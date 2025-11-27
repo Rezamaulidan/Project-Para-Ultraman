@@ -197,6 +197,7 @@
 
                         <div id="list-permintaan-sewa" class="dynamic-list d-block">
                             <div class="list-group list-group-flush">
+                                {{-- Loop Data dari Controller --}}
                                 @forelse($permintaanSewa as $sewa)
                                     <div class="list-group-item p-3 border-bottom">
                                         <div class="d-flex w-100 justify-content-between align-items-center">
@@ -205,21 +206,31 @@
                                                     <i class="fas fa-user-tie text-primary"></i>
                                                 </div>
                                                 <div>
-                                                    {{-- Cek apakah data penyewa ada, jika tidak tampilkan username/Guest --}}
+                                                    {{-- Nama Penyewa --}}
                                                     <h6 class="mb-0 fw-bold">
-                                                        {{ $sewa->penyewa->nama_penyewa ?? $sewa->username }}</h6>
-                                                    <small class="text-muted">Ingin: Kamar No.
-                                                        {{ $sewa->no_kamar }}</small>
+                                                        {{ $sewa->penyewa->nama_penyewa ?? $sewa->username }}
+                                                    </h6>
+                                                    {{-- Info Kamar & Tanggal --}}
+                                                    <small class="text-muted">
+                                                        Ingin: Kamar No. {{ $sewa->no_kamar }} <br>
+                                                        Tgl:
+                                                        {{ \Carbon\Carbon::parse($sewa->created_at)->format('d M Y') }}
+                                                    </small>
                                                 </div>
                                             </div>
-                                            <button class="btn btn-sm btn-navy rounded-pill px-3">Detail</button>
+                                            {{-- Tombol Detail --}}
+                                            {{-- Pastikan route 'pemilik.permohonan' sudah dibuat di web.php --}}
+                                            <a href="{{ route('pemilik.permohonan') }}"
+                                                class="btn btn-sm btn-navy rounded-pill px-3">
+                                                Detail
+                                            </a>
                                         </div>
                                     </div>
                                 @empty
-                                    {{-- JIKA KOSONG --}}
+                                    {{-- Tampilan Jika Kosong --}}
                                     <div class="text-center p-5">
                                         <i class="fas fa-check-circle text-muted fa-3x mb-3"></i>
-                                        <p class="text-muted mb-0">Tidak ada permintaan sewa yang belum dikonfirmasi.</p>
+                                        <p class="text-muted mb-0">Tidak ada permintaan sewa baru.</p>
                                     </div>
                                 @endforelse
                             </div>
@@ -230,26 +241,55 @@
                                 @forelse($belumLunas as $hutang)
                                     <div class="list-group-item p-3 border-bottom">
                                         <div class="d-flex w-100 justify-content-between align-items-center">
+
+                                            {{-- Info Penyewa --}}
                                             <div class="d-flex align-items-center">
                                                 <div class="bg-light rounded-circle p-2 me-3">
-                                                    <i class="fas fa-file-invoice-dollar text-danger"></i>
+                                                    <i class="fas fa-clock text-warning"></i> {{-- Icon Jam --}}
                                                 </div>
                                                 <div>
                                                     <h6 class="mb-0 fw-bold">
-                                                        {{ $hutang->penyewa->nama_penyewa ?? $hutang->username }}</h6>
-                                                    <small class="text-danger fw-bold">Rp
-                                                        {{ number_format($hutang->nominal, 0, ',', '.') }}</small><br>
-                                                    <small class="text-muted">Kamar No. {{ $hutang->no_kamar }}</small>
+                                                        {{ $hutang->penyewa->nama_penyewa ?? $hutang->username }}
+                                                    </h6>
+                                                    <small class="text-muted fw-bold">
+                                                        Rp {{ number_format($hutang->nominal, 0, ',', '.') }}
+                                                    </small>
+                                                    <br>
+                                                    <small class="text-muted">
+                                                        Kamar {{ $hutang->no_kamar }} •
+                                                        {{-- Tampilkan sudah berapa lama sejak di-approve --}}
+                                                        {{ \Carbon\Carbon::parse($hutang->updated_at)->diffForHumans() }}
+                                                    </small>
                                                 </div>
                                             </div>
-                                            <button class="btn btn-sm btn-outline-danger rounded-pill px-3">WA</button>
+
+                                            {{-- Tombol Aksi --}}
+                                            <div class="d-flex flex-column gap-2">
+
+                                                {{-- Tombol Hubungi WA (Sudah ada sebelumnya) --}}
+                                                <a href="https://wa.me/{{ $hutang->penyewa->no_hp ?? '' }}" target="_blank"
+                                                    class="btn btn-sm btn-success rounded-pill px-3">
+                                                    <i class="fab fa-whatsapp"></i> Tagih
+                                                </a>
+
+                                                {{-- TOMBOL BATALKAN (BARU) --}}
+                                                <form action="{{ route('pemilik.booking.cancel', $hutang->id_booking) }}"
+                                                    method="POST"
+                                                    onsubmit="return confirm('Yakin batalkan booking ini? Status akan menjadi DITOLAK.');">
+                                                    @csrf
+                                                    <button type="submit"
+                                                        class="btn btn-sm btn-outline-danger rounded-pill px-3 w-100">
+                                                        <i class="fas fa-ban me-1"></i> Batal
+                                                    </button>
+                                                </form>
+
+                                            </div>
                                         </div>
                                     </div>
                                 @empty
-                                    {{-- JIKA KOSONG --}}
                                     <div class="text-center p-5">
-                                        <i class="fas fa-laugh-beam text-success fa-3x mb-3"></i>
-                                        <p class="text-muted mb-0">Tidak ada penyewa yang telat bayar. Semua lunas!</p>
+                                        <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                                        <p class="text-muted mb-0">Tidak ada tagihan pending.</p>
                                     </div>
                                 @endforelse
                             </div>

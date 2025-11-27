@@ -135,7 +135,7 @@ Route::middleware(['auth'])->group(function () {
     // ====================== ROLE: PENYEWA ======================
     Route::middleware(['role:penyewa'])->group(function () {
         Route::get('/dashboard-booking', [DashboardBookingController::class, 'booking'])->name('dashboard.booking');
-        Route::get('/dashboard-penyewa', fn() => view('dashboard_penyewa'))->name('penyewa.dashboard');
+        Route::get('/dashboard-penyewa', [PenyewaController::class, 'dashboard'])->name('penyewa.dashboard');
         Route::get('/informasi-penyewa', [PenyewaController::class, 'showInformasi'])->name('penyewa.informasi');
         Route::get('/edit-informasi-penyewa', [PenyewaController::class, 'editInformasi'])->name('penyewa.edit_informasi');
         Route::put('/update-informasi-penyewa', [PenyewaController::class, 'updateInformasi'])->name('penyewa.update_informasi');
@@ -144,6 +144,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/informasi-kamar-saya', [PenyewaController::class, 'showKamar'])->name('penyewa.kamar');
         Route::get('/booking/kamar/{no_kamar}', [BookingController::class, 'create'])->name('penyewa.booking.create');
         Route::post('/booking/kamar', [BookingController::class, 'store'])->name('penyewa.booking.store');
+        Route::get('/booking/payment/{id}', [BookingController::class, 'showPaymentPage'])->name('penyewa.bayar');
+        Route::post('/booking/payment/{id}/process', [BookingController::class, 'processPayment'])->name('penyewa.bayar.process');
     });
 
     // ====================== ROLE: PEMILIK KOS ======================
@@ -181,6 +183,24 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/registrasistaff', fn() => view('registrasi_sfaff'))->name('pemilik.registrasi_staff');
         Route::post('/registrasi-staff', [PemilikKosController::class, 'storeStaff'])->name('pemilik.store_staff');
         Route::get('/datastaffpemilik', fn() => view('data_staff_pemilik'))->name('pemilik.datastaff');
+
+        // --- MANAJEMEN BOOKING (PERMOHONAN SEWA) ---
+
+        // 1. Halaman List Permohonan
+        Route::get('/pemilik/permohonan-sewa', [BookingController::class, 'daftarPermohonan'])
+            ->name('pemilik.permohonan');
+
+        // 2. Action Terima Booking
+        Route::post('/pemilik/booking/{id}/approve', [BookingController::class, 'approveBooking'])
+            ->name('pemilik.booking.approve');
+
+        // 3. Action Tolak Booking
+        Route::post('/pemilik/booking/{id}/reject', [BookingController::class, 'rejectBooking'])
+            ->name('pemilik.booking.reject');
+
+        // Route untuk Pembatalan Manual (Cancel)
+        Route::post('/pemilik/booking/{id}/cancel', [BookingController::class, 'cancelBooking'])
+            ->name('pemilik.booking.cancel');
     });
 
     // ====================== ROLE: STAF ======================
