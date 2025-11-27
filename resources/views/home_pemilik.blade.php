@@ -143,10 +143,14 @@ body {
                 <div class="card-body d-flex align-items-center justify-content-between">
                     <div>
                         <h6 class="text-muted text-uppercase mb-1">Okupansi Kamar</h6>
-                        {{-- Hitung Kamar Terisi: Total - Kosong --}}
-                        <h3 class="mb-0 fw-bold" style="color: #001931">{{ $totalKamar - $jumlahKamarKosong }} /
-                            {{ $totalKamar }}</h3>
-                        <small class="text-muted">{{ $jumlahKamarKosong }} Kamar Kosong</small>
+                        {{-- HITUNG DENGAN VARIABEL BARU --}}
+                        <h3 class="mb-0 fw-bold" style="color: #001931">
+                            {{-- Ganti $totalKamar - $jumlahKamarKosong menjadi $jumlahKamarTerisi --}}
+                            {{ $jumlahKamarTerisi ?? 0 }} / {{ $totalKamar }}
+                        </h3>
+                        {{-- Hitung Kamar Kosong: Total Kamar - Kamar Terisi --}}
+                        <small class="text-muted">{{ ($totalKamar ?? 0) - ($jumlahKamarTerisi ?? 0) }} Kamar
+                            Kosong</small>
                     </div>
                     <div class="stat-icon"><i class="fas fa-bed"></i></div>
                 </div>
