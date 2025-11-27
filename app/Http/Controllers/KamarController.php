@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kamar;
+use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File; // Tambahkan facade File untuk hapus gambar
 
@@ -12,8 +13,31 @@ class KamarController extends Controller
 
     public function index()
     {
+        // 1. Ambil semua kamar, urutkan
         $kamars = Kamar::orderBy('lantai')->orderBy('no_kamar', 'asc')->get();
+<<<<<<< HEAD
+
+        // 2. Cek status ketersediaan kamar berdasarkan booking yang LUNAS
+        $kamarsWithStatus = $kamars->map(function ($kamar) {
+
+            // Cek apakah ada booking yang statusnya 'lunas' untuk kamar ini
+            // Jika ada, anggap kamar TERISI.
+            $isTerisi = Booking::where('no_kamar', $kamar->no_kamar)
+                               ->where('status_booking', 'lunas')
+                               ->exists();
+
+            // Tambahkan properti status_ketersediaan ke objek kamar
+            $kamar->status_ketersediaan = $isTerisi ? 'Terisi' : 'Tersedia';
+
+            return $kamar;
+        });
+
+        $kamars = Kamar::orderBy('lantai')->orderBy('no_kamar', 'asc')->get();
+        return view('data_kamar_pemilik', ['kamars' => $kamarsWithStatus]);
+        // return view('home', compact('kamars'));
+=======
         return view('data_kamar_pemilik', compact('kamars'));
+>>>>>>> 193e27d7cc7ab2c5cdda286ad431dbe9bee1dc02
     }
 
     public function create()
@@ -26,8 +50,7 @@ class KamarController extends Controller
         // ... (kode store Anda sudah benar) ...
         $validatedData = $request->validate([
             'no_kamar' => 'required|integer|unique:kamars,no_kamar',
-            'foto_kamar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'status' => 'required|in:tersedia,terisi',
+            'foto_kamar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', 
             'ukuran' => 'required|string|max:50',
             'harga' => 'required|numeric',
             'tipe_kamar' => 'required|in:kosongan,basic,ekslusif',
@@ -41,21 +64,50 @@ class KamarController extends Controller
             $image->move(public_path('images/kamar'), $imageName);
             $validatedData['foto_kamar'] = 'images/kamar/' . $imageName;
         }
-
+        $validatedData['status'] = 'tersedia'; // Beri nilai default
         Kamar::create($validatedData);
         return redirect()->route('pemilik.datakamar')->with('success', 'Data kamar berhasil disimpan!');
     }
 
     public function infoKamarDetail($nomor)
     {
+        // 1. Ambil data kamar berdasarkan nomor
         $kamar = Kamar::where('no_kamar', $nomor)->firstOrFail();
-        return view('info_data_kamar', compact('kamar'));
+
+        // 2. Cek status ketersediaan berdasarkan booking yang LUNAS
+        // Kita menggunakan Query Builder langsung untuk efisiensi
+        $isTerisi = Booking::where('no_kamar', $kamar->no_kamar)
+                           ->where('status_booking', 'lunas')
+                           ->exists();
+
+        // 3. Tentukan status_ketersediaan baru
+        $statusKetersediaan = $isTerisi ? 'Terisi' : 'Tersedia';
+
+        // 4. Kirim variabel kamar dan status barunya ke view
+        return view('info_data_kamar', compact('kamar', 'statusKetersediaan'));
     }
 
     public function edit($no_kamar)
     {
+<<<<<<< HEAD
+        // 1. Cari SATU kamar berdasarkan no_kamar
+        $kamar = Kamar::where('no_kamar', $no_kamar)->firstOrFail();
+        
+        // 2. Cek status ketersediaan berdasarkan booking yang LUNAS
+        $isTerisi = Booking::where('no_kamar', $no_kamar)
+                           ->where('status_booking', 'lunas')
+                           ->exists();
+
+        // 3. Tentukan status ketersediaan dinamis
+        $statusKetersediaan = $isTerisi ? 'terisi' : 'tersedia';
+        
+        // 4. Kirim variabel kamar dan status barunya ke view
+        // Kita akan menggunakan $statusKetersediaan di view
+        return view('edit_data_kamar', compact('kamar', 'statusKetersediaan'));
+=======
         $kamar = Kamar::where('no_kamar', $no_kamar)->firstOrFail();
         return view('edit_data_kamar', compact('kamar'));
+>>>>>>> 193e27d7cc7ab2c5cdda286ad431dbe9bee1dc02
     }
 
     // --- BAGIAN INI YANG MENANGANI UPDATE ---
@@ -66,7 +118,6 @@ class KamarController extends Controller
         // Validasi
         $validatedData = $request->validate([
             'lantai' => 'required|integer|min:1|max:10',
-            'status' => 'required|in:tersedia,terisi',
             'harga' => 'required|numeric',
             'tipe_kamar' => 'required|in:kosongan,basic,ekslusif',
             'fasilitas' => 'nullable|string',
