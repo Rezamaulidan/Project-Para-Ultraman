@@ -339,6 +339,15 @@ body {
                             @endforelse
                         </div>
                     </div>
+PemilikKost
+
+                </div>
+                <div class="card-footer bg-white text-center border-0 py-3">
+                    <!-- <a href="#" class="text-decoration-none fw-bold small text-uppercase"
+                        style="color: #001931; letter-spacing: 1px;">
+                        Lihat Semua Data <i class="fas fa-arrow-right ms-1"></i>
+                    </a> -->
+master
                 </div>
             </div>
         </div>

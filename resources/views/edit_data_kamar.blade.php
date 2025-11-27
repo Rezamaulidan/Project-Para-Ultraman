@@ -204,11 +204,19 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="edit-status-kamar"><i class="fas fa-check-circle"></i> Status Kamar:</label>
+<<<<<<< HEAD
                                 <select id="edit-status-kamar" class="form-select" disabled>
                                     <option value="tersedia" {{ $statusKetersediaan == 'tersedia' ? 'selected' : '' }}>
                                         Tersedia</option>
                                     <option value="terisi" {{ $statusKetersediaan == 'terisi' ? 'selected' : '' }}>
                                         Terisi</option>
+=======
+                                <select id="edit-status-kamar" name="status" class="form-select" required>
+                                    <option value="tersedia" {{ $kamar->status == 'tersedia' ? 'selected' : '' }}>
+                                        Tersedia</option>
+                                    <option value="terisi" {{ $kamar->status == 'terisi' ? 'selected' : '' }}>Terisi
+                                    </option>
+>>>>>>> 193e27d7cc7ab2c5cdda286ad431dbe9bee1dc02
                                 </select>
                                 <input type="hidden" name="status" value="{{ $statusKetersediaan }}">
                                 {{-- Tambahkan teks bantuan visual untuk Pemilik Kos --}}

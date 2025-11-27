@@ -19,6 +19,7 @@ class PemilikKosController extends Controller{
     public function index()
     {
         $user = Auth::user();
+        $user = $user->load('PemilikKos')->PemilikKos;
         $now = Carbon::now();
         $user = $user->load('PemilikKos')->PemilikKos;
         $bulanSaatIni = $now->month;
@@ -202,6 +203,7 @@ class PemilikKosController extends Controller{
         }
     }
 
+PemilikKost
     /**
      * Mengupload dan mengupdate foto profil pemilik kos.
      */
@@ -274,6 +276,85 @@ class PemilikKosController extends Controller{
             'message' => 'Foto profil berhasil dihapus!',
             'default_url' => asset('images/pp-default.jpg') // Ganti dengan path foto default Anda
         ]);
+
+    public function deletePhoto()
+    {
+        $pemilik = Auth::user()->pemilikKos;
+
+        if ($pemilik->foto_profil) {
+            Storage::disk('public')->delete($pemilik->foto_profil);
+            $pemilik->foto_profil = null; // Set kolom jadi NULL
+            $pemilik->save();
+
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Tidak ada foto untuk dihapus']);
+    }
+
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(PemilikKos $PemilikKos)
+    {
+        //
+    }
+
+    // edit foto
+    public function updatePhoto(Request $request)
+    {
+        // 1. Validasi file
+        $request->validate([
+            'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB
+        ]);
+
+        // 2. Ambil Akun yang sedang login
+        $akun = Auth::user();
+
+        // 3. Ambil data Pemilik Kos dari relasi
+        $pemilik = $akun->pemilikKos;
+
+        // Cek apakah data pemilik ada
+        if (!$pemilik) {
+            return response()->json(['success' => false, 'message' => 'Data pemilik tidak ditemukan.'], 404);
+        }
+
+        try {
+            // 4. Hapus foto lama jika ada (agar storage tidak penuh)
+            if ($pemilik->foto_profil && Storage::disk('public')->exists($pemilik->foto_profil)) {
+                Storage::disk('public')->delete($pemilik->foto_profil);
+            }
+
+            // 5. Simpan foto baru ke folder 'foto_profil' di storage public
+            $path = $request->file('foto')->store('foto_profil', 'public');
+
+            // 6. Update kolom di database
+            $pemilik->foto_profil = $path;
+            $pemilik->save();
+
+            // 7. Berikan respon sukses
+            return response()->json([
+                'success' => true,
+                'foto_url' => Storage::url($path)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+master
     }
 
     public function infoDetailStaff()
