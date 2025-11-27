@@ -5,26 +5,23 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Hash; // Penting untuk hashing password
-use Illuminate\Support\Facades\DB;   // Penting untuk transaksi database
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use App\Models\PemilikKos;
-use App\Models\Akun; // Model Akun (Login)
+use App\Models\Akun;
 use App\Models\Staf;
 use Carbon\Carbon;
 use App\Models\Booking;
-use App\Models\Kamar; // Model Staf (Profil)
+use App\Models\Kamar;
 use App\Models\Pengeluaran;
 
-class PemilikKosController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     */
+class PemilikKosController extends Controller{
     public function index()
     {
         $user = Auth::user();
         $user = $user->load('PemilikKos')->PemilikKos;
         $now = Carbon::now();
+        $user = $user->load('PemilikKos')->PemilikKos;
         $bulanSaatIni = $now->month;
         $tahunSaatIni = $now->year;
 
@@ -35,7 +32,6 @@ class PemilikKosController extends Controller
             ->sum('nominal');
 
         // --- 5. DATA PENDAPATAN 6 BULAN TERAKHIR UNTUK CHART ---
-        // Menghitung bulan mulai (6 bulan lalu dari bulan ini)
         $bulanMulai = $now->copy()->subMonths(5)->startOfMonth(); 
 
         $pendapatan6Bulan = Booking::select(
@@ -43,8 +39,8 @@ class PemilikKosController extends Controller
                 DB::raw('YEAR(tanggal) as tahun'),
                 DB::raw('SUM(nominal) as total_nominal')
             )
-            ->where('status_booking', 'lunas') // Hanya hitung yang sudah lunas
-            ->where('tanggal', '>=', $bulanMulai) // Mulai dari 6 bulan terakhir
+            ->where('status_booking', 'lunas') 
+            ->where('tanggal', '>=', $bulanMulai)
             ->groupBy(DB::raw('YEAR(tanggal)'), DB::raw('MONTH(tanggal)'))
             ->orderBy(DB::raw('YEAR(tanggal)'), 'asc')
             ->orderBy(DB::raw('MONTH(tanggal)'), 'asc')
@@ -73,7 +69,6 @@ class PemilikKosController extends Controller
             $nominal = $pendapatan6Bulan->has($key) ? $pendapatan6Bulan[$key]->total_nominal : 0;
             
             // Konversi ke Juta Rupiah (Pastikan Anda tahu skala chart yang diinginkan)
-            // Jika Anda ingin 1 = Rp 1.000.000, maka gunakan pembagian ini.
             $dataChart[] = round($nominal / 1000000, 2); 
         }
         // END DATA PENDAPATAN 6 BULAN
@@ -112,15 +107,17 @@ class PemilikKosController extends Controller
         $jumlahKamarKosong = $daftarKamarKosong->count();
         $totalKamar = Kamar::count();
 
-        // --- 3. DATA PERMINTAAN SEWA (BARU) ---
-        $permintaanSewa = Booking::where('status_booking', 'menunggu')
+        // --- 3. DATA PERMINTAAN SEWA (BARU) --- (MODIFIKASI)
+        $permintaanSewa = Booking::where('jenis_transaksi', 'booking') // <-- Tambah Filter 1: Jenis Transaksi HARUS 'booking'
+            ->where('status_booking', 'pending') // <-- Filter 2: Status HARUS 'pending' (sesuai screenshot DB)
             ->with(['penyewa', 'kamar'])
             ->orderBy('tanggal', 'desc')
             ->get();
         $jumlahPermintaan = $permintaanSewa->count();
 
-        // --- 4. DATA BELUM LUNAS / JATUH TEMPO ---
-        $belumLunas = Booking::where('status_booking', 'belum_lunas')
+        // --- 4. DATA BELUM LUNAS / JATUH TEMPO --- (MODIFIKASI RINGAN)
+        $belumLunas = Booking::where('jenis_transaksi', 'pembayaran_sewa')
+            ->whereIn('status_booking', ['terlambat', 'belum_lunas']) // <-- Cek 2 status sekaligus
             ->with(['penyewa', 'kamar'])
             ->get();
         $jumlahBelumLunas = $belumLunas->count();
@@ -137,7 +134,6 @@ class PemilikKosController extends Controller
             'belumLunas',
             'jumlahBelumLunas',
             'totalUangBelumLunas',
-            // Variabel Baru
             'dataChart',
             'labelsChart',
             'dataPengeluaranChart'
@@ -159,7 +155,6 @@ class PemilikKosController extends Controller
         ]);
 
         // Gunakan Database Transaction agar data konsisten
-        // (Jika gagal simpan staf, akun juga batal dibuat)
         DB::beginTransaction();
 
         try {
@@ -190,7 +185,7 @@ class PemilikKosController extends Controller
             // Jika semua sukses, commit ke database
             DB::commit();
 
-            return redirect()->back()->with('success', 'Akun Staff berhasil didaftarkan!');
+            return redirect()->back()->with('staff_saved', 'Akun Staff berhasil didaftarkan!');
 
         } catch (\Exception $e) {
             // Jika ada error, batalkan semua perubahan database
@@ -207,6 +202,80 @@ class PemilikKosController extends Controller
                 ->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage()]);
         }
     }
+
+PemilikKost
+    /**
+     * Mengupload dan mengupdate foto profil pemilik kos.
+     */
+    public function updatePhoto(Request $request)
+    {
+        // 1. Validasi Input
+        $request->validate([
+            // Hanya izinkan file foto dengan ukuran maksimal 2MB
+            'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048', 
+        ]);
+
+        // Dapatkan data PemilikKos yang sedang login
+        // Pastikan Auth::user() adalah model PemilikKos, atau ambil relasi jika Auth::user() adalah Akun.
+        // Berdasarkan PemilikKosController::index, kita asumsikan $user adalah PemilikKos:
+        // $user = Auth::user()->load('PemilikKos')->PemilikKos; <-- Ambil data PemilikKos
+        // Karena kita tidak tahu persis bagaimana Auth::user() dikonfigurasi, 
+        // kita akan gunakan relasi untuk amannya (asumsi relasi PemilikKos di Akun bernama 'pemilikKos')
+        $akun = Auth::user();
+        $pemilik = $akun->pemilikKos; // Ambil Model PemilikKos dari Akun
+        
+        if (!$pemilik) {
+            return response()->json(['success' => false, 'message' => 'Data pemilik tidak ditemukan.'], 404);
+        }
+
+        // 2. Hapus foto lama (jika ada)
+        if ($pemilik->foto_profil) {
+            // Cek dan hapus dari disk public
+            Storage::disk('public')->delete($pemilik->foto_profil);
+        }
+
+        // 3. Simpan foto baru
+        // Simpan di folder 'storage/app/public/foto_profil'
+        $path = $request->file('foto')->store('foto_profil', 'public');
+
+        // 4. Update database
+        $pemilik->foto_profil = $path;
+        $pemilik->save();
+
+        // 5. Kembalikan URL yang bisa diakses publik
+        return response()->json([
+            'success' => true,
+            'message' => 'Foto profil berhasil diubah!',
+            'foto_url' => Storage::url($path) 
+        ]);
+    }
+    
+    /**
+     * Menghapus foto profil pemilik kos.
+     */
+    public function deletePhoto()
+    {
+        $akun = Auth::user();
+        $pemilik = $akun->pemilikKos;
+        
+        if (!$pemilik) {
+            return response()->json(['success' => false, 'message' => 'Data pemilik tidak ditemukan.'], 404);
+        }
+
+        // 1. Hapus foto dari storage (jika ada)
+        if ($pemilik->foto_profil) {
+            Storage::disk('public')->delete($pemilik->foto_profil);
+        }
+
+        // 2. Update database (set kolom foto_profil menjadi NULL)
+        $pemilik->foto_profil = null;
+        $pemilik->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Foto profil berhasil dihapus!',
+            'default_url' => asset('images/pp-default.jpg') // Ganti dengan path foto default Anda
+        ]);
 
     public function deletePhoto()
     {
@@ -285,6 +354,30 @@ class PemilikKosController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
+master
+    }
+
+    public function infoDetailStaff()
+    {
+        return view('info_detail_staff');
+    }
+
+    public function infoDetailPenyewa()
+    {
+        return view('info_detail_penyewa_pmlk');
+    }
+    public function create()
+    {
+        //
+    }
+
+    public function store(Request $request)
+    {
+        //
+    }
+    public function show(PemilikKos $PemilikKos)
+    {
+        //
     }
 
     /**

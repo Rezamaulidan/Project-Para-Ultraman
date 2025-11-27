@@ -57,8 +57,7 @@
                     <li class="nav-item dropdown">
                         <!-- Menggunakan route() helper -->
                         <a class="nav-link dropdown-toggle text-center {{ Request::is('pengeluaranpemilik', 'keamananpemilik') ? 'active' : '' }}"
-                            href="#" id="laporanDropdown" role="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
+                            href="#" id="laporanDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa-solid fa-chart-line me-1"></i> Laporan
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="laporanDropdown">
@@ -68,22 +67,10 @@
                     </li>
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-center {{ Request::is('registrasistaff') ? 'active' : '' }}"
-                            href="#" id="lainnyaDropdown" role="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            <i class="fa-solid fa-sitemap me-1"></i> Lainnya
+                        <a class="dropdown-item nav-link text-center" href="#"
+                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
                         </a>
-
-                        <ul class="dropdown-menu" aria-labelledby="lainnyaDropdown">
-                            <!-- Menggunakan route() helper -->
-                            <li><a class="dropdown-item" href="{{ route('pemilik.registrasi_staff') }}">Registrasi staff</a></li>
-                            <li>
-                                <a class="dropdown-item" href="#"
-                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                    Logout
-                                </a>
-                            </li>
-                        </ul>
                     </li>
                 </ul>
             </div>

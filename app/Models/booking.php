@@ -22,6 +22,7 @@ class Booking extends Model
         'nominal',
         'durasi_sewa',
         'keterangan',
+        'jenis_transaksi'
     ];
 
     protected $casts = [
