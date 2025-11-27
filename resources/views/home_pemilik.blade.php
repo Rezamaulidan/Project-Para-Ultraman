@@ -117,9 +117,9 @@ body {
 <div class="container-fluid py-4">
     <div class="row mb-4 align-items-center">
         <div class="col-md-8">
-            <h2 style="color: #001931; font-weight: 700;">Dashboard Pemilik</h2>
-            <p class="text-muted">Selamat datang kembali, <b>{{ $user->nama_pemilik ?? 'Pemilik' }}</b>! Berikut
-                ringkasan kos Anda.</p>
+            <h2 style="color: #001931; font-weight: 700;">Hallo Bos <b>{{ $user->nama_pemilik ?? 'pemilik' }}!</b>
+            </h2>
+            <p class="text-muted">Selamat Datang di SMIK, Berikut adalah ringkasan manajemen kos Anda.</p>
         </div>
     </div>
 
@@ -272,22 +272,27 @@ body {
 
                     <div id="list-belum-lunas" class="dynamic-list">
                         <div class="list-group list-group-flush">
-                            @forelse($belumLunas as $hutang)
+                            @forelse($belumLunas as $hutang) {{-- <-- INI HARUS $belumLunas --}}
                             <div class="list-group-item p-3 border-bottom">
                                 <div class="d-flex w-100 justify-content-between align-items-center">
                                     <div class="d-flex align-items-center">
-                                        <div class="bg-light rounded-circle p-2 me-3">
-                                            <i class="fas fa-file-invoice-dollar text-danger"></i>
-                                        </div>
+                                        {{-- ... --}}
                                         <div>
+                                            {{-- Nama Penyewa: Menggunakan relasi 'penyewa' --}}
                                             <h6 class="mb-0 fw-bold">
                                                 {{ $hutang->penyewa->nama_penyewa ?? $hutang->username }}</h6>
+                                            {{-- Nominal --}}
                                             <small class="text-danger fw-bold">Rp
                                                 {{ number_format($hutang->nominal, 0, ',', '.') }}</small><br>
+                                            {{-- No Kamar --}}
                                             <small class="text-muted">Kamar No. {{ $hutang->no_kamar }}</small>
                                         </div>
                                     </div>
-                                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3">WA</button>
+                                    <a href="https://wa.me/{{(isset($hutang->penyewa->no_hp) && substr($hutang->penyewa->no_hp, 0, 1) === '0') 
+                                        ? '62' . substr($hutang->penyewa->no_hp, 1):($hutang->penyewa->no_hp ?? '') 
+                                        }}" target="_blank" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                        WA
+                                    </a>
                                 </div>
                             </div>
                             @empty
@@ -330,13 +335,6 @@ body {
                             @endforelse
                         </div>
                     </div>
-
-                </div>
-                <div class="card-footer bg-white text-center border-0 py-3">
-                    <a href="#" class="text-decoration-none fw-bold small text-uppercase"
-                        style="color: #001931; letter-spacing: 1px;">
-                        Lihat Semua Data <i class="fas fa-arrow-right ms-1"></i>
-                    </a>
                 </div>
             </div>
         </div>

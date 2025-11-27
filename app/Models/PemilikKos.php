@@ -19,6 +19,7 @@ class PemilikKos extends Authenticatable
         'nama_pemilik',
         'email',
         'no_hp',
+        'foto_profil',
     ];
 
     public function akuns()
