@@ -4,20 +4,47 @@ namespace App\Http\Controllers;
 
 use App\Models\Penyewa;
 use App\Models\Kamar;
-use App\Models\Akun; // Tambahkan Model Akun
+use App\Models\Akun;
+use App\Models\Booking;
 use App\Models\LaporanKeamanan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage; // Tambahkan Storage
-use Illuminate\Support\Facades\Hash;    // Tambahkan Hash
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class PenyewaController extends Controller
 {
-    // --- FITUR UTAMA PENYEWA ---
+    public function dashboard()
+    {
+        $user = Auth::user();
+
+        // 1. Ambil SEMUA data booking
+        $allBookings = Booking::with('kamar')
+                        ->where('username', $user->username)
+                        ->whereIn('status_booking', ['pending', 'confirmed', 'lunas', 'rejected'])
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+
+        // 2. Cek apakah user ini sudah punya setidaknya SATU booking yang 'lunas'
+        $sudahPunyaKamarAktif = $allBookings->contains('status_booking', 'lunas');
+
+        // 3. Lakukan Filtering Data
+        if ($sudahPunyaKamarAktif) {
+            // Jika sudah punya kamar aktif, sembunyikan history rejected
+            $bookingsSaya = $allBookings->filter(function ($booking) {
+                return $booking->status_booking !== 'rejected';
+            });
+        } else {
+            // Jika belum punya kamar aktif (masih pending/rejected semua), tampilkan semua
+            $bookingsSaya = $allBookings;
+        }
+
+        // PERUBAHAN: Kirim variabel $sudahPunyaKamarAktif ke view
+        return view('dashboard_penyewa', compact('bookingsSaya', 'sudahPunyaKamarAktif'));
+    }
 
     public function updateInformasi(Request $request)
     {
-        // 1. Validasi
         $request->validate([
             'nama_penyewa'  => 'required|string|max:100',
             'no_hp'         => 'required|string|max:20',
@@ -25,46 +52,31 @@ class PenyewaController extends Controller
             'foto_profil'   => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        // 2. Ambil Data User Login
         $user = Auth::user();
-
-        // Ambil data penyewa dari tabel 'penyewas'
         $penyewa = Penyewa::where('username', $user->username)->firstOrFail();
-
-        // Ambil data akun dari tabel 'akuns' (untuk password)
         $akun = Akun::where('username', $user->username)->firstOrFail();
 
-        // 3. Update Data Teks
         $penyewa->nama_penyewa  = $request->nama_penyewa;
         $penyewa->no_hp         = $request->no_hp;
         $penyewa->jenis_kelamin = $request->jenis_kelamin;
 
-        // 4. Handle Upload Foto Profil
         if ($request->hasFile('foto_profil')) {
-            // Hapus foto lama jika ada (dan bukan default/kosong)
             if ($penyewa->foto_profil && Storage::disk('public')->exists($penyewa->foto_profil)) {
                 Storage::disk('public')->delete($penyewa->foto_profil);
             }
-
-            // Simpan foto baru
             $path = $request->file('foto_profil')->store('foto_profil', 'public');
             $penyewa->foto_profil = $path;
         }
 
-        // 5. Handle Ganti Password (Jika diisi)
         if ($request->filled('password')) {
             $akun->password = Hash::make($request->password);
             $akun->save();
         }
 
-        // 6. Simpan Perubahan Data Penyewa
         $penyewa->save();
 
-        // Mengarah ke route 'penyewa.informasi' (Halaman Lihat Profil)
         return redirect()->route('penyewa.informasi')->with('success', 'Profil berhasil diperbarui!');
     }
-
-    // --- METHOD VIEW LAINNYA (TETAP SAMA) ---
 
     public function showKeamanan()
     {
@@ -84,11 +96,19 @@ class PenyewaController extends Controller
 
     public function showKamar()
     {
-        $penyewa = Penyewa::where('username', Auth::user()->username)->firstOrFail();
-        // HARDCODE ID 1 Sesuai Request
-        $kamar = Kamar::where('no_kamar', '1')->firstOrFail();
+        $user = Auth::user();
+        // Cari booking aktif (lunas/confirmed) terakhir
+        $bookingTerakhir = Booking::where('username', $user->username)
+                            ->whereIn('status_booking', ['confirmed', 'lunas'])
+                            ->latest()
+                            ->first();
 
-        return view('informasi_kamar_penyewa', ['kamar' => $kamar]);
+        if ($bookingTerakhir) {
+            $kamar = Kamar::where('no_kamar', $bookingTerakhir->no_kamar)->firstOrFail();
+            return view('informasi_kamar_penyewa', ['kamar' => $kamar]);
+        }
+
+        return redirect()->route('dashboard.booking')->with('error', 'Anda belum memiliki kamar aktif.');
     }
 
     public function showInformasi()

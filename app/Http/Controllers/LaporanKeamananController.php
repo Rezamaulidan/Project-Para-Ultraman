@@ -22,13 +22,17 @@ class LaporanKeamananController extends Controller
 
     public function create()
     {
-        return view('tambah_laporan_staf');
+        // Ambil semua data staf (hanya ID dan Nama biar ringan)
+    $daftarStaf = \App\Models\Staf::select('id_staf', 'nama_staf', 'jadwal')->get();
+
+    return view('tambah_laporan_staf', compact('daftarStaf'));
     }
 
     public function store(Request $request)
     {
         // 1. Validasi semua input dari form
         $request->validate([
+            'id_staf' => 'required|exists:stafs,id_staf',
             'judul'          => 'required|string|max:200',
             'tanggal'        => 'required|date',
             'waktu'          => 'required',
@@ -54,7 +58,7 @@ class LaporanKeamananController extends Controller
 
         // 4. Simpan ke Database
         LaporanKeamanan::create([
-            'id_staf'       => $staf->id_staf,
+            'id_staf'       => $request->id_staf, // Ambil dari pilihan user di form
             'judul_laporan' => $request->judul,
             'tanggal'       => $request->tanggal,
             'keterangan'    => $keteranganLengkap, // Simpan hasil gabungan di sini
