@@ -50,19 +50,15 @@
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h5 class="card-title fw-bold mb-0">Kamar No. {{ $kamar->no_kamar }}</h5>
 
-                                <?php 
-                                    $displayStatus = $kamar->status_ketersediaan;
-                                    $isAvailable = strtolower($displayStatus) == 'tersedia';
-                                ?>
+                                @php
+                                $displayStatus = $kamar->status_ketersediaan;
+                                $isAvailable = strtolower($displayStatus) == 'tersedia';
+                                @endphp
+
                                 <span
                                     class="badge rounded-pill fw-medium
                                     {{ $isAvailable ? 'bg-success-subtle text-success-emphasis' : 'bg-danger-subtle text-danger-emphasis' }}">
                                     {{ ucfirst($displayStatus) }}
-
-                                <span
-                                    class="badge rounded-pill fw-medium
-                                        {{ strtolower($kamar->status) == 'tersedia' ? 'bg-success-subtle text-success-emphasis' : 'bg-danger-subtle text-danger-emphasis' }}">
-                                        {{ ucfirst($kamar->status) }}
                                 </span>
                             </div>
 

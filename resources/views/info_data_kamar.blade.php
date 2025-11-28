@@ -41,7 +41,6 @@
                 <!-- Status & Harga -->
                 <div class="modular-card" id="card-status">
                     <div class="text-center">
-<<<<<<< HEAD
                         @php
                         // Gunakan variabel yang dikirim dari controller
                         $displayStatus = $statusKetersediaan;
@@ -58,14 +57,6 @@
                             @endif
                         </span>
 
-=======
-                        <span class="badge-status d-block mb-2">
-                            Status: {{ ucfirst($kamar->status) }}
-                            @if (strtolower($kamar->status) == 'tersedia')
-                            <i class="fas fa-check-circle text-success ms-1"></i>
-                            @endif
-                        </span>
->>>>>>> 193e27d7cc7ab2c5cdda286ad431dbe9bee1dc02
                         <p class="price-text fs-3 fw-bold text-primary mb-0">
                             Rp {{ number_format($kamar->harga, 0, ',', '.') }}
                         </p>
@@ -91,14 +82,11 @@
 
                     <table class="info-table">
                         <tr>
-<<<<<<< HEAD
                             <td class="icon-col"><i class="fas fa-hashtag"></i></td>
                             <td class="label-col">Kamar</td>
                             <td class="value-col">{{ $kamar->no_kamar }}</td>
                         </tr>
                         <tr>
-=======
->>>>>>> 193e27d7cc7ab2c5cdda286ad431dbe9bee1dc02
                             <td class="icon-col"><i class="fas fa-layer-group"></i></td>
                             <td class="label-col">Lantai</td>
                             <td class="value-col">{{ $kamar->lantai }}</td>

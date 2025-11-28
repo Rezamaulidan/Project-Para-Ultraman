@@ -210,16 +210,10 @@
                                         Tersedia</option>
                                     <option value="terisi" {{ $statusKetersediaan == 'terisi' ? 'selected' : '' }}>
                                         Terisi</option>
-                                <select id="edit-status-kamar" name="status" class="form-select" required>
-                                    <option value="tersedia" {{ $kamar->status == 'tersedia' ? 'selected' : '' }}>
-                                        Tersedia</option>
-                                    <option value="terisi" {{ $kamar->status == 'terisi' ? 'selected' : '' }}>Terisi
-                                    </option>
-                                </select>
-                                <input type="hidden" name="status" value="{{ $statusKetersediaan }}">
-                                {{-- Tambahkan teks bantuan visual untuk Pemilik Kos --}}
-                                <small class="form-text text-info">Status kamar ditentukan otomatis oleh data
-                                    Booking.</small>
+                                    <input type="hidden" name="status" value="{{ $statusKetersediaan }}">
+                                    {{-- Tambahkan teks bantuan visual untuk Pemilik Kos --}}
+                                    <small class="form-text text-info">Status kamar ditentukan otomatis oleh data
+                                        Booking.</small>
                             </div>
                         </div>
                         <div class="col-md-6">

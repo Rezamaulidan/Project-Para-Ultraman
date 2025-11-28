@@ -16,7 +16,7 @@ function closeModal() {
     }
 }
 
-PemilikKost
+PemilikKost;
 if (photoInput) {
     photoInput.addEventListener("change", function () {
         const file = this.files[0];
@@ -109,7 +109,7 @@ function deletePhoto() {
 // Pastikan fungsi ini tersedia secara global karena dipanggil di HTML Navbar
 
 // Pastikan fungsi ini tersedia secara global
-master
+master;
 window.openModal = openModal;
 window.closeModal = closeModal;
 
@@ -205,7 +205,7 @@ async function uploadPhoto() {
 async function deletePhoto() {
     const confirmResult = await Swal.fire({
         title: "Hapus Foto?",
-        text: "Foto akan kembali ke inisial nama.",
+        text: "Foto profil akan dihapus",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#dc3545",
