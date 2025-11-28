@@ -203,7 +203,6 @@ class PemilikKosController extends Controller{
         }
     }
 
-PemilikKost
     /**
      * Mengupload dan mengupdate foto profil pemilik kos.
      */
@@ -354,7 +353,6 @@ PemilikKost
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
-master
     }
 
     public function infoDetailStaff()
@@ -365,42 +363,5 @@ master
     public function infoDetailPenyewa()
     {
         return view('info_detail_penyewa_pmlk');
-    }
-    public function create()
-    {
-        //
-    }
-
-    public function store(Request $request)
-    {
-        //
-    }
-    public function show(PemilikKos $PemilikKos)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(PemilikKos $PemilikKos)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, pemilikKos $pemilikKos)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(PemilikKos $PemilikKos)
-    {
-        //
     }
 }

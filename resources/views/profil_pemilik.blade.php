@@ -16,7 +16,6 @@
     @yield('styles')
 
     <style>
-PemilikKost
     /* Menyesuaikan header profil karena foto dihapus */
     .profile-header {
         height: 80px;
@@ -279,7 +278,7 @@ PemilikKost
             background-color: #033f7e !important;
             transform: translateY(-2px);
         }
-master
+
 
         /* Tombol Hapus (Merah Outline) */
         .btn-hapus-foto {
@@ -362,7 +361,6 @@ master
                 </div>
             </div>
 
-PemilikKost
             {{-- Input file tersembunyi untuk upload foto --}}
             <input type="file" id="photoInput" name="foto" accept="image/*" style="display: none;">
             {{-- END FOTO PROFIL DAN AKSI --}}
@@ -475,7 +473,7 @@ PemilikKost
 
                     {{-- Tombol Tutup --}}
                     <button type="button" class="btn btn-tutup-profil" onclick="closeModal()">Tutup Profil</button>
-master
+
                 </div>
                 <div class="detail-item mt-3">
                     <span class="icon text-warning">&#127969;</span>
