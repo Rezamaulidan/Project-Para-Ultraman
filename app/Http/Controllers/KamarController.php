@@ -15,7 +15,7 @@ class KamarController extends Controller
     {
         // 1. Ambil semua kamar, urutkan
         $kamars = Kamar::orderBy('lantai')->orderBy('no_kamar', 'asc')->get();
-<<<<<<< HEAD
+
 
         // 2. Cek status ketersediaan kamar berdasarkan booking yang LUNAS
         $kamarsWithStatus = $kamars->map(function ($kamar) {
@@ -35,9 +35,9 @@ class KamarController extends Controller
         $kamars = Kamar::orderBy('lantai')->orderBy('no_kamar', 'asc')->get();
         return view('data_kamar_pemilik', ['kamars' => $kamarsWithStatus]);
         // return view('home', compact('kamars'));
-=======
+
         return view('data_kamar_pemilik', compact('kamars'));
->>>>>>> 193e27d7cc7ab2c5cdda286ad431dbe9bee1dc02
+
     }
 
     public function create()
@@ -89,7 +89,7 @@ class KamarController extends Controller
 
     public function edit($no_kamar)
     {
-<<<<<<< HEAD
+
         // 1. Cari SATU kamar berdasarkan no_kamar
         $kamar = Kamar::where('no_kamar', $no_kamar)->firstOrFail();
         
@@ -104,10 +104,10 @@ class KamarController extends Controller
         // 4. Kirim variabel kamar dan status barunya ke view
         // Kita akan menggunakan $statusKetersediaan di view
         return view('edit_data_kamar', compact('kamar', 'statusKetersediaan'));
-=======
+
         $kamar = Kamar::where('no_kamar', $no_kamar)->firstOrFail();
         return view('edit_data_kamar', compact('kamar'));
->>>>>>> 193e27d7cc7ab2c5cdda286ad431dbe9bee1dc02
+
     }
 
     // --- BAGIAN INI YANG MENANGANI UPDATE ---

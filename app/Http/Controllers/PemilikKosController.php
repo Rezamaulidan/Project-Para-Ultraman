@@ -176,7 +176,79 @@ class PemilikKosController extends Controller
             if (isset($fotoPath) && Storage::disk('public')->exists($fotoPath)) {
                 Storage::disk('public')->delete($fotoPath);
             }
+PemilikKost
+
+            // Kembali dengan pesan error
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Mengupload dan mengupdate foto profil pemilik kos.
+     */
+    public function updatePhoto(Request $request)
+    {
+        // 1. Validasi Input
+        $request->validate([
+            // Hanya izinkan file foto dengan ukuran maksimal 2MB
+            'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048', 
+        ]);
+
+        // Dapatkan data PemilikKos yang sedang login
+        // Pastikan Auth::user() adalah model PemilikKos, atau ambil relasi jika Auth::user() adalah Akun.
+        // Berdasarkan PemilikKosController::index, kita asumsikan $user adalah PemilikKos:
+        // $user = Auth::user()->load('PemilikKos')->PemilikKos; <-- Ambil data PemilikKos
+        // Karena kita tidak tahu persis bagaimana Auth::user() dikonfigurasi, 
+        // kita akan gunakan relasi untuk amannya (asumsi relasi PemilikKos di Akun bernama 'pemilikKos')
+        $akun = Auth::user();
+        $pemilik = $akun->pemilikKos; // Ambil Model PemilikKos dari Akun
+        
+        if (!$pemilik) {
+            return response()->json(['success' => false, 'message' => 'Data pemilik tidak ditemukan.'], 404);
+        }
+
+        // 2. Hapus foto lama (jika ada)
+        if ($pemilik->foto_profil) {
+            // Cek dan hapus dari disk public
+            Storage::disk('public')->delete($pemilik->foto_profil);
+        }
+
+        // 3. Simpan foto baru
+        // Simpan di folder 'storage/app/public/foto_profil'
+        $path = $request->file('foto')->store('foto_profil', 'public');
+
+        // 4. Update database
+        $pemilik->foto_profil = $path;
+        $pemilik->save();
+
+        // 5. Kembalikan URL yang bisa diakses publik
+        return response()->json([
+            'success' => true,
+            'message' => 'Foto profil berhasil diubah!',
+            'foto_url' => Storage::url($path) 
+        ]);
+    }
+    
+    /**
+     * Menghapus foto profil pemilik kos.
+     */
+    public function deletePhoto()
+    {
+        $akun = Auth::user();
+        $pemilik = $akun->pemilikKos;
+        
+        if (!$pemilik) {
+            return response()->json(['success' => false, 'message' => 'Data pemilik tidak ditemukan.'], 404);
+        }
+
+        // 1. Hapus foto dari storage (jika ada)
+        if ($pemilik->foto_profil) {
+            Storage::disk('public')->delete($pemilik->foto_profil);
+
             return redirect()->back()->withInput()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+master
         }
     }
 
@@ -207,6 +279,15 @@ class PemilikKosController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
+PemilikKost
+    }
+
+    public function infoDetailStaff()
+    {
+        return view('info_detail_staff');
+    }
+
+
     }
 
     public function deletePhoto()
@@ -230,6 +311,7 @@ class PemilikKosController extends Controller
         return view('info_detail_staff');
     }
 
+master
     public function infoDetailPenyewa()
     {
         return view('info_detail_penyewa_pmlk');
