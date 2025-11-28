@@ -176,6 +176,25 @@
                         @enderror
                     </div>
 
+                    <div class="mb-4">
+                        <label for="id_staf" class="form-label">
+                            <i class="fa fa-user-edit form-icon"></i> Nama Petugas Pelapor <span
+                                class="required">*</span>
+                        </label>
+
+                        <select class="form-select" name="id_staf" required>
+                            <option value="" selected disabled>-- Siapa Nama Anda? --</option>
+
+                            {{-- Looping data dari Controller --}}
+                            @foreach ($daftarStaf as $staf)
+                                <option value="{{ $staf->id_staf }}">
+                                    {{ $staf->nama_staf }} ({{ $staf->jadwal }})
+                                </option>
+                            @endforeach
+
+                        </select>
+                    </div>
+
                     {{-- 2. Tanggal & Waktu --}}
                     <div class="row mb-4">
                         <div class="col-md-6 mb-3 mb-md-0">
@@ -209,7 +228,8 @@
                             name="jenis_kejadian" required>
                             <option value="" selected disabled>Pilih jenis kejadian</option>
                             <option value="Orang mencurigakan"
-                                {{ old('jenis_kejadian') == 'Orang mencurigakan' ? 'selected' : '' }}>Orang mencurigakan
+                                {{ old('jenis_kejadian') == 'Orang mencurigakan' ? 'selected' : '' }}>Orang
+                                mencurigakan
                             </option>
                             <option value="Pemadaman listrik"
                                 {{ old('jenis_kejadian') == 'Pemadaman listrik' ? 'selected' : '' }}>Pemadaman listrik
@@ -248,8 +268,8 @@
                         <label for="deskripsi" class="form-label">
                             <i class="fa fa-align-left form-icon"></i> Deskripsi Detail<span class="required">*</span>
                         </label>
-                        <textarea class="form-control @error('deskripsi') is-invalid @enderror" id="deskripsi" name="deskripsi" rows="6"
-                            required>{{ old('deskripsi') }}</textarea>
+                        <textarea class="form-control @error('deskripsi') is-invalid @enderror" id="deskripsi" name="deskripsi"
+                            rows="6" required>{{ old('deskripsi') }}</textarea>
                         @error('deskripsi')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
