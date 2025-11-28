@@ -30,13 +30,12 @@ class KamarController extends Controller
             $kamar->status_ketersediaan = $isTerisi ? 'Terisi' : 'Tersedia';
 
             return $kamar;
+            return view('info_data_kamar', compact('kamar', 'statusKetersediaan'));
         });
 
         $kamars = Kamar::orderBy('lantai')->orderBy('no_kamar', 'asc')->get();
         return view('data_kamar_pemilik', ['kamars' => $kamarsWithStatus]);
         // return view('home', compact('kamars'));
-
-        return view('data_kamar_pemilik', compact('kamars'));
 
     }
 

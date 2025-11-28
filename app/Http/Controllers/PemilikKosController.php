@@ -13,7 +13,7 @@ use App\Models\Staf;
 use Carbon\Carbon;
 use App\Models\Booking;
 use App\Models\Kamar;
-use App\Models\Pengeluaran; // Import dari master
+use App\Models\Pengeluaran; 
 
 class PemilikKosController extends Controller
 {
@@ -23,57 +23,77 @@ class PemilikKosController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
-        // Pastikan load relasi jika diperlukan
-        // $user = $user->load('PemilikKos')->PemilikKos; (Opsional tergantung struktur model User)
-
+        $userAkun = Auth::user();
         $now = Carbon::now();
         $bulanSaatIni = $now->month;
         $tahunSaatIni = $now->year;
 
+        $user = $userAkun->load('pemilikKos')->pemilikKos;
+
         // --- 1. DATA PENDAPATAN BULAN INI ---
         $pendapatanBulanIni = Booking::where('status_booking', 'lunas')
-            ->whereMonth('created_at', $bulanSaatIni) // Asumsi pakai created_at atau tanggal
-            ->whereYear('created_at', $tahunSaatIni)
+            ->whereMonth('tanggal', $bulanSaatIni)
+            ->whereYear('tanggal', $tahunSaatIni)
             ->sum('nominal');
 
-        // --- 2. DATA KAMAR KOSONG ---
-        $daftarKamarKosong = Kamar::where('status', 'tersedia')->get();
-        $jumlahKamarKosong = $daftarKamarKosong->count();
-        $totalKamar = Kamar::count();
-        // Hitung kamar terisi untuk statistik
-        $jumlahKamarTerisi = $totalKamar - $jumlahKamarKosong; 
+        // =========================================================================
+        // --- 2. DATA KAMAR KOSONG & OKUPANSI (DIPERBAIKI) ---
+        // =========================================================================
+        
+        // A. Ambil daftar 'no_kamar' yang sedang aktif (status lunas) dari tabel bookings
+        $idKamarTerisi = Booking::where('status_booking', 'lunas')
+            ->pluck('no_kamar') // Ambil kolom no_kamar saja
+            ->unique()          // Pastikan tidak ada duplikat (jika penyewa bayar berkali-kali)
+            ->toArray();
 
-        // --- 3. DATA PERMINTAAN SEWA (NOTIFIKASI) ---
-        // Menggunakan logika 'pending' agar sesuai dengan alur booking baru
-        $permintaanSewa = Booking::where('status_booking', 'pending')
+        // B. Hitung Total Kamar
+        $totalKamar = Kamar::count();
+
+        // C. Hitung Jumlah Kamar Terisi berdasarkan booking yang lunas
+        $jumlahKamarTerisi = count($idKamarTerisi);
+
+        // D. Hitung Jumlah Kamar Kosong
+        $jumlahKamarKosong = $totalKamar - $jumlahKamarTerisi;
+
+        // E. Ambil Object Kamar yang benar-benar kosong (yang ID-nya TIDAK ADA di booking lunas)
+        // Ini menggantikan Kamar::where('status', 'tersedia') agar list di dashboard sinkron
+        $daftarKamarKosong = Kamar::whereNotIn('no_kamar', $idKamarTerisi)->get();
+
+        // =========================================================================
+
+        // --- 3. DATA PERMINTAAN SEWA (BARU) --- 
+        $permintaanSewa = Booking::where('jenis_transaksi', 'booking') 
+            ->where('status_booking', 'pending') 
             ->with(['penyewa', 'kamar'])
-            ->orderBy('created_at', 'desc')
+            ->orderBy('tanggal', 'desc')
             ->get();
             
         $jumlahPermintaan = $permintaanSewa->count();
 
-        // --- 4. DATA BELUM LUNAS ---
-        // Menggunakan logika 'confirmed' (sudah di-acc tapi belum bayar)
-        $belumLunas = Booking::where('status_booking', 'confirmed')
+        // --- 4. DATA BELUM LUNAS / JATUH TEMPO --- (MODIFIKASI FINAL KARENA GAGAL)
+        $belumLunas = Booking::where(DB::raw('LOWER(jenis_transaksi)'), 'pembayaran_sewa')
+            ->whereIn('status_booking', ['terlambat', 'belum_lunas'])
             ->with(['penyewa', 'kamar'])
             ->get();
-            
         $jumlahBelumLunas = $belumLunas->count();
         $totalUangBelumLunas = $belumLunas->sum('nominal');
+        //return $belumLunas;
 
-        // --- 5. DATA CHART PENDAPATAN (DARI MASTER) ---
+        // =========================================================================
+        // --- 5. DATA CHART PENDAPATAN (6 BULAN TERAKHIR) ---
+        // =========================================================================
+        
         $bulanMulai = $now->copy()->subMonths(5)->startOfMonth(); 
         $pendapatan6Bulan = Booking::select(
-                DB::raw('MONTH(created_at) as bulan'),
-                DB::raw('YEAR(created_at) as tahun'),
+                DB::raw('MONTH(tanggal) as bulan'), // Ubah created_at -> tanggal
+                DB::raw('YEAR(tanggal) as tahun'),   // Ubah created_at -> tanggal
                 DB::raw('SUM(nominal) as total_nominal')
             )
             ->where('status_booking', 'lunas') 
-            ->where('created_at', '>=', $bulanMulai)
-            ->groupBy(DB::raw('YEAR(created_at)'), DB::raw('MONTH(created_at)'))
-            ->orderBy(DB::raw('YEAR(created_at)'), 'asc')
-            ->orderBy(DB::raw('MONTH(created_at)'), 'asc')
+            ->where('tanggal', '>=', $bulanMulai)    // Ubah created_at -> tanggal
+            ->groupBy(DB::raw('YEAR(tanggal)'), DB::raw('MONTH(tanggal)'))
+            ->orderBy(DB::raw('YEAR(tanggal)'), 'asc')
+            ->orderBy(DB::raw('MONTH(tanggal)'), 'asc')
             ->get()
             ->keyBy(function($item) {
                 return $item->tahun . '-' . str_pad($item->bulan, 2, '0', STR_PAD_LEFT);
@@ -91,7 +111,7 @@ class PemilikKosController extends Controller
             $dataChart[] = round($nominal / 1000000, 2); 
         }
 
-        // --- 6. DATA CHART PENGELUARAN (DARI MASTER) ---
+        // --- 6. DATA CHART PENGELUARAN ---
         $pengeluaran6Bulan = Pengeluaran::select(
                 DB::raw('MONTH(created_at) as bulan'),
                 DB::raw('YEAR(created_at) as tahun'),
@@ -119,7 +139,7 @@ class PemilikKosController extends Controller
             'pendapatanBulanIni',
             'daftarKamarKosong',
             'jumlahKamarKosong',
-            'jumlahKamarTerisi', // Tambahan untuk view master
+            'jumlahKamarTerisi',
             'totalKamar',
             'permintaanSewa',
             'jumlahPermintaan',
@@ -132,7 +152,9 @@ class PemilikKosController extends Controller
         ));
     }
 
-    // --- LOGIKA PENYIMPANAN STAFF ---
+    /**
+     * Logika Penyimpanan Staff
+     */
     public function storeStaff(Request $request)
     {
         $request->validate([
@@ -176,9 +198,7 @@ class PemilikKosController extends Controller
             if (isset($fotoPath) && Storage::disk('public')->exists($fotoPath)) {
                 Storage::disk('public')->delete($fotoPath);
             }
-PemilikKost
 
-            // Kembali dengan pesan error
             return redirect()->back()
                 ->withInput()
                 ->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage()]);
@@ -190,44 +210,35 @@ PemilikKost
      */
     public function updatePhoto(Request $request)
     {
-        // 1. Validasi Input
         $request->validate([
-            // Hanya izinkan file foto dengan ukuran maksimal 2MB
             'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048', 
         ]);
 
-        // Dapatkan data PemilikKos yang sedang login
-        // Pastikan Auth::user() adalah model PemilikKos, atau ambil relasi jika Auth::user() adalah Akun.
-        // Berdasarkan PemilikKosController::index, kita asumsikan $user adalah PemilikKos:
-        // $user = Auth::user()->load('PemilikKos')->PemilikKos; <-- Ambil data PemilikKos
-        // Karena kita tidak tahu persis bagaimana Auth::user() dikonfigurasi, 
-        // kita akan gunakan relasi untuk amannya (asumsi relasi PemilikKos di Akun bernama 'pemilikKos')
         $akun = Auth::user();
-        $pemilik = $akun->pemilikKos; // Ambil Model PemilikKos dari Akun
+        // Menggunakan null coalescing operator untuk menghandle perbedaan nama relasi
+        $pemilik = $akun->pemilikKos ?? $akun->PemilikKos; 
         
         if (!$pemilik) {
             return response()->json(['success' => false, 'message' => 'Data pemilik tidak ditemukan.'], 404);
         }
 
-        // 2. Hapus foto lama (jika ada)
-        if ($pemilik->foto_profil) {
-            // Cek dan hapus dari disk public
+        // Hapus foto lama (jika ada)
+        if ($pemilik->foto_profil && Storage::disk('public')->exists($pemilik->foto_profil)) {
             Storage::disk('public')->delete($pemilik->foto_profil);
         }
 
-        // 3. Simpan foto baru
-        // Simpan di folder 'storage/app/public/foto_profil'
+        // Simpan foto baru
         $path = $request->file('foto')->store('foto_profil', 'public');
 
-        // 4. Update database
+        // Update database
         $pemilik->foto_profil = $path;
         $pemilik->save();
 
-        // 5. Kembalikan URL yang bisa diakses publik
         return response()->json([
             'success' => true,
             'message' => 'Foto profil berhasil diubah!',
-            'foto_url' => Storage::url($path) 
+            // 'foto_url' => Storage::url($path) 
+            'foto_url' => Storage::url($path)
         ]);
     }
     
@@ -237,83 +248,40 @@ PemilikKost
     public function deletePhoto()
     {
         $akun = Auth::user();
-        $pemilik = $akun->pemilikKos;
+        $pemilik = $akun->pemilikKos ?? $akun->PemilikKos;
         
         if (!$pemilik) {
             return response()->json(['success' => false, 'message' => 'Data pemilik tidak ditemukan.'], 404);
         }
 
-        // 1. Hapus foto dari storage (jika ada)
         if ($pemilik->foto_profil) {
-            Storage::disk('public')->delete($pemilik->foto_profil);
-
-            return redirect()->back()->withInput()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
-master
-        }
-    }
-
-    // --- FOTO PROFIL (MERGED) ---
-    public function updatePhoto(Request $request)
-    {
-        $request->validate(['foto' => 'required|image|mimes:jpeg,png,jpg|max:2048']);
-
-        $akun = Auth::user();
-        // Pastikan relasi model benar (misal: 'pemilikKos' camelCase)
-        $pemilik = $akun->pemilikKos ?? $akun->PemilikKos; 
-
-        if (!$pemilik) {
-            return response()->json(['success' => false, 'message' => 'Data pemilik tidak ditemukan.'], 404);
-        }
-
-        try {
-            if ($pemilik->foto_profil && Storage::disk('public')->exists($pemilik->foto_profil)) {
+            if (Storage::disk('public')->exists($pemilik->foto_profil)) {
                 Storage::disk('public')->delete($pemilik->foto_profil);
             }
-
-            $path = $request->file('foto')->store('foto_profil', 'public');
-            $pemilik->foto_profil = $path;
-            $pemilik->save();
-
-            return response()->json(['success' => true, 'foto_url' => Storage::url($path)]);
-
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
-        }
-PemilikKost
-    }
-
-    public function infoDetailStaff()
-    {
-        return view('info_detail_staff');
-    }
-
-
-    }
-
-    public function deletePhoto()
-    {
-        $akun = Auth::user();
-        $pemilik = $akun->pemilikKos ?? $akun->PemilikKos;
-
-        if ($pemilik && $pemilik->foto_profil) {
-            Storage::disk('public')->delete($pemilik->foto_profil);
+            
             $pemilik->foto_profil = null;
             $pemilik->save();
-            return response()->json(['success' => true]);
-        }
 
+            // return response()->json(['success' => true, 'message' => 'Foto berhasil dihapus']);
+            return response()->json([
+            'success' => true,
+            'message' => 'Foto profil berhasil dihapus!',
+            // 'foto_url' => Storage::url($path) 
+            'default_url' => asset('images/pp-default.jpg')
+        ]);
+        }
+        
         return response()->json(['success' => false, 'message' => 'Tidak ada foto untuk dihapus']);
     }
 
-    // --- METHOD DARI MASTER (INFO DETAIL) ---
     public function infoDetailStaff()
     {
         return view('info_detail_staff');
     }
 
-master
     public function infoDetailPenyewa()
     {
         return view('info_detail_penyewa_pmlk');
     }
-}
+
+} // <--- INI ADALAH PENUTUP CLASS TERAKHIR

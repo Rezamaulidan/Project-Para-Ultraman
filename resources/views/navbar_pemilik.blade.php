@@ -5,11 +5,10 @@
 
         <div class="d-flex justify-content-between align-items-center">
             <a class="navbar-brand d-flex align-items-center" href="{{ route('pemilik.home') }}">
-                <img src="{{ asset('images/logo-simk.png') }}" alt="Logo SIMK" class="me-3">
+                <img src="{{ asset('images/logo-simk.png') }}" alt="Logo SIMK" class="me-3" style="height: 40px;">
                 Sistem Informasi Manajemen Kos
             </a>
 
-            <!-- Ikon profil, Anda bisa tambahkan modal di sini jika perlu -->
             <a href="#" class="text-white" onclick="openModal(); return false;">
                 <i class="fa-solid fa-user-circle fa-2x"></i>
             </a>
@@ -25,16 +24,14 @@
                 <ul class="navbar-nav d-flex justify-content-between w-100">
 
                     <li class="nav-item">
-                        <!-- Menggunakan route() helper -->
-                        <a class="nav-link {{ Request::is('homepemilik') ? 'active' : '' }} text-center"
+                        <a class="nav-link {{ request()->routeIs('pemilik.home') ? 'active' : '' }} text-center"
                             aria-current="page" href="{{ route('pemilik.home') }}">
                             <i class="fa-solid fa-house me-1"></i> Beranda
                         </a>
                     </li>
 
                     <li class="nav-item dropdown">
-                        <!-- Menggunakan route() helper -->
-                        <a class="nav-link dropdown-toggle text-center {{ Request::is('datakamarpemilik', 'datapenyewapemilik', 'datastaffpemilik') ? 'active' : '' }}"
+                        <a class="nav-link dropdown-toggle text-center {{ request()->routeIs('pemilik.datakamar', 'pemilik.datapenyewa', 'pemilik.datastaff') ? 'active' : '' }}"
                             href="#" id="infoDataDropdown" role="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
                             <i class="fa-solid fa-circle-info me-1"></i> Informasi Data
@@ -47,16 +44,14 @@
                     </li>
 
                     <li class="nav-item">
-                        <!-- Menggunakan route() helper -->
-                        <a class="nav-link {{ Request::is('transaksipemilik') ? 'active' : '' }} text-center"
+                        <a class="nav-link {{ request()->routeIs('pemilik.transaksi') ? 'active' : '' }} text-center"
                             aria-current="page" href="{{ route('pemilik.transaksi') }}">
                             <i class="fa-solid fa-receipt me-1"></i> Transaksi
                         </a>
                     </li>
 
                     <li class="nav-item dropdown">
-                        <!-- Menggunakan route() helper -->
-                        <a class="nav-link dropdown-toggle text-center {{ Request::is('pengeluaranpemilik', 'keamananpemilik') ? 'active' : '' }}"
+                        <a class="nav-link dropdown-toggle text-center {{ request()->routeIs('pemilik.pengeluaran', 'pemilik.keamanan') ? 'active' : '' }}"
                             href="#" id="laporanDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa-solid fa-chart-line me-1"></i> Laporan
                         </a>
@@ -66,8 +61,8 @@
                         </ul>
                     </li>
 
-                    <li class="nav-item dropdown">
-                        <a class="dropdown-item nav-link text-center" href="#"
+                    <li class="nav-item">
+                        <a class="nav-link text-center text-danger" href="#"
                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
                         </a>
