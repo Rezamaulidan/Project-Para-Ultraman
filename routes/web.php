@@ -16,6 +16,8 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use App\Models\Akun;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request; // Tambahan untuk Request
+use App\Http\Controllers\AbsensiController;
 
 // === RUTE PUBLIK ===
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -28,9 +30,8 @@ Route::get('/pilihan-daftar', [RegisterController::class, 'pilihan'])->name('reg
 Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Lupa Password (Standar)
+// Lupa Password
 Route::get('/lupa-kata-sandia', function () { return view('forgot-password'); })->name('password.request');
-// ... (Logika lupa password lengkap Anda tetap bisa ditaruh di sini) ...
 
 // === RUTE AUTH ===
 Route::middleware(['auth'])->group(function () {
@@ -39,7 +40,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:penyewa'])->group(function () {
         Route::get('/dashboard-booking', [DashboardBookingController::class, 'booking'])->name('dashboard.booking');
         Route::get('/dashboard-penyewa', [PenyewaController::class, 'dashboard'])->name('penyewa.dashboard');
-        
+
         // Menu Penyewa
         Route::get('/informasi-penyewa', [PenyewaController::class, 'showInformasi'])->name('penyewa.informasi');
         Route::get('/edit-informasi-penyewa', [PenyewaController::class, 'editInformasi'])->name('penyewa.edit_informasi');
@@ -47,7 +48,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/informasi-keamanan', [PenyewaController::class, 'showKeamanan'])->name('penyewa.keamanan');
         Route::get('/menu-pembayaran', [PenyewaController::class, 'showPembayaran'])->name('penyewa.pembayaran');
         Route::get('/informasi-kamar-saya', [PenyewaController::class, 'showKamar'])->name('penyewa.kamar');
-        
+
         // Transaksi
         Route::get('/booking/kamar/{no_kamar}', [BookingController::class, 'create'])->name('penyewa.booking.create');
         Route::post('/booking/kamar', [BookingController::class, 'store'])->name('penyewa.booking.store');
@@ -88,11 +89,16 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/keamananpemilik', fn() => view('keamanan_pemilik'))->name('pemilik.keamanan');
         Route::get('/datapenyewapemilik', fn() => view('data_penyewa_pemilik'))->name('pemilik.datapenyewa');
+PemilikKost
         // Route untuk ekspor data CSV/Excel
         Route::get('/transaksi-export-lunas', [PemilikKosController::class, 'exportTransaksiLunas'])->name('transaksi.export');
         Route::get('/transaksi-search', [PemilikKosController::class, 'searchTransaksiLunas'])->name('transaksi.search');
         
         // Info Detail (Dari Master)
+
+
+        // Info Detail
+master
         Route::get('/info-detail-penyewa', [PemilikKosController::class, 'infoDetailPenyewa'])->name('pemilik.informasi.penyewa');
         Route::get('/info-detail-staff', [PemilikKosController::class, 'infoDetailStaff'])->name('pemilik.informasi.staff');
 
@@ -101,7 +107,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/registrasi-staff', [PemilikKosController::class, 'storeStaff'])->name('pemilik.store_staff');
         Route::get('/datastaffpemilik', fn() => view('data_staff_pemilik'))->name('pemilik.datastaff');
 
-        // Manajemen Booking (PENTING)
+        // Manajemen Booking
         Route::get('/pemilik/permohonan-sewa', [BookingController::class, 'daftarPermohonan'])->name('pemilik.permohonan');
         Route::post('/pemilik/booking/{id}/approve', [BookingController::class, 'approveBooking'])->name('pemilik.booking.approve');
         Route::post('/pemilik/booking/{id}/reject', [BookingController::class, 'rejectBooking'])->name('pemilik.booking.reject');
@@ -111,8 +117,32 @@ Route::middleware(['auth'])->group(function () {
     // --- ROLE: STAF ---
     Route::middleware(['role:staf'])->group(function () {
         Route::get('/staff/menu', fn() => view('menu_staff'))->name('staff.menu');
+        Route::get('/staff/manajemen-staf', fn() => view('manajemen_staf'))->name('staff.manajemen');
+        Route::get('/staff/lihat-profil', fn() => view('manajemen_staf'))->name('staff.lihat_profil');
+        Route::get('/staff/edit-profil', fn() => view('edit_profil_staf'))->name('staff.manajemen.edit');
+        Route::put('/staff/update-profil', function (\Illuminate\Http\Request $request) {
+            $user = \App\Models\Akun::find(auth()->id());
+            $user->update([
+                'nama_lengkap' => $request->nama_lengkap,
+                'no_hp'        => $request->no_hp,
+                'email'        => $request->email,
+                'alamat'       => $request->alamat,
+            ]);
+            return redirect()->route('staff.manajemen.edit')->with('sukses', 'Data berhasil disimpan!');
+        })->name('staff.manajemen.update');
+        // Ganti bagian Route staff.penyewa dengan ini:
+        Route::get('/staff/informasi-penyewa', function () {
+            $daftar_penyewa = \App\Models\Akun::where('jenis_akun', 'penyewa')->get();
+            return view('staff_informasi_penyewa', compact('daftar_penyewa'));
+
+        })->name('staff.penyewa');
+        Route::get('/staff/data-penyewa', fn() => "Halaman Data Penyewa")->name('staff.penyewa');
+        Route::get('/staff/shift-kerja', fn() => "Halaman Shift Kerja")->name('staff.shift_kerja');
         Route::get('/staff/laporan-keamanan', [LaporanKeamananController::class, 'index'])->name('staff.laporan_keamanan');
         Route::get('/staff/laporan-keamanan/create', [LaporanKeamananController::class, 'create'])->name('staff.laporan_keamanan.create');
         Route::post('/staff/laporan-keamanan', [LaporanKeamananController::class, 'store'])->name('staff.laporan_keamanan.store');
+        Route::get('/staff/shift-kerja', [AbsensiController::class, 'index'])->name('staff.shift_kerja');
+        Route::post('/staff/absen', [AbsensiController::class, 'store'])->name('staff.absen.store');
     });
+
 });
