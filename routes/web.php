@@ -76,12 +76,29 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/kamar/{no_kamar}', [KamarController::class, 'destroy'])->name('pemilik.kamar.destroy');
 
         // Menu Lain
-        Route::get('/transaksipemilik', fn() => view('transaksi_pemilik'))->name('pemilik.transaksi');
-        Route::get('/pengeluaranpemilik', fn() => view('pengeluaran_pemilik'))->name('pemilik.pengeluaran');
+        // Route::get('/transaksipemilik', fn() => view('transaksi_pemilik'))->name('pemilik.transaksi');
+        Route::get('/transaksipemilik', [PemilikKosController::class, 'transaksiPemilik'])->name('pemilik.transaksi');
+        // Route::get('/pengeluaranpemilik', fn() => view('pengeluaran_pemilik'))->name('pemilik.pengeluaran');
+
+        // Route Halaman Pengeluaran (sudah ada sebelumnya, pastikan namanya sama)
+        Route::get('/pengeluaranpemilik', [PemilikKosController::class, 'pengeluaranPemilik'])->name('pemilik.pengeluaran');
+
+        // Route BARU untuk Simpan dan Hapus
+        Route::post('/pengeluaran-store', [PemilikKosController::class, 'storePengeluaran'])->name('pengeluaran.store');
+        Route::delete('/pengeluaran-delete/{id}', [PemilikKosController::class, 'destroyPengeluaran'])->name('pengeluaran.destroy');
+
         Route::get('/keamananpemilik', fn() => view('keamanan_pemilik'))->name('pemilik.keamanan');
         Route::get('/datapenyewapemilik', fn() => view('data_penyewa_pemilik'))->name('pemilik.datapenyewa');
+PemilikKost
+        // Route untuk ekspor data CSV/Excel
+        Route::get('/transaksi-export-lunas', [PemilikKosController::class, 'exportTransaksiLunas'])->name('transaksi.export');
+        Route::get('/transaksi-search', [PemilikKosController::class, 'searchTransaksiLunas'])->name('transaksi.search');
+        
+        // Info Detail (Dari Master)
+
 
         // Info Detail
+master
         Route::get('/info-detail-penyewa', [PemilikKosController::class, 'infoDetailPenyewa'])->name('pemilik.informasi.penyewa');
         Route::get('/info-detail-staff', [PemilikKosController::class, 'infoDetailStaff'])->name('pemilik.informasi.staff');
 

@@ -284,4 +284,166 @@ class PemilikKosController extends Controller
         return view('info_detail_penyewa_pmlk');
     }
 
-} // <--- INI ADALAH PENUTUP CLASS TERAKHIR
+    public function transaksiPemilik(Request $request)
+    {
+        // Logika query utama (hanya lunas)
+        $query = Booking::where('status_booking', 'lunas')
+            ->with(['penyewa', 'kamar'])
+            ->orderBy('tanggal', 'desc');
+
+        // Jika ada parameter pencarian (untuk penggunaan non-AJAX atau jika view dimuat dengan parameter)
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->whereHas('penyewa', function ($q) use ($searchTerm) {
+                // Pencarian berdasarkan nama penyewa yang dimulai dengan kata kunci (LIKE 'kata_kunci%')
+                $q->where('nama_penyewa', 'LIKE', $searchTerm . '%');
+            })
+            ->orWhere('id_booking', 'LIKE', '%' . $searchTerm . '%'); // Atau cari di ID Transaksi
+        }
+
+        $transaksis = $query->paginate(10); 
+
+        return view('transaksi_pemilik', compact('transaksis'));
+    }
+
+    /**
+     * Endpoint AJAX untuk Pencarian Real-Time (Keyup).
+     */
+    public function searchTransaksiLunas(Request $request)
+    {
+        // Validasi dan sanitasi input pencarian
+        $searchTerm = $request->input('query');
+
+        // Membangun Query
+        $transaksis = Booking::where('status_booking', 'lunas')
+            ->where(function ($query) use ($searchTerm) {
+                // Mencari di Nama Penyewa yang diawali dengan kata kunci (start with)
+                $query->whereHas('penyewa', function ($q) use ($searchTerm) {
+                    $q->where('nama_penyewa', 'LIKE', $searchTerm . '%');
+                });
+                // ATAU mencari di ID Transaksi yang mengandung kata kunci
+                $query->orWhere('id_booking', 'LIKE', '%' . $searchTerm . '%');
+            })
+            ->with(['penyewa', 'kamar'])
+            ->orderBy('tanggal', 'desc')
+            ->paginate(10);
+
+        // Render hasil data ke view partial untuk dikirim kembali sebagai HTML
+        $view = view('partials.transaksi_table_rows', compact('transaksis'))->render();
+
+        return response()->json([
+            'html' => $view,
+            'pagination_info' => 'Menampilkan ' . $transaksis->firstItem() . ' - ' . $transaksis->lastItem() . ' dari ' . $transaksis->total() . ' Transaksi',
+            'pagination_links' => $transaksis->links()->toHtml(),
+            'pagination_links' => $transaksis->links('pagination::bootstrap-4')->toHtml(),
+        ]);
+    }
+
+    public function exportTransaksiLunas()
+    {
+        // 1. Ambil Data Transaksi Lunas (Sama seperti di transaksiPemilik)
+        $transaksis = Booking::where('status_booking', 'lunas')
+            ->with(['penyewa', 'kamar'])
+            ->orderBy('tanggal', 'desc')
+            ->get(); // Gunakan get() alih-alih paginate() untuk ekspor semua data
+
+        $fileName = 'transaksi_lunas_' . now()->format('Ymd_His') . '.csv';
+
+        // 2. Siapkan header CSV
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '";',
+        ];
+
+        // 3. Siapkan fungsi callback untuk membuat konten CSV
+        $callback = function() use ($transaksis) {
+            $file = fopen('php://output', 'w');
+
+            // Baris Header CSV
+            fputcsv($file, [
+                'ID. Transaksi', 
+                'Penyewa', 
+                'Kamar', 
+                'Periode Bayar', 
+                'Jumlah Bayar', 
+                'Tgl. Bayar', 
+                'Status'
+            ], ';'); // Menggunakan titik koma (;) sebagai delimiter
+
+            // Isi Data
+            foreach ($transaksis as $transaksi) {
+                // Formatting data sesuai tampilan
+                $idTransaksi = 'TRKS-' . str_pad($transaksi->id_booking, 3, '0', STR_PAD_LEFT);
+                $namaPenyewa = $transaksi->penyewa ? $transaksi->penyewa->nama_penyewa : '*Penyewa Tidak Ditemukan*';
+                $noKamar = $transaksi->kamar ? $transaksi->kamar->no_kamar : '*N/A*';
+                $periodeBayar = \Carbon\Carbon::parse($transaksi->tanggal)->format('M Y');
+                // Nominal tanpa simbol Rp dan titik, agar mudah diolah di Excel
+                $nominal = number_format($transaksi->nominal, 0, '', ''); 
+                $tglBayar = \Carbon\Carbon::parse($transaksi->tanggal)->format('d M Y');
+                $status = 'Lunas';
+
+                fputcsv($file, [
+                    $idTransaksi, 
+                    $namaPenyewa, 
+                    $noKamar, 
+                    $periodeBayar, 
+                    $nominal, 
+                    $tglBayar, 
+                    $status
+                ], ';');
+            }
+
+            fclose($file);
+        };
+
+        // 4. Kembalikan Response Stream
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function pengeluaranPemilik()
+    {
+        // Ambil data pengeluaran urut berdasarkan tanggal terbaru
+        $pengeluarans = Pengeluaran::orderBy('tanggal', 'desc')->paginate(10);
+
+        // Hitung Total Bulan Ini
+        $totalBulanIni = Pengeluaran::whereMonth('tanggal', Carbon::now()->month)
+            ->whereYear('tanggal', Carbon::now()->year)
+            ->sum('sub_total');
+
+        return view('pengeluaran_pemilik', compact('pengeluarans', 'totalBulanIni'));
+    }
+
+    /**
+     * Simpan Pengeluaran Baru
+     */
+    public function storePengeluaran(Request $request)
+    {
+        $request->validate([
+            'tanggal' => 'required|date',
+            'keterangan' => 'required|string|max:255',
+            'jumlah' => 'required|numeric|min:1',
+            'sub_total' => 'required|numeric|min:0',
+        ]);
+
+        Pengeluaran::create([
+            'tanggal' => $request->tanggal,
+            'keterangan' => $request->keterangan,
+            'jumlah' => $request->jumlah,
+            'sub_total' => $request->sub_total, // Kita ambil input subtotal langsung
+        ]);
+
+        return redirect()->back()->with('success', 'Pengeluaran berhasil dicatat!');
+    }
+
+    /**
+     * Hapus Pengeluaran
+     */
+    public function destroyPengeluaran($id)
+    {
+        $pengeluaran = Pengeluaran::findOrFail($id);
+        $pengeluaran->delete();
+
+        return redirect()->back()->with('success', 'Data pengeluaran berhasil dihapus.');
+    }
+
+}
