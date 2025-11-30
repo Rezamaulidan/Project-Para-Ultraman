@@ -10,14 +10,16 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\LaporanKeamananController;
 use App\Http\Controllers\PemilikKosController;
 use App\Http\Controllers\PenyewaController;
-use App\Http\Controllers\StafController;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Notifications\ResetPassword;
 use App\Models\Akun;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
-// === RUTE PUBLIK ===
+// =======================================================
+// 1. RUTE PUBLIK (Bisa diakses tanpa login)
+// =======================================================
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/kamar/{no_kamar}', [HomeController::class, 'showPenyewa'])->name('penyewa.detailkamar');
 
@@ -30,14 +32,19 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Lupa Password
 Route::get('/lupa-kata-sandia', function () { return view('forgot-password'); })->name('password.request');
-// ... (Logika lupa password disingkat untuk kerapihan, pastikan kode aslinya tetap ada jika butuh) ...
+// ... (Logika detail lupa password Anda bisa diletakkan di sini atau controller) ...
 
-// === RUTE AUTH ===
+// =======================================================
+// 2. RUTE YANG MEMERLUKAN LOGIN (AUTH)
+// =======================================================
+
 Route::middleware(['auth'])->group(function () {
 
     // --- ROLE: PENYEWA ---
     Route::middleware(['role:penyewa'])->group(function () {
         Route::get('/dashboard-booking', [DashboardBookingController::class, 'booking'])->name('dashboard.booking');
+
+        // PENTING: Gunakan Controller, jangan view langsung agar logika status jalan
         Route::get('/dashboard-penyewa', [PenyewaController::class, 'dashboard'])->name('penyewa.dashboard');
 
         // Menu Penyewa
@@ -48,7 +55,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/menu-pembayaran', [PenyewaController::class, 'showPembayaran'])->name('penyewa.pembayaran');
         Route::get('/informasi-kamar-saya', [PenyewaController::class, 'showKamar'])->name('penyewa.kamar');
 
-        // Transaksi
+        // Transaksi Booking & Pembayaran
         Route::get('/booking/kamar/{no_kamar}', [BookingController::class, 'create'])->name('penyewa.booking.create');
         Route::post('/booking/kamar', [BookingController::class, 'store'])->name('penyewa.booking.store');
         Route::get('/booking/payment/{id}', [BookingController::class, 'showPaymentPage'])->name('penyewa.bayar');
@@ -62,10 +69,11 @@ Route::middleware(['auth'])->group(function () {
         // Foto Profil
         Route::post('/profile/update-photo', [PemilikKosController::class, 'updatePhoto'])->name('profile.update_photo');
         Route::post('/profile/delete-photo', [PemilikKosController::class, 'deletePhoto'])->name('profile.delete_photo');
+        // Route alternatif untuk menjaga kompatibilitas dengan view lama/baru
         Route::post('/pemilik/profile/update-photo', [PemilikKosController::class, 'updatePhoto'])->name('pemilik.profile.updatePhoto');
         Route::post('/pemilik/profile/delete-photo', [PemilikKosController::class, 'deletePhoto'])->name('pemilik.profile.deletePhoto');
 
-        // Kamar
+        // Manajemen Kamar
         Route::get('/datakamarpemilik', [KamarController::class, 'index'])->name('pemilik.datakamar');
         Route::get('/inputkamar', [KamarController::class, 'create'])->name('pemilik.inputkamar');
         Route::post('/inputkamar', [KamarController::class, 'store'])->name('pemilik.inputkamar.store');
@@ -80,16 +88,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/keamananpemilik', fn() => view('keamanan_pemilik'))->name('pemilik.keamanan');
         Route::get('/datapenyewapemilik', fn() => view('data_penyewa_pemilik'))->name('pemilik.datapenyewa');
 
-        // Info Detail
+        // Info Detail (Merged dari Master)
         Route::get('/info-detail-penyewa', [PemilikKosController::class, 'infoDetailPenyewa'])->name('pemilik.informasi.penyewa');
         Route::get('/info-detail-staff', [PemilikKosController::class, 'infoDetailStaff'])->name('pemilik.informasi.staff');
 
-        // Staff
+        // Manajemen Staff
         Route::get('/registrasistaff', fn() => view('registrasi_sfaff'))->name('pemilik.registrasi_staff');
         Route::post('/registrasi-staff', [PemilikKosController::class, 'storeStaff'])->name('pemilik.store_staff');
         Route::get('/datastaffpemilik', fn() => view('data_staff_pemilik'))->name('pemilik.datastaff');
 
-        // Manajemen Booking
+        // Manajemen Booking (PENTING)
         Route::get('/pemilik/permohonan-sewa', [BookingController::class, 'daftarPermohonan'])->name('pemilik.permohonan');
         Route::post('/pemilik/booking/{id}/approve', [BookingController::class, 'approveBooking'])->name('pemilik.booking.approve');
         Route::post('/pemilik/booking/{id}/reject', [BookingController::class, 'rejectBooking'])->name('pemilik.booking.reject');
@@ -106,6 +114,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/staff/laporan-keamanan', [LaporanKeamananController::class, 'index'])->name('staff.laporan_keamanan');
         Route::get('/staff/laporan-keamanan/create', [LaporanKeamananController::class, 'create'])->name('staff.laporan_keamanan.create');
         Route::post('/staff/laporan-keamanan', [LaporanKeamananController::class, 'store'])->name('staff.laporan_keamanan.store');
+
+        // Placeholder untuk tombol di Menu Staff (Mencegah Error Route Not Defined)
         Route::get('/staff/manajemen', fn() => '<h1>Fitur Manajemen Staff (Segera Hadir)</h1>')->name('staff.manajemen');
         Route::get('/staff/penyewa', fn() => '<h1>Informasi Penyewa untuk Staff (Segera Hadir)</h1>')->name('staff.penyewa');
         Route::get('/staff/shift-kerja', fn() => '<h1>Jadwal Shift Kerja (Segera Hadir)</h1>')->name('staff.shift_kerja');
