@@ -9,10 +9,9 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = {
-    // PENTING: prefix 'tw-' agar TIDAK BENTROK dengan Navbar/Bootstrap
     prefix: 'tw-',
     corePlugins: {
-        preflight: false, // Matikan reset CSS global
+        preflight: false,
     },
     theme: {
         extend: {
@@ -29,7 +28,6 @@ tailwind.config = {
 </script>
 
 <style>
-/* Styling Manual untuk elemen dasar karena preflight dimatikan */
 .custom-wrapper {
     font-family: 'Quicksand', sans-serif;
     color: #1f2937;
@@ -40,7 +38,6 @@ tailwind.config = {
     display: block;
 }
 
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -61,6 +58,17 @@ tailwind.config = {
 
 <div class="custom-wrapper tw-w-full tw-bg-gray-50 tw-text-gray-800 tw-font-sans tw-min-h-screen tw-p-4">
 
+    {{-- ALERT SUCCESS --}}
+    @if(session('success'))
+    <div class="tw-container tw-mx-auto tw-mb-4 tw-px-4 tw-max-w-7xl">
+        <div class="tw-bg-green-100 tw-border tw-border-green-400 tw-text-green-700 tw-px-4 tw-py-3 tw-rounded tw-relative"
+            role="alert">
+            <strong class="tw-font-bold">Berhasil!</strong>
+            <span class="tw-block sm:tw-inline">{{ session('success') }}</span>
+        </div>
+    </div>
+    @endif
+
     <div class="tw-container tw-mx-auto tw-px-4 tw-py-8 tw-max-w-7xl">
 
         <div class="tw-flex tw-flex-col md:tw-flex-row tw-justify-between tw-items-center tw-mb-8 tw-gap-4">
@@ -79,13 +87,15 @@ tailwind.config = {
                 </div>
                 <div>
                     <p class="tw-text-xs tw-opacity-80 tw-uppercase tw-tracking-wide tw-m-0">Total Bulan Ini</p>
-                    <h2 class="tw-text-2xl tw-font-bold tw-m-0">Rp 3.500.000</h2>
+                    {{-- DINAMIS: Menampilkan Total Bulan Ini --}}
+                    <h2 class="tw-text-2xl tw-font-bold tw-m-0">Rp {{ number_format($totalBulanIni, 0, ',', '.') }}</h2>
                 </div>
             </div>
         </div>
 
         <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-8">
 
+            {{-- FORM INPUT PENGELUARAN --}}
             <div class="lg:tw-col-span-1">
                 <div
                     class="tw-bg-white tw-p-6 tw-rounded-3xl tw-shadow-md tw-border tw-border-gray-100 tw-sticky tw-top-4">
@@ -97,11 +107,14 @@ tailwind.config = {
                         <h3 class="tw-text-xl tw-font-bold tw-text-navydark tw-m-0">Catat Baru</h3>
                     </div>
 
-                    <form action="#" method="POST" class="tw-space-y-4">
+                    {{-- UPDATE: Form Action & Method --}}
+                    <form action="{{ route('pengeluaran.store') }}" method="POST" class="tw-space-y-4">
+                        @csrf
                         <div>
                             <label class="tw-block tw-text-sm tw-font-semibold tw-text-gray-600 tw-mb-1">Tanggal
                                 Transaksi</label>
-                            <input type="date"
+                            {{-- UPDATE: name="tanggal" --}}
+                            <input type="date" name="tanggal"
                                 class="tw-w-full tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-xl tw-px-4 tw-py-3 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-navydark tw-transition"
                                 required>
                         </div>
@@ -109,7 +122,8 @@ tailwind.config = {
                         <div>
                             <label class="tw-block tw-text-sm tw-font-semibold tw-text-gray-600 tw-mb-1">Keterangan
                                 Barang/Jasa</label>
-                            <input type="text" placeholder="Contoh: Sabun Lantai"
+                            {{-- UPDATE: name="keterangan" --}}
+                            <input type="text" name="keterangan" placeholder="Contoh: Sabun Lantai"
                                 class="tw-w-full tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-xl tw-px-4 tw-py-3 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-navydark tw-transition"
                                 required>
                         </div>
@@ -118,14 +132,16 @@ tailwind.config = {
                             <div>
                                 <label
                                     class="tw-block tw-text-sm tw-font-semibold tw-text-gray-600 tw-mb-1">Jumlah</label>
-                                <input type="number" placeholder="1"
+                                {{-- UPDATE: name="jumlah", id="input-jumlah" --}}
+                                <input type="number" name="jumlah" id="input-jumlah" placeholder="1"
                                     class="tw-w-full tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-xl tw-px-4 tw-py-3 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-navydark tw-transition"
                                     required>
                             </div>
                             <div>
                                 <label class="tw-block tw-text-sm tw-font-semibold tw-text-gray-600 tw-mb-1">Harga
-                                    Satuan (opsional)</label>
-                                <input type="number" placeholder="Rp..."
+                                    Satuan</label>
+                                {{-- UPDATE: id="input-harga" (Tidak perlu name karena tidak disimpan ke DB, hanya bantu hitung) --}}
+                                <input type="number" id="input-harga" placeholder="Rp..."
                                     class="tw-w-full tw-bg-gray-50 tw-border tw-border-gray-200 tw-rounded-xl tw-px-4 tw-py-3 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-navydark tw-transition">
                             </div>
                         </div>
@@ -135,7 +151,8 @@ tailwind.config = {
                                 (Rp)</label>
                             <div class="tw-relative">
                                 <span class="tw-absolute tw-left-4 tw-top-3 tw-text-gray-400 tw-font-bold">Rp</span>
-                                <input type="number" placeholder="0"
+                                {{-- UPDATE: name="sub_total", id="input-subtotal" --}}
+                                <input type="number" name="sub_total" id="input-subtotal" placeholder="0"
                                     class="tw-w-full tw-bg-navydark/5 tw-border tw-border-navydark/20 tw-text-navydark tw-font-bold tw-rounded-xl tw-pl-12 tw-pr-4 tw-py-3 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-navydark tw-transition"
                                     required>
                             </div>
@@ -150,29 +167,26 @@ tailwind.config = {
                     <div class="tw-mt-6 tw-bg-blue-50 tw-p-4 tw-rounded-xl tw-flex tw-items-start tw-gap-3">
                         <i class="fa-solid fa-lightbulb tw-text-yellow-500 tw-mt-1"></i>
                         <p class="tw-text-xs tw-text-navydark tw-leading-relaxed tw-m-0">
-                            <strong>Tips buat Ibu Kos:</strong> Simpan struk belanja fisik sebagai bukti fisik ya!
+                            <strong>Tips:</strong> Masukkan jumlah dan harga satuan agar subtotal terhitung otomatis.
                         </p>
                     </div>
                 </div>
             </div>
 
+            {{-- TABEL RIWAYAT --}}
             <div class="lg:tw-col-span-2">
                 <div class="tw-bg-white tw-rounded-3xl tw-shadow-sm tw-border tw-border-gray-100 tw-overflow-hidden">
                     <div
                         class="tw-p-6 tw-flex tw-flex-col sm:tw-flex-row tw-justify-between tw-items-center tw-gap-4 tw-border-b tw-border-gray-100">
                         <h3 class="tw-text-xl tw-font-bold tw-text-navydark tw-m-0">Riwayat Belanja</h3>
-
                         <div class="tw-flex tw-gap-2">
+                            {{-- Fitur Filter (Kosongkan dulu atau buat form GET) --}}
                             <div class="tw-relative">
                                 <input type="text" placeholder="Cari barang..."
                                     class="tw-pl-9 tw-pr-4 tw-py-2 tw-border tw-border-gray-200 tw-rounded-full tw-text-sm focus:tw-outline-none focus:tw-border-navydark">
                                 <i
                                     class="fa-solid fa-search tw-absolute tw-left-3 tw-top-2.5 tw-text-gray-400 tw-text-xs"></i>
                             </div>
-                            <button
-                                class="tw-bg-gray-100 hover:tw-bg-gray-200 tw-text-navydark tw-px-4 tw-py-2 tw-rounded-full tw-text-sm tw-font-semibold tw-transition tw-cursor-pointer">
-                                <i class="fa-solid fa-filter"></i> Filter
-                            </button>
                         </div>
                     </div>
 
@@ -189,54 +203,87 @@ tailwind.config = {
                                 </tr>
                             </thead>
                             <tbody class="tw-text-sm tw-text-gray-700">
+                                {{-- LOOPING DATA DARI DATABASE --}}
+                                @forelse ($pengeluarans as $index => $item)
                                 <tr
                                     class="tw-border-b tw-border-gray-50 hover:tw-bg-blue-50 tw-transition tw-duration-200">
-                                    <td class="tw-p-4 tw-text-gray-400 tw-font-bold">1</td>
-                                    <td class="tw-p-4">26 Nov 2023</td>
+                                    <td class="tw-p-4 tw-text-gray-400 tw-font-bold">
+                                        {{ $pengeluarans->firstItem() + $index }}
+                                    </td>
+                                    <td class="tw-p-4">
+                                        {{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}
+                                    </td>
                                     <td class="tw-p-4 tw-font-medium tw-text-navydark">
                                         <div class="tw-flex tw-items-center tw-gap-2">
+                                            {{-- Variasi warna dot hiasan --}}
+                                            @php $colors = ['tw-bg-pink-400', 'tw-bg-teal-400', 'tw-bg-blue-400',
+                                            'tw-bg-purple-400']; @endphp
                                             <span
-                                                class="tw-w-2 tw-h-2 tw-rounded-full tw-bg-pink-400 tw-inline-block"></span>
-                                            Token Listrik Utama
+                                                class="tw-w-2 tw-h-2 tw-rounded-full {{ $colors[$loop->index % 4] }} tw-inline-block"></span>
+                                            {{ $item->keterangan }}
                                         </div>
                                     </td>
-                                    <td class="tw-p-4 tw-text-center"><span
-                                            class="tw-bg-gray-100 tw-px-2 tw-py-1 tw-rounded tw-text-xs tw-font-bold tw-inline-block">1</span>
-                                    </td>
-                                    <td class="tw-p-4 tw-text-right tw-font-bold">Rp 500.000</td>
                                     <td class="tw-p-4 tw-text-center">
-                                        <button
-                                            class="tw-text-gray-400 hover:tw-text-red-500 tw-transition tw-cursor-pointer"><i
-                                                class="fa-solid fa-trash"></i></button>
+                                        <span
+                                            class="tw-bg-gray-100 tw-px-2 tw-py-1 tw-rounded tw-text-xs tw-font-bold tw-inline-block">
+                                            {{ $item->jumlah }}
+                                        </span>
+                                    </td>
+                                    <td class="tw-p-4 tw-text-right tw-font-bold">
+                                        Rp {{ number_format($item->sub_total, 0, ',', '.') }}
+                                    </td>
+                                    <td class="tw-p-4 tw-text-center">
+                                        {{-- TOMBOL DELETE --}}
+                                        <form action="{{ route('pengeluaran.destroy', $item->id_pengeluaran) }}"
+                                            method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="tw-text-gray-400 hover:tw-text-red-500 tw-transition tw-cursor-pointer tw-border-none tw-bg-transparent">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
-                                <tr
-                                    class="tw-border-b tw-border-gray-50 hover:tw-bg-blue-50 tw-transition tw-duration-200">
-                                    <td class="tw-p-4 tw-text-gray-400 tw-font-bold">2</td>
-                                    <td class="tw-p-4">25 Nov 2023</td>
-                                    <td class="tw-p-4 tw-font-medium tw-text-navydark">
-                                        <div class="tw-flex tw-items-center tw-gap-2">
-                                            <span
-                                                class="tw-w-2 tw-h-2 tw-rounded-full tw-bg-teal-400 tw-inline-block"></span>
-                                            Sabun Cuci
-                                        </div>
-                                    </td>
-                                    <td class="tw-p-4 tw-text-center"><span
-                                            class="tw-bg-gray-100 tw-px-2 tw-py-1 tw-rounded tw-text-xs tw-font-bold tw-inline-block">5
-                                            bks</span></td>
-                                    <td class="tw-p-4 tw-text-right tw-font-bold">Rp 125.000</td>
-                                    <td class="tw-p-4 tw-text-center">
-                                        <button
-                                            class="tw-text-gray-400 hover:tw-text-red-500 tw-transition tw-cursor-pointer"><i
-                                                class="fa-solid fa-trash"></i></button>
+                                @empty
+                                <tr>
+                                    <td colspan="6" class="tw-p-8 tw-text-center tw-text-gray-400 tw-italic">
+                                        Belum ada data pengeluaran.
                                     </td>
                                 </tr>
+                                @endforelse
                             </tbody>
                         </table>
+                    </div>
+                    {{-- Pagination --}}
+                    <div class="tw-p-4">
+                        {{ $pengeluarans->links('pagination::simple-tailwind') }}
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+{{-- SCRIPT HITUNG OTOMATIS --}}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const inputJumlah = document.getElementById('input-jumlah');
+    const inputHarga = document.getElementById('input-harga');
+    const inputSubtotal = document.getElementById('input-subtotal');
+
+    function hitungSubtotal() {
+        const jumlah = parseFloat(inputJumlah.value) || 0;
+        const harga = parseFloat(inputHarga.value) || 0;
+
+        if (harga > 0) {
+            inputSubtotal.value = jumlah * harga;
+        }
+    }
+
+    inputJumlah.addEventListener('input', hitungSubtotal);
+    inputHarga.addEventListener('input', hitungSubtotal);
+});
+</script>
+
 @endsection

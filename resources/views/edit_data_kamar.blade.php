@@ -212,8 +212,7 @@
                                         Terisi</option>
                                     <input type="hidden" name="status" value="{{ $statusKetersediaan }}">
                                     {{-- Tambahkan teks bantuan visual untuk Pemilik Kos --}}
-                                    <small class="form-text text-info">Status kamar ditentukan otomatis oleh data
-                                        Booking.</small>
+                                    <small class="form-text text-info">Status kamar ditentukan otomatis.</small>
                             </div>
                         </div>
                         <div class="col-md-6">

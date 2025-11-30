@@ -13,12 +13,14 @@ class Pengeluaran extends Model
     protected $primaryKey = 'id_pengeluaran';
 
     protected $fillable = [
+        'tanggal',
         'jumlah',
         'sub_total',
         'keterangan',
     ];
 
     protected $casts = [
+        'tanggal' => 'date',
         'jumlah' => 'decimal:2',
         'sub_total' => 'decimal:2',
     ];
