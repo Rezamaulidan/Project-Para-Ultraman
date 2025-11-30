@@ -28,9 +28,9 @@ Route::get('/pilihan-daftar', [RegisterController::class, 'pilihan'])->name('reg
 Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Lupa Password (Standar)
+// Lupa Password
 Route::get('/lupa-kata-sandia', function () { return view('forgot-password'); })->name('password.request');
-// ... (Logika lupa password lengkap Anda tetap bisa ditaruh di sini) ...
+// ... (Logika lupa password disingkat untuk kerapihan, pastikan kode aslinya tetap ada jika butuh) ...
 
 // === RUTE AUTH ===
 Route::middleware(['auth'])->group(function () {
@@ -39,7 +39,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:penyewa'])->group(function () {
         Route::get('/dashboard-booking', [DashboardBookingController::class, 'booking'])->name('dashboard.booking');
         Route::get('/dashboard-penyewa', [PenyewaController::class, 'dashboard'])->name('penyewa.dashboard');
-        
+
         // Menu Penyewa
         Route::get('/informasi-penyewa', [PenyewaController::class, 'showInformasi'])->name('penyewa.informasi');
         Route::get('/edit-informasi-penyewa', [PenyewaController::class, 'editInformasi'])->name('penyewa.edit_informasi');
@@ -47,7 +47,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/informasi-keamanan', [PenyewaController::class, 'showKeamanan'])->name('penyewa.keamanan');
         Route::get('/menu-pembayaran', [PenyewaController::class, 'showPembayaran'])->name('penyewa.pembayaran');
         Route::get('/informasi-kamar-saya', [PenyewaController::class, 'showKamar'])->name('penyewa.kamar');
-        
+
         // Transaksi
         Route::get('/booking/kamar/{no_kamar}', [BookingController::class, 'create'])->name('penyewa.booking.create');
         Route::post('/booking/kamar', [BookingController::class, 'store'])->name('penyewa.booking.store');
@@ -79,8 +79,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pengeluaranpemilik', fn() => view('pengeluaran_pemilik'))->name('pemilik.pengeluaran');
         Route::get('/keamananpemilik', fn() => view('keamanan_pemilik'))->name('pemilik.keamanan');
         Route::get('/datapenyewapemilik', fn() => view('data_penyewa_pemilik'))->name('pemilik.datapenyewa');
-        
-        // Info Detail (Dari Master)
+
+        // Info Detail
         Route::get('/info-detail-penyewa', [PemilikKosController::class, 'infoDetailPenyewa'])->name('pemilik.informasi.penyewa');
         Route::get('/info-detail-staff', [PemilikKosController::class, 'infoDetailStaff'])->name('pemilik.informasi.staff');
 
@@ -89,7 +89,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/registrasi-staff', [PemilikKosController::class, 'storeStaff'])->name('pemilik.store_staff');
         Route::get('/datastaffpemilik', fn() => view('data_staff_pemilik'))->name('pemilik.datastaff');
 
-        // Manajemen Booking (PENTING)
+        // Manajemen Booking
         Route::get('/pemilik/permohonan-sewa', [BookingController::class, 'daftarPermohonan'])->name('pemilik.permohonan');
         Route::post('/pemilik/booking/{id}/approve', [BookingController::class, 'approveBooking'])->name('pemilik.booking.approve');
         Route::post('/pemilik/booking/{id}/reject', [BookingController::class, 'rejectBooking'])->name('pemilik.booking.reject');
@@ -98,9 +98,16 @@ Route::middleware(['auth'])->group(function () {
 
     // --- ROLE: STAF ---
     Route::middleware(['role:staf'])->group(function () {
+
+        // Menu Utama Staff
         Route::get('/staff/menu', fn() => view('menu_staff'))->name('staff.menu');
+
+        // Laporan Keamanan
         Route::get('/staff/laporan-keamanan', [LaporanKeamananController::class, 'index'])->name('staff.laporan_keamanan');
         Route::get('/staff/laporan-keamanan/create', [LaporanKeamananController::class, 'create'])->name('staff.laporan_keamanan.create');
         Route::post('/staff/laporan-keamanan', [LaporanKeamananController::class, 'store'])->name('staff.laporan_keamanan.store');
+        Route::get('/staff/manajemen', fn() => '<h1>Fitur Manajemen Staff (Segera Hadir)</h1>')->name('staff.manajemen');
+        Route::get('/staff/penyewa', fn() => '<h1>Informasi Penyewa untuk Staff (Segera Hadir)</h1>')->name('staff.penyewa');
+        Route::get('/staff/shift-kerja', fn() => '<h1>Jadwal Shift Kerja (Segera Hadir)</h1>')->name('staff.shift_kerja');
     });
 });
