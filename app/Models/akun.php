@@ -25,13 +25,20 @@ class Akun extends Authenticatable
         'alamat',
     ];
 
+    // Relasi ke Pemilik
     public function pemilikKos()
     {
         return $this->hasOne(PemilikKos::class, 'username', 'username');
     }
 
+    // Relasi ke Staff
     public function stafs()
     {
         return $this->hasMany(Staf::class, 'username', 'username');
+    }
+
+    public function penyewa()
+    {
+        return $this->hasOne(Penyewa::class, 'username', 'username');
     }
 }

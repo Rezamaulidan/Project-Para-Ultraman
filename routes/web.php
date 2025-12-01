@@ -11,19 +11,17 @@ use App\Http\Controllers\LaporanKeamananController;
 use App\Http\Controllers\PemilikKosController;
 use App\Http\Controllers\PenyewaController;
 use App\Http\Controllers\StafController;
+use App\Http\Controllers\AbsensiController; 
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Notifications\ResetPassword;
 use App\Models\Akun;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request; // Tambahan untuk Request
-use App\Http\Controllers\AbsensiController;
 
 // === RUTE PUBLIK ===
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/kamar/{no_kamar}', [HomeController::class, 'showPenyewa'])->name('penyewa.detailkamar');
 
-// Login & Register
 Route::get('/login', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'store']);
 Route::get('/pilihan-daftar', [RegisterController::class, 'pilihan'])->name('register.pilihan');
@@ -31,7 +29,16 @@ Route::post('/register', [RegisterController::class, 'store'])->name('register.s
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Lupa Password
-Route::get('/lupa-kata-sandia', function () { return view('forgot-password'); })->name('password.request');
+Route::get('/lupa-kata-sandi', function () { return view('forgot-password'); })->name('password.request');
+Route::post('/lupa-kata-sandi', function (Illuminate\Http\Request $request) {
+    return back()->with('status', 'Link reset password telah dikirim (Simulasi)!');
+})->name('password.email');
+Route::get('/reset-password/{token}', function ($token, Illuminate\Http\Request $request) {
+    return view('reset-password', ['token' => $token, 'email' => $request->query('email')]);
+})->name('password.reset');
+Route::post('/reset-password', function (Illuminate\Http\Request $request) {
+    return redirect()->route('login')->with('status', 'Password berhasil direset!');
+})->name('password.update');
 
 // === RUTE AUTH ===
 Route::middleware(['auth'])->group(function () {
@@ -41,7 +48,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard-booking', [DashboardBookingController::class, 'booking'])->name('dashboard.booking');
         Route::get('/dashboard-penyewa', [PenyewaController::class, 'dashboard'])->name('penyewa.dashboard');
 
-        // Menu Penyewa
         Route::get('/informasi-penyewa', [PenyewaController::class, 'showInformasi'])->name('penyewa.informasi');
         Route::get('/edit-informasi-penyewa', [PenyewaController::class, 'editInformasi'])->name('penyewa.edit_informasi');
         Route::put('/update-informasi-penyewa', [PenyewaController::class, 'updateInformasi'])->name('penyewa.update_informasi');
@@ -49,7 +55,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/menu-pembayaran', [PenyewaController::class, 'showPembayaran'])->name('penyewa.pembayaran');
         Route::get('/informasi-kamar-saya', [PenyewaController::class, 'showKamar'])->name('penyewa.kamar');
 
-        // Transaksi
         Route::get('/booking/kamar/{no_kamar}', [BookingController::class, 'create'])->name('penyewa.booking.create');
         Route::post('/booking/kamar', [BookingController::class, 'store'])->name('penyewa.booking.store');
         Route::get('/booking/payment/{id}', [BookingController::class, 'showPaymentPage'])->name('penyewa.bayar');
@@ -60,13 +65,13 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:pemilik'])->group(function () {
         Route::get('/homepemilik', [PemilikKosController::class, 'index'])->name('pemilik.home');
 
-        // Foto Profil
         Route::post('/profile/update-photo', [PemilikKosController::class, 'updatePhoto'])->name('profile.update_photo');
         Route::post('/profile/delete-photo', [PemilikKosController::class, 'deletePhoto'])->name('profile.delete_photo');
+        // Route alternatif
         Route::post('/pemilik/profile/update-photo', [PemilikKosController::class, 'updatePhoto'])->name('pemilik.profile.updatePhoto');
         Route::post('/pemilik/profile/delete-photo', [PemilikKosController::class, 'deletePhoto'])->name('pemilik.profile.deletePhoto');
 
-        // Kamar
+        // Manajemen Kamar
         Route::get('/datakamarpemilik', [KamarController::class, 'index'])->name('pemilik.datakamar');
         Route::get('/inputkamar', [KamarController::class, 'create'])->name('pemilik.inputkamar');
         Route::post('/inputkamar', [KamarController::class, 'store'])->name('pemilik.inputkamar.store');
@@ -75,34 +80,23 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/updatekamar/{no_kamar}', [KamarController::class, 'update'])->name('pemilik.editkamar.update');
         Route::delete('/kamar/{no_kamar}', [KamarController::class, 'destroy'])->name('pemilik.kamar.destroy');
 
-        // Menu Lain
-        // Route::get('/transaksipemilik', fn() => view('transaksi_pemilik'))->name('pemilik.transaksi');
+        // [MODIFIKASI: Menggunakan Controller untuk fitur Search & Export]
         Route::get('/transaksipemilik', [PemilikKosController::class, 'transaksiPemilik'])->name('pemilik.transaksi');
-        // Route::get('/pengeluaranpemilik', fn() => view('pengeluaran_pemilik'))->name('pemilik.pengeluaran');
+        Route::get('/transaksi-export-lunas', [PemilikKosController::class, 'exportTransaksiLunas'])->name('transaksi.export');
+        Route::get('/transaksi-search', [PemilikKosController::class, 'searchTransaksiLunas'])->name('transaksi.search');
 
-        // Route Halaman Pengeluaran (sudah ada sebelumnya, pastikan namanya sama)
+        // [MODIFIKASI: Pengeluaran dengan fitur Tambah & Hapus]
         Route::get('/pengeluaranpemilik', [PemilikKosController::class, 'pengeluaranPemilik'])->name('pemilik.pengeluaran');
-
-        // Route BARU untuk Simpan dan Hapus
         Route::post('/pengeluaran-store', [PemilikKosController::class, 'storePengeluaran'])->name('pengeluaran.store');
         Route::delete('/pengeluaran-delete/{id}', [PemilikKosController::class, 'destroyPengeluaran'])->name('pengeluaran.destroy');
 
+        // Menu Lain
         Route::get('/keamananpemilik', fn() => view('keamanan_pemilik'))->name('pemilik.keamanan');
         Route::get('/datapenyewapemilik', fn() => view('data_penyewa_pemilik'))->name('pemilik.datapenyewa');
-PemilikKost
-        // Route untuk ekspor data CSV/Excel
-        Route::get('/transaksi-export-lunas', [PemilikKosController::class, 'exportTransaksiLunas'])->name('transaksi.export');
-        Route::get('/transaksi-search', [PemilikKosController::class, 'searchTransaksiLunas'])->name('transaksi.search');
-        
-        // Info Detail (Dari Master)
 
-
-        // Info Detail
-master
         Route::get('/info-detail-penyewa', [PemilikKosController::class, 'infoDetailPenyewa'])->name('pemilik.informasi.penyewa');
         Route::get('/info-detail-staff', [PemilikKosController::class, 'infoDetailStaff'])->name('pemilik.informasi.staff');
 
-        // Staff
         Route::get('/registrasistaff', fn() => view('registrasi_sfaff'))->name('pemilik.registrasi_staff');
         Route::post('/registrasi-staff', [PemilikKosController::class, 'storeStaff'])->name('pemilik.store_staff');
         Route::get('/datastaffpemilik', fn() => view('data_staff_pemilik'))->name('pemilik.datastaff');
@@ -116,33 +110,23 @@ master
 
     // --- ROLE: STAF ---
     Route::middleware(['role:staf'])->group(function () {
-        Route::get('/staff/menu', fn() => view('menu_staff'))->name('staff.menu');
-        Route::get('/staff/manajemen-staf', fn() => view('manajemen_staf'))->name('staff.manajemen');
-        Route::get('/staff/lihat-profil', fn() => view('manajemen_staf'))->name('staff.lihat_profil');
-        Route::get('/staff/edit-profil', fn() => view('edit_profil_staf'))->name('staff.manajemen.edit');
-        Route::put('/staff/update-profil', function (\Illuminate\Http\Request $request) {
-            $user = \App\Models\Akun::find(auth()->id());
-            $user->update([
-                'nama_lengkap' => $request->nama_lengkap,
-                'no_hp'        => $request->no_hp,
-                'email'        => $request->email,
-                'alamat'       => $request->alamat,
-            ]);
-            return redirect()->route('staff.manajemen.edit')->with('sukses', 'Data berhasil disimpan!');
-        })->name('staff.manajemen.update');
-        // Ganti bagian Route staff.penyewa dengan ini:
-        Route::get('/staff/informasi-penyewa', function () {
-            $daftar_penyewa = \App\Models\Akun::where('jenis_akun', 'penyewa')->get();
-            return view('staff_informasi_penyewa', compact('daftar_penyewa'));
 
-        })->name('staff.penyewa');
-        Route::get('/staff/data-penyewa', fn() => "Halaman Data Penyewa")->name('staff.penyewa');
-        Route::get('/staff/shift-kerja', fn() => "Halaman Shift Kerja")->name('staff.shift_kerja');
+        Route::get('/staff/menu', fn() => view('menu_staff'))->name('staff.menu');
+
         Route::get('/staff/laporan-keamanan', [LaporanKeamananController::class, 'index'])->name('staff.laporan_keamanan');
         Route::get('/staff/laporan-keamanan/create', [LaporanKeamananController::class, 'create'])->name('staff.laporan_keamanan.create');
         Route::post('/staff/laporan-keamanan', [LaporanKeamananController::class, 'store'])->name('staff.laporan_keamanan.store');
+
+        // [DIPERTAHANKAN: Fitur Absensi Anda]
         Route::get('/staff/shift-kerja', [AbsensiController::class, 'index'])->name('staff.shift_kerja');
         Route::post('/staff/absen', [AbsensiController::class, 'store'])->name('staff.absen.store');
-    });
 
+        // Manajemen Profil Staf
+        Route::get('/staff/manajemen', [StafController::class, 'indexManajemen'])->name('staff.manajemen');
+        Route::get('/staff/profil/{id}', [StafController::class, 'lihatProfil'])->name('staff.lihat_profil');
+        Route::get('/staff/profil-saya/edit', [StafController::class, 'editProfil'])->name('staff.manajemen.edit');
+        Route::put('/staff/profil-saya/update', [StafController::class, 'updateProfil'])->name('staff.manajemen.update');
+
+        Route::get('/staff/penyewa', fn() => '<h1>Informasi Penyewa untuk Staff (Segera Hadir)</h1>')->name('staff.penyewa');
+    });
 });

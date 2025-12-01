@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('pengeluarans', function (Blueprint $table) { 
+        Schema::table('pengeluarans', function (Blueprint $table) {
             // 1. Ganti nama 'sub_total' jadi 'nominal' (Total Harga)
             $table->renameColumn('sub_total', 'nominal');
 
