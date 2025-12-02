@@ -274,20 +274,14 @@
 <div class="transaction-container">
 
     <div class="filter-controls">
-        <input type="text" class="search-box" placeholder="🔍 Cari berdasarkan nama penyewa atau kode transaksi...">
+        <input type="text" id="search-input" class="search-box" placeholder="🔍 Cari nama penyewa (ketik langsung)...">
 
         <div class="filter-group">
-            <select class="filter-select">
-                <option value="">Status: Semua</option>
-                <option value="lunas">Lunas</option>
-                <option value="belum">Belum Lunas</option>
-                <option value="tempo">Jatuh Tempo</option>
-            </select>
-            <select class="filter-select">
+            <select class="filter-select" style="padding: 10px;">
                 <option value="">Bulan: Semua</option>
                 <option value="nov2025">Nov 2025</option>
             </select>
-            <button class="export-button">📥 Ekspor ke CSV/Excel</button>
+            <a href="{{ route('transaksi.export') }}" class="export-button">📥 Ekspor ke CSV/Excel</a>
         </div>
     </div>
 
@@ -295,7 +289,7 @@
         <table class="transaction-table">
             <thead>
                 <tr class="navy-header">
-                    <th>No. Transaksi</th>
+                    <th>ID. Transaksi</th>
                     <th>Penyewa</th>
                     <th>Kamar</th>
                     <th>Periode Bayar</th>
@@ -305,68 +299,75 @@
                     <th>Aksi</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td data-label="No. Transaksi">TRKS-005</td>
-                    <td data-label="Penyewa">Budi Santoso</td>
-                    <td data-label="Kamar">C-03</td>
-                    <td data-label="Periode Bayar">Nov 2025</td>
-                    <td data-label="Jumlah Bayar" class="amount">Rp 1.500.000</td>
-                    <td data-label="Tgl. Bayar">04 Nov 2025</td>
-                    <td data-label="Status">
-                        <span class="status-tag status-lunas">✅ Lunas</span>
-                    </td>
-                    <td data-label="Aksi">
-                        <button class="action-btn navy-bg">👁️</button>
-                        <button class="action-btn navy-bg">⬇️</button>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td data-label="No. Transaksi">TRKS-004</td>
-                    <td data-label="Penyewa">Dian Paramita</td>
-                    <td data-label="Kamar">A-10</td>
-                    <td data-label="Periode Bayar">Nov 2025</td>
-                    <td data-label="Jumlah Bayar" class="amount">Rp 1.200.000</td>
-                    <td data-label="Tgl. Bayar">10 Nov 2025</td>
-                    <td data-label="Status">
-                        <span class="status-tag status-tempo">⚠️ Jatuh Tempo</span>
-                    </td>
-                    <td data-label="Aksi">
-                        <button class="action-btn navy-bg">🔔</button>
-                        <button class="action-btn navy-bg">✏️</button>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td data-label="No. Transaksi">TRKS-002</td>
-                    <td data-label="Penyewa" class="light-text">*Belum Ada*</td>
-                    <td data-label="Kamar">D-01</td>
-                    <td data-label="Periode Bayar">Nov 2025</td>
-                    <td data-label="Jumlah Bayar" class="amount">Rp 1.300.000</td>
-                    <td data-label="Tgl. Bayar">-</td>
-                    <td data-label="Status">
-                        <span class="status-tag status-belum">❌ Belum Lunas</span>
-                    </td>
-                    <td data-label="Aksi">
-                        <button class="action-btn navy-bg">➕</button>
-                        <button class="action-btn navy-bg">🔔</button>
-                    </td>
-                </tr>
+            <tbody id="transaksi-table-body">
+                @include('partials.transaksi_table_rows', ['transaksis' => $transaksis])
             </tbody>
         </table>
     </div>
 
     <div class="pagination">
-        <span class="pagination-info">Menampilkan 1-10 dari 55 Transaksi</span>
-        <div class="pagination-links">
-            <button class="page-link disabled">&lt; Sebelumnya</button>
-            <button class="page-link active">1</button>
-            <button class="page-link">2</button>
-            <button class="page-link">3</button>
-            <button class="page-link">Selanjutnya &gt;</button>
+        <span class="pagination-info" id="pagination-info">
+            Menampilkan {{ $transaksis->firstItem() }} - {{ $transaksis->lastItem() }} dari {{ $transaksis->total() }}
+            Transaksi
+        </span>
+        <div class="pagination-links" id="pagination-links">
+            {{ $transaksis->links('pagination::bootstrap-4') }}
         </div>
     </div>
 
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Cek apakah script jalan
+    console.log("Script Transaksi Siap!");
+
+    var searchTimer;
+
+    // Event listener saat mengetik
+    $('#search-input').on('keyup', function() {
+        var query = $(this).val();
+        console.log("Mengetik: " + query); // Cek di console browser
+
+        clearTimeout(searchTimer);
+
+        // Tunggu 300ms baru kirim request (biar ga berat)
+        searchTimer = setTimeout(function() {
+            fetchData(query, 1);
+        }, 300);
+    });
+
+    // Event listener pagination (supaya kalau klik halaman 2, pencarian tetap jalan)
+    $(document).on('click', '.pagination a', function(event) {
+        event.preventDefault();
+        var page = $(this).attr('href').split('page=')[1];
+        var query = $('#search-input').val();
+        fetchData(query, page);
+    });
+
+    function fetchData(query, page) {
+        $.ajax({
+            url: "{{ route('transaksi.search') }}",
+            method: "GET",
+            data: {
+                query: query,
+                page: page
+            },
+            success: function(data) {
+                console.log("Berhasil dapat data!"); // Cek console
+                $('#transaksi-table-body').html(data.html);
+                $('#pagination-links').html(data.pagination_links);
+                $('#pagination-info').text(data.pagination_info);
+            },
+            error: function(xhr) {
+                console.log("Error AJAX:");
+                console.log(xhr.responseText); // Cek error di console
+                alert("Gagal memuat data. Cek Console (F12) untuk detail.");
+            }
+        });
+    }
+});
+</script>
 @endsection

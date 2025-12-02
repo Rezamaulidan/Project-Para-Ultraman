@@ -15,7 +15,7 @@ class Pengeluaran extends Model
     protected $fillable = [
         'tanggal',
         'jumlah',
-        'nominal',
+        'nominal', // Kita pakai nominal (sesuai migrasi terakhir)
         'keterangan',
     ];
 

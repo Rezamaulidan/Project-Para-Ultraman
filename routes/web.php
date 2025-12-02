@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 // --- IMPORT SEMUA CONTROLLER ---
 use App\Http\Controllers\HomeController;
@@ -18,7 +19,7 @@ use App\Http\Controllers\LaporanKeamananController;
 use App\Http\Controllers\PemilikKosController;
 use App\Http\Controllers\PenyewaController;
 use App\Http\Controllers\StafController;
-use App\Http\Controllers\AbsensiController;
+// use App\Http\Controllers\AbsensiController; // SUDAH TIDAK DIPAKAI (Pindah ke StafController)
 
 /*
 |--------------------------------------------------------------------------
@@ -48,7 +49,6 @@ Route::post('/register', [RegisterController::class, 'store'])->name('register.s
 // ====================================================
 // 2. LOGIKA LUPA PASSWORD / RESET PASSWORD (REAL)
 // ====================================================
-// Bagian ini menggunakan Password Facade untuk mengirim email sungguhan via SMTP
 
 // A. Tampilkan Form Input Email
 Route::get('/lupa-kata-sandi', function () {
@@ -57,49 +57,38 @@ Route::get('/lupa-kata-sandi', function () {
 
 // B. Proses Kirim Link ke Email
 Route::post('/lupa-kata-sandi', function (Request $request) {
-    // Validasi input email
     $request->validate(['email' => 'required|email']);
+    $status = Password::sendResetLink($request->only('email'));
 
-    // Kirim Link Reset menggunakan konfigurasi Mail Laravel
-    $status = Password::sendResetLink(
-        $request->only('email')
-    );
-
-    // Cek hasil pengiriman
     return $status === Password::RESET_LINK_SENT
         ? back()->with('status', 'Link reset password telah dikirim ke email Anda!')
         : back()->withErrors(['email' => 'Kami tidak dapat menemukan pengguna dengan alamat email tersebut.']);
 })->name('password.email');
 
-// C. Tampilkan Form Reset Password (Link dari Email akan masuk ke sini)
+// C. Tampilkan Form Reset Password
 Route::get('/reset-password/{token}', function ($token, Request $request) {
     return view('reset-password', ['token' => $token, 'email' => $request->query('email')]);
 })->name('password.reset');
 
-// D. Proses Simpan Password Baru ke Database
+// D. Proses Simpan Password Baru
 Route::post('/reset-password', function (Request $request) {
-    // Validasi input
     $request->validate([
         'token' => 'required',
         'email' => 'required|email',
-        'password' => 'required|min:6|confirmed', // Harus ada field 'password_confirmation' di view
+        'password' => 'required|min:6|confirmed',
     ]);
 
-    // Proses Reset Password
     $status = Password::reset(
         $request->only('email', 'password', 'password_confirmation', 'token'),
         function ($user, $password) {
             $user->forceFill([
-                'password' => Hash::make($password) // Hash password baru
+                'password' => Hash::make($password)
             ])->setRememberToken(Str::random(60));
-
-            $user->save(); // Simpan ke tabel 'akuns'
-
+            $user->save();
             event(new PasswordReset($user));
         }
     );
 
-    // Redirect setelah berhasil
     return $status === Password::PASSWORD_RESET
         ? redirect()->route('login')->with('status', 'Password berhasil direset! Silakan login.')
         : back()->withErrors(['email' => 'Token reset password tidak valid atau sudah kadaluarsa.']);
@@ -132,13 +121,14 @@ Route::middleware(['auth'])->group(function () {
         // Proses Booking & Pembayaran
         Route::get('/booking/kamar/{no_kamar}', [BookingController::class, 'create'])->name('penyewa.booking.create');
         Route::post('/booking/kamar', [BookingController::class, 'store'])->name('penyewa.booking.store');
-        Route::get('/booking/payment/{id}', [BookingController::class, 'showPaymentPage'])->name('penyewa.bayar');
-        Route::post('/booking/payment/{id}/process', [BookingController::class, 'processPayment'])->name('penyewa.bayar.process');
 
-        // 1. Route Bayar Tagihan (Melunasi status terlambat)
+        // Halaman Bayar (Simulasi/Midtrans)
+        Route::get('/booking/payment/{id}', [BookingController::class, 'showPaymentPage'])->name('penyewa.bayar');
+
+        // [BARU] Route Bayar Tagihan (Melunasi status terlambat)
         Route::post('/booking/pay-arrears/{id}', [BookingController::class, 'bayarTagihan'])->name('penyewa.bayar.tagihan');
 
-        // 2. Route Perpanjang Sewa (Menambah durasi bulan depan)
+        // [BARU] Route Perpanjang Sewa (Menambah durasi bulan depan)
         Route::post('/booking/extend', [BookingController::class, 'perpanjangSewa'])->name('penyewa.bayar.perpanjang');
     });
 
@@ -151,7 +141,7 @@ Route::middleware(['auth'])->group(function () {
         // Manajemen Profil & Foto
         Route::post('/profile/update-photo', [PemilikKosController::class, 'updatePhoto'])->name('profile.update_photo');
         Route::post('/profile/delete-photo', [PemilikKosController::class, 'deletePhoto'])->name('profile.delete_photo');
-        // Alias route (jika view memanggil nama yang berbeda)
+        // Alias route
         Route::post('/pemilik/profile/update-photo', [PemilikKosController::class, 'updatePhoto'])->name('pemilik.profile.updatePhoto');
         Route::post('/pemilik/profile/delete-photo', [PemilikKosController::class, 'deletePhoto'])->name('pemilik.profile.deletePhoto');
 
@@ -196,7 +186,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/staff/laporan-keamanan/create', [LaporanKeamananController::class, 'create'])->name('staff.laporan_keamanan.create');
         Route::post('/staff/laporan-keamanan', [LaporanKeamananController::class, 'store'])->name('staff.laporan_keamanan.store');
 
-        // Absensi
+        // [DIPERBARUI] Absensi sekarang menggunakan StafController
         Route::get('/staff/shift-kerja', [StafController::class, 'absenIndex'])->name('staff.shift_kerja');
         Route::post('/staff/absen', [StafController::class, 'absenStore'])->name('staff.absen.store');
 
@@ -206,6 +196,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/staff/profil/edit/{id}', [StafController::class, 'editProfil'])->name('staff.manajemen.edit');
         Route::put('/staff/profil/update/{id}', [StafController::class, 'updateProfil'])->name('staff.manajemen.update');
 
+        // Info Penyewa
         Route::get('/staff/penyewa', [StafController::class, 'daftarPenyewa'])->name('staff.penyewa');
     });
 });
