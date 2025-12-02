@@ -10,7 +10,7 @@ class Kamar extends Model
 {
     use HasFactory;
 
-    protected $table = 'kamar';
+    protected $table = 'kamars';
     protected $primaryKey = 'no_kamar';
     public $incrementing = false;
     protected $keyType = 'integer';

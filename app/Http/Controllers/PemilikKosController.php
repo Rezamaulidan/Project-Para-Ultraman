@@ -9,10 +9,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Models\PemilikKos;
 use App\Models\Akun;
+use App\Models\Penyewa;
 use App\Models\Staf;
 use Carbon\Carbon;
 use App\Models\Booking;
 use App\Models\Kamar;
+use App\Models\LaporanKeamanan;
 use App\Models\Pengeluaran;
 
 class PemilikKosController extends Controller
@@ -31,7 +33,7 @@ class PemilikKosController extends Controller
         $tahunSaatIni = $now->year;
 
         // --- 1. DATA PENDAPATAN BULAN INI ---
-        $pendapatanBulanIni = Booking::where('status_booking', 'lunas')
+        $pendapatanBulanIni = Booking::whereIn('status_booking', ['lunas', 'terlambat'])
             ->whereMonth('tanggal', $bulanSaatIni)
             ->whereYear('tanggal', $tahunSaatIni)
             ->sum('nominal');
@@ -73,7 +75,7 @@ class PemilikKosController extends Controller
                 DB::raw('YEAR(tanggal) as tahun'),
                 DB::raw('SUM(nominal) as total_nominal')
             )
-            ->where('status_booking', 'lunas')
+            ->whereIn('status_booking', ['lunas', 'terlambat'])
             ->where('tanggal', '>=', $bulanMulai)
             ->groupBy(DB::raw('YEAR(tanggal)'), DB::raw('MONTH(tanggal)'))
             ->orderBy(DB::raw('YEAR(tanggal)'), 'asc')
@@ -128,44 +130,159 @@ class PemilikKosController extends Controller
         ));
     }
 
+    // =========================================================================
+    // METHOD BARU: DAFTAR PENYEWA DINAMIS
+    // =========================================================================
+
+    // app/Http/Controllers/PemilikKosController.php
+
+    public function dataPenyewaPemilik(Request $request)
+    {
+        // 1. MENDAPATKAN USERNAME penyewa dari tabel 'bookings'
+        // Menggunakan 'no_kamar' karena kolom ini yang diisi dengan username penyewa (misal: 'irfan123')
+        $penyewaUsernamesDenganTransaksi = Booking::whereIn('status_booking', ['lunas', 'terlambat'])
+        ->pluck('username') // <--- PERBAIKAN PENTING DI SINI! Pluck dari kolom yang menyimpan username
+        ->unique()
+        ->toArray();
+
+        // 2. Query Penyewa: Memfilter berdasarkan 'username'
+        // Menggunakan 'username' karena itulah Primary Key di tabel penyewas.
+        $query = Penyewa::whereIn('username', $penyewaUsernamesDenganTransaksi)
+        ->with(['booking' => function ($q) {
+            // Ambil booking terbaru yang statusnya lunas/terlambat untuk mendapatkan No. Kamar
+            $q->whereIn('status_booking', ['lunas', 'terlambat'])
+                ->latest('tanggal')
+                ->with('kamar'); 
+        }]);
+
+        // 3. Implementasi fitur pencarian
+        if ($request->filled('q')) {
+            $searchTerm = $request->q;
+
+            // Gunakan 'where' pada query utama
+            $query->where(function ($q) use ($searchTerm) {
+                // Cari berdasarkan Nama Penyewa (wildcard: mengandung string)
+                $q->where('nama_penyewa', 'LIKE', '%' . $searchTerm . '%')
+                    // Cari berdasarkan Username Penyewa (wildcard: mengandung string)
+                    ->orWhere('username', 'LIKE', '%' . $searchTerm . '%');
+            });
+
+            // Tambahkan pencarian berdasarkan No. Kamar (melalui relasi Booking ke Kamar)
+            // Penting: Ini mencari No. Kamar di tabel 'kamars'
+            $query->orWhereHas('booking.kamar', function ($q) use ($searchTerm) {
+                // Ambil booking yang statusnya lunas/terlambat dan filter No. Kamar
+                $q->whereIn('status_booking', ['lunas', 'terlambat'])
+                    ->where('no_kamar', 'LIKE', '%' . $searchTerm . '%');
+            });
+        }
+
+        // 4. Ambil data dan kirim ke view
+        $penyewas = $query->orderBy('username', 'asc')->get();
+        $storageUrl = Storage::url(''); 
+    
+        return view('data_penyewa_pemilik', compact('penyewas', 'storageUrl'));
+    }
+
+    // =========================================================================
+    // METHOD BARU: INFO DETAIL PENYEWA (DINAMIS)
+    // =========================================================================
+    public function infoDetailPenyewa($username)
+    {
+        // Cari data Penyewa berdasarkan username (Primary Key)
+        // Eager load relasi booking dan kamar untuk menampilkan informasi sewa
+        $penyewa = Penyewa::where('username', $username)
+            ->with(['booking' => function ($q) {
+                // Ambil booking terakhir yang berstatus aktif (lunas/terlambat)
+                $q->whereIn('status_booking', ['lunas', 'terlambat'])
+                  ->latest('tanggal')
+                  ->with('kamar');
+            }])
+            ->firstOrFail(); // Gagal jika penyewa tidak ditemukan
+
+        // URL untuk mengakses file di storage, misalnya foto KTP atau foto profil
+        $storageUrl = Storage::url(''); 
+
+        // Tentukan status penyewa berdasarkan booking terakhir
+        $statusPenyewa = 'Tidak Aktif';
+        if ($penyewa->booking) {
+            if ($penyewa->booking->status_booking == 'lunas') {
+                $statusPenyewa = 'Penyewa Aktif';
+            } elseif ($penyewa->booking->status_booking == 'terlambat') {
+                $statusPenyewa = 'Terlambat Bayar';
+            }
+        }
+
+        return view('info_detail_penyewa_pmlk', compact('penyewa', 'storageUrl', 'statusPenyewa'));
+    }
+
     // --- LOGIKA PENYIMPANAN STAFF (Dipertahankan sesuai versi Anda) ---
     public function storeStaff(Request $request)
     {
-        $request->validate([
-            'nama_staf' => 'required|string|max:100',
-            'no_hp'     => 'required|string|max:20',
-            'email'     => 'required|email|unique:stafs,email',
-            'jadwal'    => 'required|in:Pagi,Malam',
-            'foto_staf' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        // 1. Validasi Data
+        $validatedData = $request->validate([
+            'nama_staf' => 'required|string|max:255',
+            'no_hp' => 'required|string|max:15|unique:stafs,no_hp', // Asumsi kolom 'staff' memiliki kolom 'no_hp'
+            'email' => 'required|email|max:255|unique:stafs,email', // Asumsi kolom 'staff' memiliki kolom 'email'
+            'jadwal' => 'required|in:Pagi,Malam',
+            'foto_staf' => 'nullable|image|file|max:1024', // Maks 1MB
+        ], [
+            'no_hp.unique' => 'Nomor HP ini sudah terdaftar.',
+            'email.unique' => 'Email ini sudah terdaftar.',
         ]);
 
-        DB::beginTransaction();
-
+        // Gunakan transaksi jika melibatkan banyak operasi database
         try {
-            $fotoPath = null;
-            if ($request->hasFile('foto_staf')) {
-                $fotoPath = $request->file('foto_staf')->store('foto_staf', 'public');
+            DB::beginTransaction();
+            $nama_staff = $validatedData['nama_staf'];
+            $staff = new Staf();
+            $staff->nama_staf = $nama_staff;
+            $staff->no_hp = $validatedData['no_hp'];
+            $staff->email = $validatedData['email'];
+            $staff->jadwal = $validatedData['jadwal'];
+            // Tambahkan kolom lain yang relevan
+
+            // 2. Upload Foto (Jika ada)
+            if ($request->file('foto_staf')) {
+                // Simpan file dan dapatkan path-nya (misalnya di folder 'public/staff-photos')
+                $staff->foto_staf = $request->file('foto_staf')->store('staff-photos');
             }
 
-            Staf::create([
-                'username'  => 'staf', 
-                'nama_staf' => $request->nama_staf,
-                'email'     => $request->email,
-                'no_hp'     => $request->no_hp,
-                'jadwal'    => $request->jadwal,
-                'foto_staf' => $fotoPath,
-            ]);
-
+            $staff->save();
             DB::commit();
-            return redirect()->back()->with('success', 'Data Staff berhasil ditambahkan!');
+
+            // 3. Redirect dengan SweetAlert (Menggunakan Session 'staff_saved')
+            return redirect()->route('pemilik.datastaff')->with('staff_saved', $nama_staff);
 
         } catch (\Exception $e) {
-            DB::rollback();
-            if (isset($fotoPath) && Storage::disk('public')->exists($fotoPath)) {
-                Storage::disk('public')->delete($fotoPath);
-            }
-            return redirect()->back()->withInput()->withErrors(['error' => 'Gagal menyimpan: ' . $e->getMessage()]);
+            DB::rollBack();
+            // Optional: Log error $e->getMessage()
+            // Kembali ke halaman form dengan error umum
+            return back()->with('error', 'Gagal menyimpan data staff. Silakan coba lagi.')->withInput();
         }
+    }
+
+    public function infoDetailStaff($id_staf)
+    {
+        // 1. Cari data staff berdasarkan ID atau tampilkan error 404 jika tidak ditemukan
+        $staff = Staf::findOrFail($id_staf); 
+
+        // 2. Tentukan URL dasar untuk storage
+        $storageUrl = Storage::url('storage/');
+
+        // 3. Kirim data staff dan storage URL ke view
+        return view('info_detail_staff', compact('staff', 'storageUrl'));
+    }
+
+    public function dataStaff()
+    {
+        // 1. Ambil semua data staff dari database
+        $stafs = Staf::all(); // Mengambil semua data dari tabel 'stafs'
+
+        // 2. Tentukan URL dasar untuk storage (tempat foto disimpan)
+        $storageUrl = Storage::url('storage/');
+        
+        // 3. Kirim data ke view
+        return view('data_staff_pemilik', compact('stafs', 'storageUrl'));
     }
 
     // --- FOTO PROFIL ---
@@ -205,9 +322,6 @@ class PemilikKosController extends Controller
         }
         return response()->json(['success' => false, 'message' => 'Tidak ada foto untuk dihapus']);
     }
-
-    public function infoDetailStaff() { return view('info_detail_staff'); }
-    public function infoDetailPenyewa() { return view('info_detail_penyewa_pmlk'); }
 
     // =========================================================================
     // FITUR BARU DARI MASTER (TRANSAKSI & PENGELUARAN)
@@ -280,7 +394,7 @@ class PemilikKosController extends Controller
         $pengeluarans = Pengeluaran::orderBy('tanggal', 'desc')->paginate(10);
         $totalBulanIni = Pengeluaran::whereMonth('tanggal', Carbon::now()->month)
             ->whereYear('tanggal', Carbon::now()->year)
-            ->sum('sub_total');
+            ->sum('nominal');
         return view('pengeluaran_pemilik', compact('pengeluarans', 'totalBulanIni'));
     }
 
@@ -290,7 +404,7 @@ class PemilikKosController extends Controller
             'tanggal' => 'required|date',
             'keterangan' => 'required|string|max:255',
             'jumlah' => 'required|numeric|min:1',
-            'sub_total' => 'required|numeric|min:0',
+            'nominal' => 'required|numeric|min:0',
         ]);
 
         Pengeluaran::create($request->all());
@@ -302,5 +416,21 @@ class PemilikKosController extends Controller
         $pengeluaran = Pengeluaran::findOrFail($id);
         $pengeluaran->delete();
         return redirect()->back()->with('success', 'Data pengeluaran berhasil dihapus.');
+    }
+
+    public function laporanKeamanan()
+    {
+        // Ambil semua laporan, urutkan berdasarkan tanggal terbaru, dan preload data staf
+        // Asumsi: Ada relasi 'staf' di Model LaporanKeamanan
+        try {
+            $laporans = LaporanKeamanan::with('staf')->latest('tanggal')->get();
+        } catch (\Exception $e) {
+            // Ini akan membantu jika ada masalah database atau Model/Relasi
+            $laporans = collect(); 
+            // Opsional: Anda bisa log error $e jika di Production
+        }
+        
+        // Mengirim variabel $laporans yang sudah terdefinisi ke view
+        return view('keamanan_pemilik', compact('laporans'));
     }
 }

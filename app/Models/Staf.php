@@ -9,7 +9,7 @@ class Staf extends Model
 {
     use HasFactory;
 
-    protected $table = 'staf';
+    protected $table = 'stafs';
     protected $primaryKey = 'id_staf';
 
     protected $fillable = [

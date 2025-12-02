@@ -91,15 +91,15 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/pengeluaran-delete/{id}', [PemilikKosController::class, 'destroyPengeluaran'])->name('pengeluaran.destroy');
 
         // Menu Lain
-        Route::get('/keamananpemilik', fn() => view('keamanan_pemilik'))->name('pemilik.keamanan');
-        Route::get('/datapenyewapemilik', fn() => view('data_penyewa_pemilik'))->name('pemilik.datapenyewa');
+        Route::get('/keamananpemilik', [PemilikKosController::class, 'laporanKeamanan'])->name('pemilik.keamanan');
+        Route::get('/datapenyewapemilik', [PemilikKosController::class, 'dataPenyewaPemilik'])->name('pemilik.datapenyewa');
 
-        Route::get('/info-detail-penyewa', [PemilikKosController::class, 'infoDetailPenyewa'])->name('pemilik.informasi.penyewa');
-        Route::get('/info-detail-staff', [PemilikKosController::class, 'infoDetailStaff'])->name('pemilik.informasi.staff');
+        Route::get('/info-detail-penyewa/{username}', [PemilikKosController::class, 'infoDetailPenyewa'])->name('pemilik.informasi.penyewa');
+        Route::get('/info-detail-staff/{id_staf}', [PemilikKosController::class, 'infoDetailStaff'])->name('pemilik.informasi.staff');
 
         Route::get('/registrasistaff', fn() => view('registrasi_sfaff'))->name('pemilik.registrasi_staff');
         Route::post('/registrasi-staff', [PemilikKosController::class, 'storeStaff'])->name('pemilik.store_staff');
-        Route::get('/datastaffpemilik', fn() => view('data_staff_pemilik'))->name('pemilik.datastaff');
+        Route::get('/datastaffpemilik', [PemilikKosController::class, 'dataStaff'])->name('pemilik.datastaff');
 
         // Manajemen Booking
         Route::get('/pemilik/permohonan-sewa', [BookingController::class, 'daftarPermohonan'])->name('pemilik.permohonan');

@@ -15,14 +15,14 @@ class Pengeluaran extends Model
     protected $fillable = [
         'tanggal',
         'jumlah',
-        'sub_total',
+        'nominal',
         'keterangan',
     ];
 
     protected $casts = [
         'tanggal' => 'date',
         'jumlah' => 'decimal:2',
-        'sub_total' => 'decimal:2',
+        'nominal' => 'decimal:2',
     ];
 
     public function pemilikKos()
