@@ -3,67 +3,98 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Staf; // Pastikan Model Staf sudah ada
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+// Pastikan model Staf di-import (opsional jika pakai DB::table terus)
+use App\Models\Staf;
 
 class AbsensiController extends Controller
 {
-    // 1. Tampilkan Halaman Shift Kerja
+    // Menampilkan Halaman Absen
     public function index()
     {
-        return view('shift_kerja_staf');
+        $today = Carbon::today();
+
+        $daftar_hadir = DB::table('absensi')
+            ->join('stafs', 'absensi.id_staf', '=', 'stafs.id_staf')
+            ->whereDate('absensi.tanggal', $today)
+            ->select('stafs.nama_staf', 'absensi.shift', 'absensi.jam_masuk', 'absensi.jam_pulang')
+            ->orderBy('absensi.jam_masuk', 'desc')
+            ->get();
+
+        // Mengirim data ke View
+        return view('staff_shift_kerja', compact('daftar_hadir'));
     }
 
-    // 2. Proses Logika Absen (Sesuai Narasimu)
+    // Memproses Absen
     public function store(Request $request)
     {
-        // Tangkap inputan dari form
-        $id_staf_input = $request->id_staf;
-        $shift_pilihan = $request->shift; // Pagi, Siang, atau Malam
-
-        // --- TAHAP 1: Cari Staff berdasarkan ID ---
-        $staf = Staf::where('id_staf', $id_staf_input)->first();
-
-        // Jika ID tidak ditemukan
-        if (!$staf) {
-            return back()->with('error', 'ID Staf tidak ditemukan. Apakah Anda karyawan sini?');
-        }
-
-        // --- TAHAP 2: Cek Apakah Sudah Absen Hari Ini? ---
-        $sudah_absen = DB::table('absensi')
-                        ->where('id_staf', $id_staf_input)
-                        ->whereDate('tanggal', Carbon::today())
-                        ->exists();
-
-        if ($sudah_absen) {
-            return back()->with('error', "Halo $staf->nama_staf, Anda sudah absen hari ini!");
-        }
-
-        // --- TAHAP 3: Verifikasi Jadwal (Ini Logika Utama Kamu) ---
-        // Kita bandingkan: Shift yang diklik VS Jadwal di Database
-        // Catatan: Pastikan tulisan di database ('pagi') sama dengan value tombol ('pagi')
-
-        // Ubah jadi huruf kecil semua biar aman (Pagi == pagi)
-        $jadwal_asli = strtolower($staf->jadwal);
-        $shift_klik  = strtolower($shift_pilihan);
-
-        if ($jadwal_asli != $shift_klik) {
-            // Jika beda, tolak!
-            return back()->with('error', "Maaf $staf->nama_staf, jadwal Anda adalah SHIFT $jadwal_asli, tapi Anda memilih SHIFT $shift_klik.");
-        }
-
-        // --- TAHAP 4: Jika Lolos Semua, Simpan ke Database ---
-        DB::table('absensi')->insert([
-            'id_staf'       => $staf->id_staf,
-            'tanggal'       => Carbon::now()->toDateString(),
-            'jam_masuk'     => Carbon::now()->toTimeString(),
-            'shift_pilihan' => $shift_pilihan,
-            'status'        => 'Hadir',
-            'created_at'    => now(),
-            'updated_at'    => now(),
+        // 1. Validasi Input
+        $request->validate([
+            'id_staf' => 'required|exists:stafs,id_staf',
+            'shift'   => 'required|in:Pagi,Malam', // Validasi input shift
+        ], [
+            'id_staf.exists' => 'ID Staff tidak ditemukan!',
+            'shift.required' => 'Wajib memilih Shift Pagi atau Malam!'
         ]);
 
-        return back()->with('sukses', "Berhasil! Selamat bekerja, $staf->nama_staf.");
+        $id_staf = $request->id_staf;
+        $aksi    = $request->aksi;
+        $shift   = $request->shift; // Ambil nilai dari radio button
+        $now     = Carbon::now();
+
+        // 2. Ambil Data Staf untuk pengecekan Jadwal
+        $staf = DB::table('stafs')->where('id_staf', $id_staf)->first();
+
+        // LOGIKA Validasi Jadwal (Opsional)
+        // Jika Staf jadwalnya 'Pagi' tapi pilih 'Malam', akan ditolak.
+        if ($staf->jadwal != $shift) {
+             return back()->with('error', "Gagal! Jadwal Anda terdaftar sebagai Shift $staf->jadwal. Anda tidak bisa memilih Shift $shift.");
+        }
+
+        // 3. Cek apakah sudah absen hari ini?
+        $cek_absen = DB::table('absensi')
+            ->where('id_staf', $id_staf)
+            ->whereDate('tanggal', $now->toDateString())
+            ->first();
+
+        // --- TOMBOL MASUK ---
+        if ($aksi == 'masuk') {
+            if ($cek_absen) {
+                return back()->with('error', "Anda sudah absen MASUK hari ini pada jam $cek_absen->jam_masuk");
+            }
+
+            DB::table('absensi')->insert([
+                'id_staf'    => $id_staf,
+                'tanggal'    => $now->toDateString(),
+                'jam_masuk'  => $now->toTimeString(),
+                'jam_pulang' => null,
+                'shift'      => $shift, // Simpan shift pilihan user
+                'created_at' => $now,
+                'updated_at' => $now
+            ]);
+
+            return back()->with('sukses', "Halo $staf->nama_staf, Absen MASUK ($shift) berhasil!");
+        }
+
+        // --- TOMBOL PULANG ---
+        if ($aksi == 'pulang') {
+            if (!$cek_absen) {
+                return back()->with('error', 'Anda belum absen MASUK, tidak bisa absen pulang.');
+            }
+
+            if ($cek_absen->jam_pulang) {
+                return back()->with('error', "Anda sudah absen PULANG hari ini pada jam $cek_absen->jam_pulang");
+            }
+
+            DB::table('absensi')
+                ->where('id_absensi', $cek_absen->id_absensi)
+                ->update([
+                    'jam_pulang' => $now->toTimeString(),
+                    'updated_at' => $now
+                ]);
+
+            return back()->with('sukses', "Sampai jumpa $staf->nama_staf, Absen PULANG berhasil!");
+        }
     }
 }

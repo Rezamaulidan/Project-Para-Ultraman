@@ -10,7 +10,7 @@ class Akun extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $table = 'akun';
+    protected $table = 'akuns';
     protected $primaryKey = 'username';
     public $incrementing = false;
     protected $keyType = 'string';
@@ -24,6 +24,15 @@ class Akun extends Authenticatable
         'email',
         'alamat',
     ];
+
+    protected $hidden = [
+        'password',
+    ];
+
+    public function getAuthIdentifierName()
+    {
+        return 'username';
+    }
 
     // Relasi ke Pemilik
     public function pemilikKos()
