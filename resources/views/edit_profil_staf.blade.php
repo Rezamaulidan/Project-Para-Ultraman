@@ -1,100 +1,222 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Profil - SIM KOS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Inter', sans-serif; }</style>
+    <title>Edit Profil Staf - SIMK</title>
+
+    {{-- Link CSS Bootstrap --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #001931 0%, #003366 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+
+        /* Styling Foto Upload */
+        .profile-upload-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+        }
+
+        .profile-preview {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            background-color: #f8f9fa;
+        }
+
+        .upload-icon {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background-color: #007bff;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid white;
+            transition: all 0.2s;
+        }
+
+        .upload-icon:hover {
+            background-color: #0056b3;
+            transform: scale(1.1);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #001931;
+        }
+
+        .btn-navy {
+            background-color: #001931;
+            color: white;
+            border: none;
+        }
+
+        .btn-navy:hover {
+            background-color: #003366;
+            color: white;
+        }
+    </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
 
-    <div class="max-w-3xl mx-auto mt-10 p-6">
+<body class="py-5">
 
-        <div class="flex items-center justify-between mb-8">
-            <h2 class="text-2xl font-bold text-gray-800">Edit Profil Staf</h2>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
 
-            <a href="{{ route('staff.lihat_profil') }}" class="text-gray-500 hover:text-gray-700 font-medium text-sm transition-colors">
-                <i class="fas fa-arrow-left me-1"></i> Back
-            </a>
-        </div>
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h4 class="mb-0 fw-bold">Edit Profil Staf</h4>
+                    </div>
 
-        @if(session('sukses'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-            <strong class="font-bold">Berhasil!</strong>
-            <span class="block sm:inline">{{ session('sukses') }}</span>
-        </div>
-        @endif
+                    <div class="card-body p-4 p-md-5">
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        {{-- 🛑 FORM UPDATE (PENTING: enctype="multipart/form-data") --}}
+                        <form action="{{ route('staff.manajemen.update', ['id' => $staf->id_staf]) }}" method="POST"
+                            enctype="multipart/form-data">
 
-            <div class="h-32 bg-indigo-600 w-full relative"></div>
-            <div class="px-8 pb-8">
-                <div class="relative -mt-16 mb-6 text-center">
-                    <img src="https://ui-avatars.com/api/?name={{ Auth::user()->username }}&background=fff&color=4f46e5&size=128"
-                         class="w-32 h-32 rounded-full border-4 border-white mx-auto shadow-md object-cover">
+                            @csrf
+                            @method('PUT')
+
+                            {{-- BAGIAN FOTO PROFIL --}}
+                            <div class="profile-upload-container">
+                                {{-- Gambar Preview --}}
+                                @if ($staf->foto_staf)
+                                    <img src="{{ asset('storage/' . $staf->foto_staf) }}" id="preview-img"
+                                        class="profile-preview">
+                                @else
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($staf->nama_staf) }}&background=001931&color=fff&size=256&bold=true"
+                                        id="preview-img" class="profile-preview">
+                                @endif
+
+                                {{-- Input File Tersembunyi --}}
+                                <input type="file" name="foto_staf" id="foto_input" class="d-none" accept="image/*"
+                                    onchange="previewImage(this)">
+
+                                {{-- Tombol Kamera --}}
+                                <label for="foto_input" class="upload-icon" title="Ganti Foto">
+                                    <i class="fas fa-camera"></i>
+                                </label>
+                            </div>
+                            <div class="text-center mb-4">
+                                <small class="text-muted">Klik ikon kamera untuk mengubah foto.</small>
+                            </div>
+
+                            {{-- INPUT DATA --}}
+                            <div class="mb-3">
+                                <label class="form-label">Nama Lengkap</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-user"></i></span>
+                                    <input type="text" name="nama_lengkap"
+                                        class="form-control @error('nama_lengkap') is-invalid @enderror"
+                                        value="{{ old('nama_lengkap', $staf->nama_staf) }}" required>
+                                </div>
+                                @error('nama_lengkap')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">No WhatsApp</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fab fa-whatsapp"></i></span>
+                                    <input type="text" name="no_hp"
+                                        class="form-control @error('no_hp') is-invalid @enderror"
+                                        value="{{ old('no_hp', $staf->no_hp) }}" required>
+                                </div>
+                                @error('no_hp')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-envelope"></i></span>
+                                    <input type="email" name="email"
+                                        class="form-control @error('email') is-invalid @enderror"
+                                        value="{{ old('email', $staf->email) }}" required>
+                                </div>
+                                @error('email')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- INFO READONLY --}}
+                            <div class="mb-4 p-3 bg-light rounded border">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted fw-bold text-uppercase">Username Login</small>
+                                    <span class="fw-bold text-dark">{{ Auth::user()->username }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <small class="text-muted fw-bold text-uppercase">Jadwal / Shift</small>
+                                    <span class="badge bg-primary">{{ ucfirst($staf->jadwal) }}</span>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-navy py-2 fw-bold rounded-3 shadow-sm">
+                                    <i class="fas fa-save me-2"></i> Simpan Perubahan
+                                </button>
+                                <a href="{{ route('staff.lihat_profil', ['id' => $staf->id_staf]) }}"
+                                    class="btn btn-outline-secondary py-2 rounded-3">
+                                    Batal
+                                </a>
+                            </div>
+
+                        </form>
+
+                    </div>
                 </div>
 
-                <form action="{{ route('staff.manajemen.update') }}" method="POST">
-                    @csrf
-                    @method('PUT')
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                            <input type="text" value="{{ Auth::user()->username }}" readonly
-                                class="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-2 text-gray-500 cursor-not-allowed">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Jabatan</label>
-                            <input type="text" value="Staf Operasional" readonly
-                                class="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-2 text-gray-500 cursor-not-allowed">
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
-                            <input type="text" name="nama_lengkap" value="{{ Auth::user()->nama_lengkap }}" placeholder="Masukkan nama lengkap" required
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Nomor WhatsApp</label>
-                            <input type="text" name="no_hp" value="{{ Auth::user()->no_hp }}" placeholder="0812..." required
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                            <input type="email" name="email" value="{{ Auth::user()->email }}" placeholder="email@contoh.com" required
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all">
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Alamat Domisili</label>
-                            <textarea name="alamat" rows="3" placeholder="Alamat lengkap..." required
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all">{{ Auth::user()->alamat }}</textarea>
-                        </div>
-
-                    </div>
-
-                    <div class="mt-8 pt-6 border-t border-gray-100 flex justify-end gap-3">
-                        <a href="{{ route('staff.lihat_profil') }}" class="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-all">
-                            Batal
-                        </a>
-
-                        <button type="submit" class="px-6 py-2.5 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 shadow-sm transition-all flex items-center gap-2">
-                            <i class="fas fa-save"></i> Simpan Perubahan
-                        </button>
-                    </div>
-
-                </form>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    {{-- Script Preview Gambar --}}
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview-img').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+
 </body>
+
 </html>

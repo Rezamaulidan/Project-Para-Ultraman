@@ -1,91 +1,262 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Penyewa - Staff View</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Inter', sans-serif; }</style>
+
+    {{-- Link CSS Bootstrap --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    {{-- Font Awesome --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* === NAVBAR STYLING === */
+        .navbar-navy {
+            background-color: #001931;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding-top: 0.8rem;
+            padding-bottom: 0.8rem;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            font-size: 1.25rem;
+        }
+
+        /* === TABLE CARD STYLING === */
+        .table-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            background: white;
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 1.2rem 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .table tbody td {
+            padding: 1.2rem 1rem;
+            vertical-align: middle;
+            color: #333;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f9fbff;
+        }
+
+        /* Avatar */
+        .avatar-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: #e0e7ff;
+            color: #001931;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-right: 15px;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Badge Status */
+        .badge-status {
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-active {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+        }
+
+        /* Search Box */
+        .search-box .form-control {
+            border-radius: 50px 0 0 50px;
+            border-right: none;
+            padding-left: 20px;
+        }
+
+        .search-box .input-group-text {
+            border-radius: 0 50px 50px 0;
+            background-color: white;
+            border-left: none;
+        }
+
+        .search-box .form-control:focus {
+            box-shadow: none;
+            border-color: #ced4da;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            background-color: white;
+            padding: 1.5rem 0;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+    </style>
 </head>
-<body class="bg-gray-50 min-h-screen p-8">
 
-    <div class="max-w-6xl mx-auto">
+<body>
 
-        <div class="flex items-center justify-between mb-8">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">Data Informasi Penyewa</h1>
-                <p class="text-gray-500 text-sm mt-1">Daftar semua penyewa yang terdaftar di database.</p>
-            </div>
-            <a href="{{ route('staff.menu') }}" class="text-indigo-600 font-medium hover:text-indigo-800">
-                <i class="fas fa-arrow-left me-1"></i> Kembali ke Menu
+    {{-- 1. NAVBAR (SEDERHANA) --}}
+    <nav class="navbar navbar-navy navbar-dark sticky-top">
+        <div class="container">
+
+            {{-- Logo Brand --}}
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="{{ asset('images/logo-simk.png') }}" alt="Logo" style="width: 40px; height: auto;"
+                    class="me-2">
+                <span>SIMK <span class="fw-light">Staff</span></span>
             </a>
+
+            {{-- Tombol Menu Utama (Kanan) --}}
+            <div class="ms-auto">
+                <a href="{{ route('staff.menu') }}"
+                    class="btn btn-light text-primary fw-bold rounded-pill px-4 shadow-sm"
+                    style="color: #001931 !important;">
+                    <i class="fas fa-th-large me-2"></i> Menu Utama
+                </a>
+            </div>
+
+        </div>
+    </nav>
+
+    {{-- 2. KONTEN UTAMA --}}
+    <div class="container py-5">
+
+        {{-- Header & Filter --}}
+        <div class="row align-items-center mb-4 g-3">
+            <div class="col-md-6">
+                <h2 class="fw-bold text-dark mb-1">Data Informasi Penyewa</h2>
+            </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-50 border-b border-gray-200 text-xs uppercase text-gray-500 font-semibold tracking-wider">
-                            <th class="px-6 py-4">No</th>
-                            <th class="px-6 py-4">Nama Penyewa</th>
-                            <th class="px-6 py-4">Kontak (HP/WA)</th>
-                            <th class="px-6 py-4">Email</th>
-                            <th class="px-6 py-4">Alamat Asal</th>
-                            <th class="px-6 py-4 text-center">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @forelse($daftar_penyewa as $index => $penyewa)
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4 text-gray-500 text-sm">{{ $index + 1 }}</td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs">
-                                        {{ strtoupper(substr($penyewa->nama_lengkap ?? $penyewa->username, 0, 1)) }}
-                                    </div>
-                                    <div>
-                                        <p class="font-medium text-gray-800 text-sm">{{ $penyewa->nama_lengkap ?? $penyewa->username }}</p>
-                                        <p class="text-xs text-gray-400">ID: {{ $penyewa->username }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-600">
-                                @if($penyewa->no_hp)
-                                    <a href="https://wa.me/{{ $penyewa->no_hp }}" target="_blank" class="text-green-600 hover:underline">
-                                        <i class="fab fa-whatsapp me-1"></i> {{ $penyewa->no_hp }}
-                                    </a>
-                                @else
-                                    <span class="text-gray-400">-</span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-600">
-                                {{ $penyewa->email ?? '-' }}
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
-                                {{ $penyewa->alamat ?? 'Belum diisi' }}
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Aktif</span>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="6" class="px-6 py-10 text-center text-gray-500">
-                                <i class="fas fa-users-slash text-4xl mb-3 text-gray-300"></i>
-                                <p>Belum ada data penyewa di database.</p>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 text-xs text-gray-500">
-                Total Penyewa: <strong>{{ $daftar_penyewa->count() }}</strong> Orang
+        {{-- Tabel Data --}}
+        <div class="card table-card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th class="text-center ps-4" width="5%">No</th>
+                                <th width="30%">Nama Penyewa</th>
+                                <th width="20%">Kontak</th>
+                                <th width="25%">Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($daftar_penyewa as $index => $penyewa)
+                                <tr>
+                                    {{-- No --}}
+                                    <td class="text-center text-muted ps-4">{{ $index + 1 }}</td>
+
+                                    {{-- Nama & Avatar --}}
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {{-- Avatar Inisial / Foto --}}
+                                            @if ($penyewa->foto_profil)
+                                                <img src="{{ asset('storage/' . $penyewa->foto_profil) }}"
+                                                    class="avatar-circle">
+                                            @else
+                                                <div class="avatar-circle">
+                                                    {{ strtoupper(substr($penyewa->nama_penyewa ?? $penyewa->username, 0, 1)) }}
+                                                </div>
+                                            @endif
+
+                                            <div>
+                                                <div class="fw-bold text-dark" style="font-size: 1rem;">
+                                                    {{ $penyewa->nama_penyewa ?? $penyewa->username }}
+                                                </div>
+                                                <span
+                                                    class="badge bg-light text-secondary border rounded-pill fw-normal mt-1">
+                                                    ID: {{ $penyewa->username }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    {{-- Kontak --}}
+                                    <td>
+                                        @if ($penyewa->no_hp)
+                                            <a href="https://wa.me/{{ substr($penyewa->no_hp, 0, 1) == '0' ? '62' . substr($penyewa->no_hp, 1) : $penyewa->no_hp }}"
+                                                target="_blank"
+                                                class="text-decoration-none text-success fw-bold btn btn-sm btn-light rounded-pill border px-3">
+                                                <i class="fab fa-whatsapp me-1 text-success fa-lg"></i>
+                                                {{ $penyewa->no_hp }}
+                                            </a>
+                                        @else
+                                            <span class="text-muted fst-italic small">Tidak ada kontak</span>
+                                        @endif
+                                    </td>
+
+                                    {{-- Email --}}
+                                    <td class="text-secondary fw-medium">{{ $penyewa->email ?? '-' }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center py-5">
+                                        <div class="text-muted opacity-50">
+                                            <i class="fas fa-folder-open fa-4x mb-3"></i>
+                                            <p class="mb-0 fs-5">Belum ada data penyewa</p>
+                                            <small>Data penyewa yang mendaftar akan muncul di sini.</small>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+
+        {{-- Footer Info --}}
+        <div class="d-flex justify-content-between align-items-center mt-3 px-2">
+            <small class="text-muted">Menampilkan seluruh data penyewa</small>
+            <div class="text-muted small">
+                Total: <strong>{{ $daftar_penyewa->count() }}</strong> Penyewa
+            </div>
+        </div>
+
     </div>
 
+    {{-- Bootstrap JS --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
+
 </html>

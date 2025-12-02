@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB; // Import DB
 
 class PenyewaController extends Controller
 {
@@ -21,61 +22,79 @@ class PenyewaController extends Controller
         // 1. Ambil SEMUA data booking
         $allBookings = Booking::with('kamar')
                         ->where('username', $user->username)
-                        ->whereIn('status_booking', ['pending', 'confirmed', 'lunas', 'rejected'])
+                        ->whereIn('status_booking', ['pending', 'confirmed', 'lunas', 'rejected', 'terlambat'])
                         ->orderBy('created_at', 'desc')
                         ->get();
 
-        // 2. Cek apakah user ini sudah punya setidaknya SATU booking yang 'lunas'
-        $sudahPunyaKamarAktif = $allBookings->contains('status_booking', 'lunas');
+        // 2. Cek status aktif (Lunas ATAU Terlambat)
+        $sudahPunyaKamarAktif = $allBookings->contains(function ($booking) {
+            return in_array($booking->status_booking, ['lunas', 'terlambat']);
+        });
 
-        // 3. Lakukan Filtering Data
+        // 3. Filtering Data
         if ($sudahPunyaKamarAktif) {
-            // Jika sudah punya kamar aktif, sembunyikan history rejected
             $bookingsSaya = $allBookings->filter(function ($booking) {
                 return $booking->status_booking !== 'rejected';
             });
         } else {
-            // Jika belum punya kamar aktif (masih pending/rejected semua), tampilkan semua
             $bookingsSaya = $allBookings;
         }
 
-        // PERUBAHAN: Kirim variabel $sudahPunyaKamarAktif ke view
         return view('dashboard_penyewa', compact('bookingsSaya', 'sudahPunyaKamarAktif'));
     }
 
+    // 🛑 UPDATE: MENERAPKAN OPSI A (Sinkronisasi Email & Transaction)
     public function updateInformasi(Request $request)
     {
+        $user = Auth::user();
+
         $request->validate([
             'nama_penyewa'  => 'required|string|max:100',
             'no_hp'         => 'required|string|max:20',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+            // Validasi email unik di tabel 'akuns', kecuali milik sendiri
+            'email'         => 'required|email|unique:akuns,email,' . $user->username . ',username',
             'foto_profil'   => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'password'      => 'nullable|min:6',
         ]);
 
-        $user = Auth::user();
-        $penyewa = Penyewa::where('username', $user->username)->firstOrFail();
-        $akun = Akun::where('username', $user->username)->firstOrFail();
+        DB::beginTransaction(); // Mulai Transaksi
 
-        $penyewa->nama_penyewa  = $request->nama_penyewa;
-        $penyewa->no_hp         = $request->no_hp;
-        $penyewa->jenis_kelamin = $request->jenis_kelamin;
+        try {
+            $penyewa = Penyewa::where('username', $user->username)->firstOrFail();
+            $akun = Akun::where('username', $user->username)->firstOrFail();
 
-        if ($request->hasFile('foto_profil')) {
-            if ($penyewa->foto_profil && Storage::disk('public')->exists($penyewa->foto_profil)) {
-                Storage::disk('public')->delete($penyewa->foto_profil);
+            // 1. Update Data Profil (Tabel Penyewa)
+            $penyewa->nama_penyewa  = $request->nama_penyewa;
+            $penyewa->no_hp         = $request->no_hp;
+            $penyewa->jenis_kelamin = $request->jenis_kelamin;
+            $penyewa->email         = $request->email; // Update email profil
+
+            if ($request->hasFile('foto_profil')) {
+                if ($penyewa->foto_profil && Storage::disk('public')->exists($penyewa->foto_profil)) {
+                    Storage::disk('public')->delete($penyewa->foto_profil);
+                }
+                $path = $request->file('foto_profil')->store('foto_profil', 'public');
+                $penyewa->foto_profil = $path;
             }
-            $path = $request->file('foto_profil')->store('foto_profil', 'public');
-            $penyewa->foto_profil = $path;
-        }
+            $penyewa->save();
 
-        if ($request->filled('password')) {
-            $akun->password = Hash::make($request->password);
+            // 2. Update Data Login (Tabel Akun)
+            $akun->email = $request->email; // Update email login (PENTING)
+
+            if ($request->filled('password')) {
+                $akun->password = Hash::make($request->password);
+            }
             $akun->save();
+
+            DB::commit(); // Simpan perubahan
+
+            return redirect()->route('penyewa.informasi')->with('success', 'Profil berhasil diperbarui!');
+
+        } catch (\Exception $e) {
+            DB::rollBack(); // Batalkan jika error
+            return redirect()->back()->with('error', 'Gagal update: ' . $e->getMessage());
         }
-
-        $penyewa->save();
-
-        return redirect()->route('penyewa.informasi')->with('success', 'Profil berhasil diperbarui!');
     }
 
     public function showKeamanan()
@@ -90,16 +109,27 @@ class PenyewaController extends Controller
 
     public function showPembayaran()
     {
-        $penyewa = Penyewa::where('username', Auth::user()->username)->firstOrFail();
-        return view('menu_pembayaran', ['penyewa' => $penyewa]);
+        $user = Auth::user();
+        $penyewa = Penyewa::where('username', $user->username)->firstOrFail();
+
+        $booking = Booking::with('kamar')
+                    ->where('username', $user->username)
+                    ->whereIn('status_booking', ['confirmed', 'lunas', 'terlambat'])
+                    ->latest()
+                    ->first();
+
+        if (!$booking) {
+            return redirect()->route('dashboard.booking')->with('error', 'Anda tidak memiliki tagihan aktif.');
+        }
+
+        return view('menu_pembayaran', compact('penyewa', 'booking'));
     }
 
     public function showKamar()
     {
         $user = Auth::user();
-        // Cari booking aktif (lunas/confirmed) terakhir
         $bookingTerakhir = Booking::where('username', $user->username)
-                            ->whereIn('status_booking', ['confirmed', 'lunas'])
+                            ->whereIn('status_booking', ['confirmed', 'lunas', 'terlambat'])
                             ->latest()
                             ->first();
 
@@ -111,10 +141,21 @@ class PenyewaController extends Controller
         return redirect()->route('dashboard.booking')->with('error', 'Anda belum memiliki kamar aktif.');
     }
 
+    // 🛑 UPDATE: MENGIRIM DATA BOOKING UNTUK TAMPILKAN NO KAMAR
     public function showInformasi()
     {
-        $penyewa = Penyewa::where('username', Auth::user()->username)->firstOrFail();
-        return view('informasi_penyewa', ['penyewa' => $penyewa]);
+        $user = Auth::user();
+        $penyewa = Penyewa::where('username', $user->username)->firstOrFail();
+
+        // Cari booking aktif (Lunas, Terlambat, atau Confirmed)
+        // Agar kita bisa ambil nomor kamarnya
+        $bookingAktif = Booking::where('username', $user->username)
+                        ->whereIn('status_booking', ['lunas', 'terlambat', 'confirmed'])
+                        ->latest()
+                        ->first();
+
+        // Kirim $penyewa DAN $bookingAktif ke view
+        return view('informasi_penyewa', compact('penyewa', 'bookingAktif'));
     }
 
     public function editInformasi()

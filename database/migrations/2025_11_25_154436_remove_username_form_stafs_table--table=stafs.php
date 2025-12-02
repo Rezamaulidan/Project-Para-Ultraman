@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::table('stafs', function (Blueprint $table) {
             // 1. Hapus Foreign Key dulu (Wajib dilakukan sebelum hapus kolom)
             // Format default Laravel: namaTabel_namaKolom_foreign
-            $table->dropForeign(['username']); 
-            
+            // $table->dropForeign(['username']);
+
             // 2. Hapus kolom username
-            $table->dropColumn('username');
+            // $table->dropColumn('username');
         });
     }
 
@@ -29,7 +29,7 @@ return new class extends Migration
         Schema::table('stafs', function (Blueprint $table) {
             // Kembalikan kolom jika migrasi dibatalkan (Rollback)
             $table->string('username')->nullable();
-            
+
             // Kembalikan Foreign Key
             $table->foreign('username')
                   ->references('username')

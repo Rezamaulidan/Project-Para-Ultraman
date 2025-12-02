@@ -24,22 +24,23 @@ class PemilikKosController extends Controller
     {
         // 1. Setup Data User & Waktu
         $userAkun = Auth::user();
-        // Menggunakan null coalescing operator untuk keamanan relasi
         $user = $userAkun->load('pemilikKos')->pemilikKos ?? $userAkun;
 
         $now = Carbon::now();
         $bulanSaatIni = $now->month;
         $tahunSaatIni = $now->year;
 
-        // --- 1. DATA PENDAPATAN BULAN INI ---
+        // --- 1. DATA PENDAPATAN BULAN INI (CASH FLOW) ---
+        // 🛑 PERBAIKAN: Menggunakan 'updated_at' agar uang perpanjangan sewa yang
+        // dibayar hari ini tetap masuk hitungan bulan ini, bukan bulan depan.
         $pendapatanBulanIni = Booking::where('status_booking', 'lunas')
-            ->whereMonth('tanggal', $bulanSaatIni)
-            ->whereYear('tanggal', $tahunSaatIni)
+            ->whereMonth('updated_at', $bulanSaatIni)
+            ->whereYear('updated_at', $tahunSaatIni)
             ->sum('nominal');
 
         // --- 2. DATA KAMAR KOSONG & OKUPANSI ---
 
-        // A. Ambil ID kamar terisi
+        // A. Ambil ID kamar terisi (yang masa sewanya belum habis)
         $idKamarTerisi = Booking::where('status_booking', 'lunas')
             ->pluck('no_kamar')
             ->unique()
@@ -73,19 +74,20 @@ class PemilikKosController extends Controller
         $totalUangBelumLunas = $belumLunas->sum('nominal');
 
 
-        // --- 5. DATA CHART PENDAPATAN (6 BULAN TERAKHIR) ---
+        // --- 5. DATA CHART PENDAPATAN (6 BULAN TERAKHIR - CASH FLOW) ---
         $bulanMulai = $now->copy()->subMonths(5)->startOfMonth();
 
+        // 🛑 PERBAIKAN: Menggunakan 'updated_at' untuk grafik juga
         $pendapatan6Bulan = Booking::select(
-                DB::raw('MONTH(tanggal) as bulan'),
-                DB::raw('YEAR(tanggal) as tahun'),
+                DB::raw('MONTH(updated_at) as bulan'),
+                DB::raw('YEAR(updated_at) as tahun'),
                 DB::raw('SUM(nominal) as total_nominal')
             )
             ->where('status_booking', 'lunas')
-            ->where('tanggal', '>=', $bulanMulai)
-            ->groupBy(DB::raw('YEAR(tanggal)'), DB::raw('MONTH(tanggal)'))
-            ->orderBy(DB::raw('YEAR(tanggal)'), 'asc')
-            ->orderBy(DB::raw('MONTH(tanggal)'), 'asc')
+            ->where('updated_at', '>=', $bulanMulai)
+            ->groupBy(DB::raw('YEAR(updated_at)'), DB::raw('MONTH(updated_at)'))
+            ->orderBy(DB::raw('YEAR(updated_at)'), 'asc')
+            ->orderBy(DB::raw('MONTH(updated_at)'), 'asc')
             ->get()
             ->keyBy(function($item) {
                 return $item->tahun . '-' . str_pad($item->bulan, 2, '0', STR_PAD_LEFT);
@@ -107,11 +109,10 @@ class PemilikKosController extends Controller
             $dataChart[] = round($nominal / 1000000, 2); // Dalam Jutaan
         }
 
-        // --- 6. DATA CHART PENGELUARAN (FIXED) ---
+        // --- 6. DATA CHART PENGELUARAN ---
         $pengeluaran6Bulan = Pengeluaran::select(
                 DB::raw('MONTH(created_at) as bulan'),
                 DB::raw('YEAR(created_at) as tahun'),
-                // [PERBAIKAN UTAMA DISINI]: Mengganti 'sub_total' menjadi 'nominal'
                 DB::raw('SUM(nominal) as total_pengeluaran')
             )
             ->where('created_at', '>=', $bulanMulai)
@@ -159,26 +160,20 @@ class PemilikKosController extends Controller
             'email'     => 'required|email|unique:stafs,email',
             'jadwal'    => 'required|in:Pagi,Malam',
             'foto_staf' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'username'  => 'required|string|min:4|unique:akuns,username',
-            'password'  => 'required|string|min:6',
         ]);
 
         DB::beginTransaction();
 
         try {
-            Akun::create([
-                'username'   => $request->username,
-                'password'   => Hash::make($request->password),
-                'jenis_akun' => 'staf',
-            ]);
-
+            // Upload Foto (Jika ada)
             $fotoPath = null;
             if ($request->hasFile('foto_staf')) {
                 $fotoPath = $request->file('foto_staf')->store('foto_staf', 'public');
             }
 
+            // Simpan Identitas Staff Saja (Akun Shared 'staf')
             Staf::create([
-                'username'  => $request->username,
+                'username'  => 'staf', // Hardcode username shared
                 'nama_staf' => $request->nama_staf,
                 'email'     => $request->email,
                 'no_hp'     => $request->no_hp,
@@ -187,14 +182,15 @@ class PemilikKosController extends Controller
             ]);
 
             DB::commit();
-            return redirect()->back()->with('success', 'Akun Staff berhasil didaftarkan!');
+            return redirect()->back()->with('success', 'Data Staff berhasil ditambahkan!');
 
         } catch (\Exception $e) {
             DB::rollback();
+            // Hapus foto jika gagal simpan DB
             if (isset($fotoPath) && Storage::disk('public')->exists($fotoPath)) {
                 Storage::disk('public')->delete($fotoPath);
             }
-            return redirect()->back()->withInput()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage()]);
+            return redirect()->back()->withInput()->withErrors(['error' => 'Gagal menyimpan: ' . $e->getMessage()]);
         }
     }
 

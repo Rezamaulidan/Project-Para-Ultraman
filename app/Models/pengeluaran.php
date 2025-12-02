@@ -13,20 +13,20 @@ class Pengeluaran extends Model
     protected $primaryKey = 'id_pengeluaran';
 
     protected $fillable = [
+        'tanggal',
         'jumlah',
-        'sub_total',
+        'nominal',
         'keterangan',
     ];
 
     protected $casts = [
-        'jumlah' => 'decimal:2',
-        'sub_total' => 'decimal:2',
+        'tanggal' => 'date',
+        'jumlah'  => 'integer',
+        'nominal' => 'decimal:2',
     ];
 
     public function pemilikKos()
     {
-        // Langsung query ke model PemilikKos dan ambil baris pertama (satu-satunya).
         return PemilikKos::first();
     }
-
 }

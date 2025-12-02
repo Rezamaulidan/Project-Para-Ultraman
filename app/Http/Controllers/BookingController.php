@@ -7,169 +7,143 @@ use App\Models\Kamar;
 use App\Models\Penyewa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage; // Untuk upload KTP
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class BookingController extends Controller
 {
     /**
-     * Menampilkan Form Booking
+     * Menampilkan Form Booking Awal
      */
     public function create($no_kamar)
     {
-        // 1. Ambil data kamar yang dipilih
         $kamar = Kamar::where('no_kamar', $no_kamar)->firstOrFail();
-
-        // 2. Ambil data penyewa yang sedang login
         $user = Auth::user();
         $penyewa = Penyewa::where('username', $user->username)->firstOrFail();
 
-        // 3. Cek apakah kamar masih tersedia (double check)
         if (strtolower($kamar->status) != 'tersedia') {
             return redirect()->back()->with('error', 'Maaf, kamar ini sudah tidak tersedia.');
         }
 
-        // 4. Tampilkan view form
         return view('form_booking', compact('kamar', 'penyewa'));
     }
 
     /**
-     * Menyimpan Data Booking
+     * Menyimpan Data Booking Awal
      */
     public function store(Request $request)
     {
-        // 1. Validasi Input
         $request->validate([
-            'no_kamar'    => 'required|exists:kamars,no_kamar',
-            'tanggal_mulai'=> 'required|date|after_or_equal:today',
-            'durasi_sewa' => 'required|integer|min:1|max:12', // Durasi 1-12 bulan
-            'foto_ktp'    => 'required|image|mimes:jpeg,png,jpg|max:2048', // Wajib upload KTP
+            'no_kamar'      => 'required|exists:kamars,no_kamar',
+            'tanggal_mulai' => 'required|date|after_or_equal:today',
+            'durasi_sewa'   => 'required|integer|min:1|max:12',
+            'foto_ktp'      => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $user = Auth::user();
         $penyewa = Penyewa::where('username', $user->username)->firstOrFail();
         $kamar = Kamar::where('no_kamar', $request->no_kamar)->firstOrFail();
 
-        // 2. Upload Foto KTP (Update data penyewa jika belum punya KTP)
-        // Simpan foto KTP di folder 'ktp_penyewa'
+        // Upload KTP
         $ktpPath = $request->file('foto_ktp')->store('ktp_penyewa', 'public');
-
-        // Update KTP di tabel penyewa (agar tersimpan di profil juga)
         $penyewa->foto_ktp = $ktpPath;
         $penyewa->save();
 
-        // 3. Hitung Total Nominal (Harga Kamar x Durasi)
+        // Hitung Nominal
         $totalNominal = $kamar->harga * $request->durasi_sewa;
 
-        // 4. Buat Data Booking
+        // Simpan Booking
         Booking::create([
-        'username'        => $user->username,
-        'no_kamar'        => $request->no_kamar,
-        'jenis_transaksi' => 'booking',
-        'status_booking'  => 'pending',
-        'tanggal'         => $request->tanggal_mulai,
-        'nominal'         => $totalNominal,
-        'durasi_sewa'     => $request->durasi_sewa,
-        'keterangan'      => 'Durasi: ' . $request->durasi_sewa . ' Bulan',
+            'username'        => $user->username,
+            'no_kamar'        => $request->no_kamar,
+            'jenis_transaksi' => 'booking',
+            'status_booking'  => 'pending',
+            'tanggal'         => $request->tanggal_mulai,
+            'nominal'         => $totalNominal,
+            'durasi_sewa'     => $request->durasi_sewa,
+            'keterangan'      => 'Durasi: ' . $request->durasi_sewa . ' Bulan',
         ]);
 
-        return redirect()->route('penyewa.dashboard')->with('success', 'Permintaan terkirim!');
+        return redirect()->route('penyewa.dashboard')->with('success', 'Permintaan terkirim! Menunggu konfirmasi pemilik.');
     }
 
-    /**
-     * [PEMILIK] Menampilkan Daftar Permohonan Booking (Status: Pending)
-     */
+    // ==========================================================
+    // FITUR PEMILIK (Approval)
+    // ==========================================================
     public function daftarPermohonan()
     {
-        // Ambil semua booking yang statusnya 'pending'
         $bookings = Booking::with(['penyewa', 'kamar'])
                     ->where('status_booking', 'pending')
-                    ->orderBy('created_at', 'desc')
-                    ->get();
-
-        // Arahkan ke view khusus pemilik
+                    ->orderBy('created_at', 'desc')->get();
         return view('permohonan_booking', compact('bookings'));
     }
 
-    /**
-     * [PEMILIK] Terima Booking (Status -> confirmed)
-     */
     public function approveBooking($id)
     {
         $booking = Booking::findOrFail($id);
-
-        // Ubah status
         $booking->status_booking = 'confirmed';
         $booking->save();
-
         return redirect()->back()->with('success', 'Booking diterima! Menunggu pembayaran penyewa.');
     }
 
-    /**
-     * [PEMILIK] Tolak Booking (Status -> rejected)
-     */
     public function rejectBooking($id)
     {
         $booking = Booking::findOrFail($id);
-
-        // Ubah status
         $booking->status_booking = 'rejected';
         $booking->save();
-
-        // Opsional: Jika ditolak, kembalikan status kamar jadi 'tersedia' jika sebelumnya diubah (tapi di tahap pending biasanya kamar belum di-lock penuh)
-
         return redirect()->back()->with('success', 'Permohonan booking ditolak.');
     }
 
     public function cancelBooking($id)
     {
-    $booking = Booking::findOrFail($id);
-
-    // Validasi: Hanya bisa cancel jika status confirmed
-    // Jika status sudah 'lunas', sebaiknya tidak bisa dicancel sembarangan lewat tombol ini
-    if ($booking->status_booking == 'confirmed') {
-
-        $booking->status_booking = 'rejected'; // Ubah jadi rejected
-
-        // Tambahkan catatan kenapa dibatalkan (Opsional, agar tidak lupa)
-        $booking->keterangan = $booking->keterangan . ' [Dibatalkan Pemilik: Belum ada pembayaran]';
-
-        $booking->save();
-
-        return redirect()->back()->with('success', 'Booking berhasil dibatalkan. Kamar kembali tersedia untuk orang lain.');
+        $booking = Booking::findOrFail($id);
+        if ($booking->status_booking == 'confirmed') {
+            $booking->status_booking = 'rejected';
+            $booking->keterangan .= ' [Dibatalkan Pemilik]';
+            $booking->save();
+            return redirect()->back()->with('success', 'Booking berhasil dibatalkan.');
+        }
+        return redirect()->back()->with('error', 'Gagal membatalkan.');
     }
 
-    return redirect()->back()->with('error', 'Hanya booking yang statusnya DISETUJUI (belum lunas) yang bisa dibatalkan.');
-    }
 
+    // ==========================================================
+    // FITUR PEMBAYARAN (SIMULASI MANUAL)
+    // ==========================================================
+
+    /**
+     * 1. Tampilkan Halaman Simulasi Pembayaran
+     * (Digunakan saat user klik "Bayar Sekarang" dari Dashboard)
+     */
     public function showPaymentPage($id)
     {
         $user = Auth::user();
 
-        // Pastikan booking milik user yang login & statusnya confirmed
         $booking = Booking::with(['kamar', 'penyewa'])
                     ->where('id_booking', $id)
                     ->where('username', $user->username)
-                    ->where('status_booking', 'confirmed')
+                    ->whereIn('status_booking', ['confirmed', 'terlambat', 'pending'])
                     ->firstOrFail();
 
+        // Tidak ada token Midtrans, langsung kirim data booking saja
         return view('payment_simulation', compact('booking'));
     }
 
     /**
-     * Proses Pembayaran (Simulasi Auto Lunas)
+     * 2. Proses Pembayaran (Action dari Halaman Payment Simulation)
+     * Langsung ubah status jadi LUNAS.
      */
     public function processPayment($id)
     {
-        // Gunakan DB Transaction agar data konsisten (Booking lunas & Kamar terisi)
         DB::transaction(function () use ($id) {
             $booking = Booking::findOrFail($id);
 
-            // 1. Update Status Booking
+            // Update Status Booking
             $booking->status_booking = 'lunas';
             $booking->save();
 
-            // 2. Update Status Kamar menjadi Terisi
+            // Update Status Kamar
             $kamar = Kamar::where('no_kamar', $booking->no_kamar)->first();
             if ($kamar) {
                 $kamar->status = 'terisi';
@@ -177,7 +151,78 @@ class BookingController extends Controller
             }
         });
 
-        return redirect()->route('penyewa.dashboard')
-            ->with('success', 'Pembayaran Berhasil!');
+        return redirect()->route('penyewa.dashboard')->with('success', 'Pembayaran Berhasil! Status sewa Anda kini Aktif.');
+    }
+
+    /**
+     * 3. Bayar Tagihan Bulanan (Action dari Menu Pembayaran Tab 1)
+     * Untuk melunasi status 'terlambat'
+     */
+    public function bayarTagihan($id)
+    {
+        $booking = Booking::findOrFail($id);
+
+        if (!in_array($booking->status_booking, ['terlambat', 'pending', 'confirmed'])) {
+            return back()->with('error', 'Tagihan ini tidak valid atau sudah lunas.');
+        }
+
+        // Simulasi Bayar Langsung Lunas
+        $booking->status_booking = 'lunas';
+        $booking->save();
+
+        // Pastikan kamar terisi
+        $kamar = Kamar::where('no_kamar', $booking->no_kamar)->first();
+        if ($kamar) {
+            $kamar->status = 'terisi';
+            $kamar->save();
+        }
+
+        return redirect()->route('penyewa.dashboard')->with('success', 'Tagihan berhasil dibayar! Terima kasih.');
+    }
+
+    /**
+     * 4. Perpanjang Sewa (Action dari Menu Pembayaran Tab 2)
+     * Menambah durasi untuk bulan berikutnya.
+     */
+    public function perpanjangSewa(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'durasi'   => 'required|integer|min:1',
+            'no_kamar' => 'required'
+        ]);
+
+        // Cari booking terakhir yang aktif (Lunas/Terlambat)
+        $bookingTerakhir = Booking::where('username', $user->username)
+                            ->where('no_kamar', $request->no_kamar)
+                            ->whereIn('status_booking', ['lunas', 'terlambat'])
+                            ->latest()
+                            ->first();
+
+        if (!$bookingTerakhir) {
+            return back()->with('error', 'Data sewa aktif tidak ditemukan.');
+        }
+
+        // Hitung Tanggal Mulai Baru (Lanjutkan dari yang lama)
+        $tanggalMulaiBaru = Carbon::parse($bookingTerakhir->tanggal)->addMonths($bookingTerakhir->durasi_sewa);
+
+        // Hitung Nominal
+        $kamar = Kamar::where('no_kamar', $request->no_kamar)->first();
+        $nominalBaru = $kamar->harga * $request->durasi;
+
+        // Buat Booking Baru (Langsung Lunas untuk Simulasi)
+        Booking::create([
+            'username'        => $user->username,
+            'no_kamar'        => $request->no_kamar,
+            'jenis_transaksi' => 'pembayaran_sewa',
+            'status_booking'  => 'lunas', // Langsung aktif karena simulasi
+            'tanggal'         => $tanggalMulaiBaru,
+            'durasi_sewa'     => $request->durasi,
+            'nominal'         => $nominalBaru,
+            'keterangan'      => 'Perpanjangan Sewa ' . $request->durasi . ' Bulan',
+        ]);
+
+        return redirect()->route('penyewa.dashboard')->with('success', 'Sewa berhasil diperpanjang ' . $request->durasi . ' bulan!');
     }
 }

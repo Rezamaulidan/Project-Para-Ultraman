@@ -5,13 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\LaporanKeamanan;
 use App\Models\Staf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class LaporanKeamananController extends Controller
 {
     public function index()
     {
-        // Ambil data laporan urut dari yang terbaru
         $laporans = LaporanKeamanan::with('staf')
                     ->orderBy('tanggal', 'desc')
                     ->orderBy('created_at', 'desc')
@@ -22,17 +20,31 @@ class LaporanKeamananController extends Controller
 
     public function create()
     {
-        // Ambil semua data staf (hanya ID dan Nama biar ringan)
-    $daftarStaf = \App\Models\Staf::select('id_staf', 'nama_staf', 'jadwal')->get();
+        // 🛑 1. CEK SESSION PRESENSI
+        // Apakah ada ID staf yang tersimpan di sesi browser ini?
+        if (!session()->has('current_staf_id')) {
+            return redirect()->route('staff.shift_kerja')
+                ->with('error', 'Akses Ditolak! Anda harus melakukan Presensi/Absen terlebih dahulu sebelum membuat laporan.');
+        }
 
-    return view('tambah_laporan_staf', compact('daftarStaf'));
+        // 🛑 2. AMBIL DATA STAF DARI SESSION
+        $idAktif = session('current_staf_id');
+        $stafAktif = Staf::find($idAktif);
+
+        // Validasi jika data staf terhapus tapi sesi masih nyangkut
+        if (!$stafAktif) {
+            session()->forget('current_staf_id');
+            return redirect()->route('staff.shift_kerja')->with('error', 'Data sesi tidak valid. Silakan absen ulang.');
+        }
+
+        // Kirim data staf AKTIF (Single Object) ke view, bukan daftar semua staf
+        return view('tambah_laporan_staf', compact('stafAktif'));
     }
 
     public function store(Request $request)
     {
-        // 1. Validasi semua input dari form
         $request->validate([
-            'id_staf' => 'required|exists:stafs,id_staf',
+            'id_staf'        => 'required|integer',
             'judul'          => 'required|string|max:200',
             'tanggal'        => 'required|date',
             'waktu'          => 'required',
@@ -41,27 +53,22 @@ class LaporanKeamananController extends Controller
             'deskripsi'      => 'required',
         ]);
 
-        // 2. Ambil ID Staf dari user yang login
-        $user = Auth::user();
-        $staf = Staf::where('username', $user->username)->first();
-
-        if (!$staf) {
-            return back()->withErrors(['error' => 'Data staf tidak ditemukan.']);
+        // 🛑 3. KEAMANAN DATA
+        // Pastikan ID yang dikirim form SAMA dengan orang yang sedang login (Session)
+        if ($request->id_staf != session('current_staf_id')) {
+             return back()->withErrors(['error' => 'Sesi tidak valid atau kadaluarsa. Mohon presensi ulang.']);
         }
 
-        // 3. GABUNGKAN DATA (Logika Struktur Lama)
-        // Menggabungkan waktu, jenis, lokasi, dan deskripsi menjadi satu string
         $keteranganLengkap = "Pukul: " . $request->waktu . "\n" .
                              "Jenis Kejadian: " . $request->jenis_kejadian . "\n" .
                              "Lokasi: " . $request->lokasi . "\n" .
                              "Detail:\n" . $request->deskripsi;
 
-        // 4. Simpan ke Database
         LaporanKeamanan::create([
-            'id_staf'       => $request->id_staf, // Ambil dari pilihan user di form
+            'id_staf'       => $request->id_staf,
             'judul_laporan' => $request->judul,
             'tanggal'       => $request->tanggal,
-            'keterangan'    => $keteranganLengkap, // Simpan hasil gabungan di sini
+            'keterangan'    => $keteranganLengkap,
         ]);
 
         return redirect()->route('staff.laporan_keamanan')->with('success', 'Laporan berhasil ditambahkan!');

@@ -37,17 +37,16 @@ class LoginController extends Controller
                 return redirect()->route('staff.menu');
             }
             elseif ($user->jenis_akun === 'penyewa') {
-
-                // Cek apakah user ini punya booking yang "Aktif" (Pending, Confirmed, atau Lunas)
+                // Agar user yang telat bayar tetap diarahkan ke Dashboard (untuk bayar), bukan disuruh cari kamar baru.
                 $hasActiveBooking = Booking::where('username', $user->username)
-                                    ->whereIn('status_booking', ['pending', 'confirmed', 'lunas'])
+                                    ->whereIn('status_booking', ['pending', 'confirmed', 'lunas', 'terlambat', 'rejected'])
                                     ->exists();
 
                 if ($hasActiveBooking) {
-                    // Jika sudah pernah booking/sedang ngekos -> Ke Dashboard Saya
+                    // Jika punya kamar (termasuk yang telat bayar) -> Ke Dashboard Saya
                     return redirect()->route('penyewa.dashboard');
                 } else {
-                    // Jika pengguna baru atau booking sebelumnya ditolak -> Ke Pencarian Kamar
+                    // Benar-benar pengguna baru (belum pernah booking sama sekali)
                     return redirect()->route('dashboard.booking');
                 }
             }

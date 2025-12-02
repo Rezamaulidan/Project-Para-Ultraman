@@ -12,6 +12,9 @@
     {{-- Link Font Awesome --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+    {{-- SweetAlert2 CSS --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
     <style>
         /* Background utama */
         body {
@@ -34,18 +37,17 @@
 
         /* Lingkaran Avatar (Container) */
         .profile-avatar-container {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             margin: 0 auto 1rem auto;
             border-radius: 50%;
             background-color: rgba(255, 255, 255, 0.95);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            /* Agar gambar tidak bocor */
             display: flex;
             justify-content: center;
             align-items: center;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            border: 4px solid rgba(255, 255, 255, 0.3);
         }
 
         /* Gambar Profil */
@@ -58,7 +60,7 @@
         /* Inisial Huruf (Jika tidak ada foto) */
         .profile-avatar-initials {
             color: #0056b3;
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: 700;
             font-family: sans-serif;
             text-transform: uppercase;
@@ -71,13 +73,14 @@
             font-size: 0.9rem;
             transition: all 0.2s;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 5px 15px;
+            padding: 8px 20px;
             border-radius: 20px;
             display: inline-block;
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
         .btn-edit-profile:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.2);
             color: #fff;
         }
 
@@ -118,6 +121,12 @@
             background-color: #f8f9fa;
             opacity: 1;
             border-left: none;
+            cursor: default;
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            border-color: #ced4da;
         }
 
         /* Styling Group Input (Icon + Field) */
@@ -125,6 +134,8 @@
             background-color: #f8f9fa;
             border-right: none;
             color: #0089FF;
+            width: 45px;
+            justify-content: center;
         }
 
         /* Styling Label Form */
@@ -185,14 +196,12 @@
                 <div class="card profile-card border-0 p-4 mb-4 shadow">
                     <div class="card-body text-center">
 
-                        {{-- [BARU] Logika Tampilan Foto Profil --}}
+                        {{-- Foto Profil --}}
                         <div class="profile-avatar-container">
                             @if ($penyewa->foto_profil && file_exists(public_path('storage/' . $penyewa->foto_profil)))
-                                {{-- Tampilkan Foto --}}
                                 <img src="{{ asset('storage/' . $penyewa->foto_profil) }}"
                                     alt="Foto Profil {{ $penyewa->nama_penyewa }}" class="profile-avatar-img">
                             @else
-                                {{-- Tampilkan Inisial Huruf --}}
                                 <span class="profile-avatar-initials">
                                     {{ strtoupper(substr($penyewa->nama_penyewa ?? 'U', 0, 1)) }}
                                 </span>
@@ -200,7 +209,9 @@
                         </div>
 
                         <h3 class="mb-1 fw-bold">{{ $penyewa->nama_penyewa ?? 'Nama Penyewa' }}</h3>
-                        <p class="mb-3 opacity-75 small"></p>
+                        <p class="mb-3 opacity-75 small">
+                            <i class="fa-solid fa-circle-user me-1"></i> Penyewa Aktif
+                        </p>
 
                         <a href="{{ route('penyewa.edit_informasi') }}" class="btn-edit-profile">
                             <i class="fa-solid fa-pen-to-square me-1"></i> Edit Data Diri
@@ -223,13 +234,28 @@
                                     <label for="nomorKamar" class="form-label">Nomor Kamar</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fa-solid fa-door-open"></i></span>
+
+                                        {{-- 🛑 PERBAIKAN DI SINI: Mengambil data dari $bookingAktif, bukan $penyewa --}}
                                         <input type="text" id="nomorKamar" class="form-control"
-                                            value="{{ $penyewa->nomor_kamar ?? '-' }}" readonly>
+                                            value="{{ $bookingAktif->no_kamar ?? 'Belum ada kamar' }}" readonly>
+
                                     </div>
                                 </div>
                             </div>
 
-                            {{-- 2. No Telepon --}}
+                            {{-- 2. Email (Tambahan Baru) --}}
+                            <div class="col-12">
+                                <div class="mb-1">
+                                    <label for="email" class="form-label">Alamat Email</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                                        <input type="text" id="email" class="form-control"
+                                            value="{{ $penyewa->email ?? '-' }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- 3. No Telepon --}}
                             <div class="col-12">
                                 <div class="mb-1">
                                     <label for="noTelepon" class="form-label">No Telepon (WhatsApp)</label>
@@ -241,7 +267,7 @@
                                 </div>
                             </div>
 
-                            {{-- 3. Jenis Kelamin --}}
+                            {{-- 4. Jenis Kelamin --}}
                             <div class="col-12">
                                 <div>
                                     <label for="jenisKelamin" class="form-label">Jenis Kelamin</label>
@@ -264,8 +290,23 @@
     {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    {{-- Script untuk Animasi Indikator Tab --}}
+    {{-- SweetAlert2 JS (Untuk Notifikasi Sukses setelah Edit) --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    {{-- Script untuk Animasi Indikator Tab & Notifikasi --}}
     <script>
+        // 1. Notifikasi Sukses dari Controller
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                confirmButtonColor: '#007bff',
+                timer: 3000
+            });
+        @endif
+
+        // 2. Sliding Indicator Tab
         function setActiveIndicator() {
             const activeTab = document.querySelector('.nav-tabs .nav-link.active');
             const navTabs = document.querySelector('.nav-tabs');
@@ -304,20 +345,6 @@
                 setActiveIndicator();
             });
         });
-    </script>
-
-    {{-- [TAMBAHAN] SweetAlert2 Script untuk Notifikasi Sukses --}}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        @if (session('success'))
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: "{{ session('success') }}",
-                confirmButtonColor: '#001931',
-                timer: 3000
-            });
-        @endif
     </script>
 
 </body>

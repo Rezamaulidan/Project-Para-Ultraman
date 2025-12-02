@@ -9,20 +9,17 @@ class Staf extends Model
 {
     use HasFactory;
 
-    protected $table = 'staf';
+    protected $table = 'stafs';
     protected $primaryKey = 'id_staf';
 
     protected $fillable = [
         'nama_staf',
-        'foto_staf', // Pastikan nama kolom di database 'foto_staf' atau 'foto_profil' (sesuaikan)
+        'foto_staf',
         'jadwal',
         'email',
         'no_hp',
     ];
 
-    // Method akun() DIHAPUS karena sudah tidak ada relasi ke tabel akun.
-
-    // Relasi ini TETAP ADA (Satu staf bisa punya banyak laporan)
     public function LaporanKeamanans()
     {
         return $this->hasMany(LaporanKeamanan::class, 'id_staf', 'id_staf');

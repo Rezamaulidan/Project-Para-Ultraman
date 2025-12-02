@@ -2,64 +2,109 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\staf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
+use App\Models\Staf;
+use App\Models\Penyewa;
 
 class StafController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    // ... (Method indexManajemen, lihatProfil, editProfil, updateProfil, daftarPenyewa TETAP SAMA) ...
+
+    public function indexManajemen()
     {
-        //
+        $stafs = Staf::all();
+        return view('pilih_staf', compact('stafs'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function lihatProfil($id)
     {
-        //
+        $staf = Staf::findOrFail($id);
+        return view('detail_profil_staf', compact('staf'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function editProfil($id)
     {
-        //
+        $staf = Staf::findOrFail($id);
+        return view('edit_profil_staf', compact('staf'));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(staf $staf)
+    public function updateProfil(Request $request, $id)
     {
-        //
+        // ... (Kode update profil Anda sebelumnya) ...
+        $request->validate([
+            'nama_lengkap' => 'required|string|max:100',
+            'no_hp'        => 'required|string|max:20',
+            'email'        => 'required|email|max:100|unique:stafs,email,'.$id.',id_staf',
+            'foto_staf'    => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $staf = Staf::findOrFail($id);
+        $staf->nama_staf = $request->nama_lengkap;
+        $staf->no_hp     = $request->no_hp;
+        $staf->email     = $request->email;
+
+        if ($request->hasFile('foto_staf')) {
+            if ($staf->foto_staf && Storage::disk('public')->exists($staf->foto_staf)) {
+                Storage::disk('public')->delete($staf->foto_staf);
+            }
+            $path = $request->file('foto_staf')->store('foto_staf', 'public');
+            $staf->foto_staf = $path;
+        }
+
+        $staf->save();
+
+        return redirect()->route('staff.lihat_profil', ['id' => $staf->id_staf])
+                         ->with('sukses', 'Profil berhasil diperbarui!');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(staf $staf)
+    public function daftarPenyewa()
     {
-        //
+        $daftar_penyewa = Penyewa::all();
+        return view('staff_informasi_penyewa', compact('daftar_penyewa'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, staf $staf)
+    // =================================================
+    // 3. FITUR ABSENSI / SHIFT KERJA (Pindahan)
+    // =================================================
+
+    public function absenIndex()
     {
-        //
+        $daftarStaf = Staf::all();
+        return view('shift_kerja_staf', compact('daftarStaf'));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(staf $staf)
+    public function absenStore(Request $request)
     {
-        //
+        $request->validate([
+            'id_staf' => 'required|exists:stafs,id_staf',
+        ]);
+
+        $id_staf_input = $request->id_staf;
+        $staf = Staf::where('id_staf', $id_staf_input)->first();
+
+        if (!$staf) {
+            return back()->with('error', 'Data staf tidak ditemukan.');
+        }
+
+        $shift_sekarang = ucfirst($staf->jadwal);
+        $sessionKey = 'absen_' . $staf->id_staf . '_' . Carbon::today()->format('Y-m-d');
+        session()->put('current_staf_id', $staf->id_staf);
+
+        // Cek apakah sudah absen hari ini?
+        if (session()->has($sessionKey)) {
+            return back()->with('error', "Halo $staf->nama_staf, Anda sudah melakukan absensi hari ini! (Sesi Aktif)");
+        }
+
+        // Simpan ke SESSION Browser (Logika Harian)
+        session()->put($sessionKey, [
+            'jam'    => Carbon::now()->toTimeString(),
+            'shift'  => $shift_sekarang,
+            'status' => 'Hadir'
+        ]);
+
+        return back()->with('sukses', "Berhasil Check-in! Selamat bekerja, $staf->nama_staf (Shift: $shift_sekarang).");
     }
 }

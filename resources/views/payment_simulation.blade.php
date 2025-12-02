@@ -126,7 +126,9 @@
                     </div>
                     <div class="d-flex justify-content-between">
                         <span class="text-muted">Penyewa</span>
-                        <span class="fw-bold">{{ Str::limit($booking->penyewa->nama_penyewa, 15) }}</span>
+                        {{-- Menggunakan helper Str untuk membatasi panjang nama --}}
+                        <span
+                            class="fw-bold">{{ \Illuminate\Support\Str::limit($booking->penyewa->nama_penyewa, 15) }}</span>
                     </div>
 
                     <div class="mt-5 text-center">
@@ -198,7 +200,8 @@
                                         <div class="fw-bold">QRIS (GoPay/OVO/Dana)</div>
                                     </label>
                                     <div class="alert alert-info small mb-0">
-                                        Scan QR code yang akan muncul setelah Anda menekan tombol bayar.
+                                        <i class="fas fa-info-circle me-1"></i> Scan QR code yang akan muncul setelah
+                                        Anda menekan tombol bayar.
                                     </div>
                                 </div>
                             </div>
@@ -207,11 +210,12 @@
                     </div>
 
                     {{-- FORM SIMULASI BAYAR --}}
+                    {{-- Form ini mengarah ke BookingController@processPayment --}}
                     <form action="{{ route('penyewa.bayar.process', $booking->id_booking) }}" method="POST"
                         id="paymentForm">
                         @csrf
                         <button type="button" onclick="simulateProcessing()"
-                            class="btn btn-primary w-100 py-3 fw-bold rounded-3 shadow-sm" id="payBtn">
+                            class="btn btn-primary w-100 py-3 fw-bold rounded-3 shadow-sm mt-4" id="payBtn">
                             Bayar Sekarang <i class="fas fa-chevron-right ms-2"></i>
                         </button>
                     </form>
@@ -247,7 +251,7 @@
         }
 
         window.onload = function() {
-            var twentyFourHours = 60 * 60 * 1;
+            var twentyFourHours = 60 * 60 * 1; // 1 Jam
             var display = document.querySelector('#timer');
             startTimer(twentyFourHours, display);
         };
@@ -261,7 +265,7 @@
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-2"></i> Memproses Pembayaran...';
             btn.disabled = true;
 
-            // Simulasi delay 2 detik seolah-olah menghubungi Midtrans
+            // Simulasi delay 2 detik seolah-olah menghubungi Payment Gateway
             setTimeout(() => {
                 form.submit();
             }, 2000);

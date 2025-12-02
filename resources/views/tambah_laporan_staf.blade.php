@@ -177,22 +177,21 @@
                     </div>
 
                     <div class="mb-4">
-                        <label for="id_staf" class="form-label">
-                            <i class="fa fa-user-edit form-icon"></i> Nama Petugas Pelapor <span
-                                class="required">*</span>
+                        <label class="form-label">
+                            <i class="fa fa-user-check form-icon text-success"></i> Nama Petugas Pelapor
                         </label>
 
-                        <select class="form-select" name="id_staf" required>
-                            <option value="" selected disabled>-- Siapa Nama Anda? --</option>
+                        {{-- Input visual untuk user (Tidak bisa diedit) --}}
+                        <input type="text" class="form-control bg-light fw-bold text-dark"
+                            value="{{ $stafAktif->nama_staf }} (Shift: {{ ucfirst($stafAktif->jadwal) }})" readonly
+                            style="cursor: not-allowed;">
 
-                            {{-- Looping data dari Controller --}}
-                            @foreach ($daftarStaf as $staf)
-                                <option value="{{ $staf->id_staf }}">
-                                    {{ $staf->nama_staf }} ({{ $staf->jadwal }})
-                                </option>
-                            @endforeach
+                        {{-- Input hidden untuk dikirim ke database --}}
+                        <input type="hidden" name="id_staf" value="{{ $stafAktif->id_staf }}">
 
-                        </select>
+                        <div class="form-text text-success small mt-1">
+                            <i class="fas fa-check-circle me-1"></i> Terverifikasi dari sesi presensi.
+                        </div>
                     </div>
 
                     {{-- 2. Tanggal & Waktu --}}

@@ -140,7 +140,7 @@
             cursor: pointer;
             border: 3px solid white;
             transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .camera-icon-label:hover {
@@ -148,18 +148,16 @@
             transform: scale(1.1);
         }
 
-        /* Tombol Hapus Foto (Kecil di bawah) */
-        .btn-delete-photo-small {
-            font-size: 0.8rem;
-            color: #dc3545;
-            background: none;
-            border: none;
-            padding: 0;
+        /* Password Toggle */
+        .password-toggle {
             cursor: pointer;
-            text-decoration: underline;
+            z-index: 10;
+            text-decoration: none;
+            color: #6c757d;
         }
-        .btn-delete-photo-small:hover {
-            color: #bd2130;
+
+        .password-toggle:hover {
+            color: #007bff;
         }
     </style>
 </head>
@@ -211,7 +209,7 @@
                             @csrf
                             @method('PUT') {{-- Method PUT untuk update data --}}
 
-                            {{-- [BARU] Upload Foto Profil dengan Preview --}}
+                            {{-- Upload Foto Profil dengan Preview --}}
                             <div class="photo-upload-container">
                                 <label class="form-label d-block text-center">Foto Profil</label>
 
@@ -219,9 +217,11 @@
                                     {{-- Lingkaran Preview --}}
                                     <div class="photo-preview-circle">
                                         @if ($penyewa->foto_profil && file_exists(public_path('storage/' . $penyewa->foto_profil)))
-                                            <img id="photoPreview" src="{{ asset('storage/' . $penyewa->foto_profil) }}" alt="Preview Foto">
+                                            <img id="photoPreview" src="{{ asset('storage/' . $penyewa->foto_profil) }}"
+                                                alt="Preview Foto">
                                         @else
-                                            <img id="photoPreview" src="" alt="Preview Foto" style="display: none;">
+                                            <img id="photoPreview" src="" alt="Preview Foto"
+                                                style="display: none;">
                                             <span id="photoInitials" class="photo-initials">
                                                 {{ strtoupper(substr($penyewa->nama_penyewa ?? 'U', 0, 1)) }}
                                             </span>
@@ -236,11 +236,7 @@
 
                                 {{-- Input File (Sembunyi) --}}
                                 <input type="file" class="form-control d-none" id="foto_profil" name="foto_profil"
-                                       accept="image/jpeg,image/png,image/jpg,image/gif"
-                                       onchange="previewImage(this)">
-
-                                {{-- Tombol Hapus (Opsional - bisa ditambahkan nanti jika perlu fitur hapus foto) --}}
-                                {{-- <button type="button" class="btn-delete-photo-small">Hapus Foto</button> --}}
+                                    accept="image/jpeg,image/png,image/jpg,image/gif" onchange="previewImage(this)">
 
                                 <div class="form-text text-center mt-1">Format: JPG, PNG, GIF. Maks: 2MB.</div>
                             </div>
@@ -252,7 +248,8 @@
                                         class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light"><i class="fa-solid fa-user"></i></span>
-                                    <input type="text" class="form-control @error('nama_penyewa') is-invalid @enderror"
+                                    <input type="text"
+                                        class="form-control @error('nama_penyewa') is-invalid @enderror"
                                         id="nama_penyewa" name="nama_penyewa"
                                         value="{{ old('nama_penyewa', $penyewa->nama_penyewa) }}" required
                                         placeholder="Masukkan nama lengkap">
@@ -264,7 +261,25 @@
                                 @enderror
                             </div>
 
-                            {{-- 2. No Telepon (WhatsApp) --}}
+                            {{-- 🛑 2. EMAIL (Tambahan Wajib) --}}
+                            <div class="mb-4">
+                                <label for="email" class="form-label">Alamat Email <span
+                                        class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-envelope"></i></span>
+                                    {{-- Menggunakan $penyewa->email atau data dari relasi akun jika di tabel penyewa kosong --}}
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                        id="email" name="email" value="{{ old('email', $penyewa->email) }}"
+                                        required placeholder="contoh@email.com">
+                                </div>
+                                @error('email')
+                                    <div class="invalid-feedback d-block">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            {{-- 3. No Telepon (WhatsApp) --}}
                             <div class="mb-4">
                                 <label for="no_hp" class="form-label">No Telepon (WhatsApp) <span
                                         class="text-danger">*</span></label>
@@ -281,7 +296,7 @@
                                 @enderror
                             </div>
 
-                            {{-- 3. Jenis Kelamin (Select Option) --}}
+                            {{-- 4. Jenis Kelamin (Select Option) --}}
                             <div class="mb-4">
                                 <label for="jenis_kelamin" class="form-label">Jenis Kelamin <span
                                         class="text-danger">*</span></label>
@@ -308,9 +323,30 @@
                                 @enderror
                             </div>
 
+                            {{-- 🛑 5. Password Baru (Opsional) --}}
+                            <div class="mb-4">
+                                <label for="password" class="form-label">Ganti Password (Opsional)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fa-solid fa-lock"></i></span>
+                                    <input type="password"
+                                        class="form-control @error('password') is-invalid @enderror" id="password"
+                                        name="password" placeholder="Kosongkan jika tidak ingin mengganti">
+                                    <span class="input-group-text bg-white border-start-0">
+                                        <i class="fa-solid fa-eye password-toggle" id="togglePassword"></i>
+                                    </span>
+                                </div>
+                                <div class="form-text small">Minimal 6 karakter.</div>
+                                @error('password')
+                                    <div class="invalid-feedback d-block">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
                             {{-- Tombol Aksi --}}
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5">
-                                <a href="{{ route('penyewa.informasi') }}" class="btn btn-outline-secondary px-4 me-md-2">
+                                <a href="{{ route('penyewa.informasi') }}"
+                                    class="btn btn-outline-secondary px-4 me-md-2">
                                     <i class="fa-solid fa-arrow-left me-2"></i>Batal
                                 </a>
                                 <button type="submit" class="btn btn-primary px-4">
@@ -333,16 +369,15 @@
     <script>
         // 1. Toggle Password Visibility
         const togglePassword = document.querySelector('#togglePassword');
-        const password = document.querySelector('#password');
-        const eyeIcon = document.querySelector('#eyeIcon');
+        const passwordInput = document.querySelector('#password');
 
-        if (togglePassword && password && eyeIcon) {
+        if (togglePassword && passwordInput) {
             togglePassword.addEventListener('click', function() {
-                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-                password.setAttribute('type', type);
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
 
-                eyeIcon.classList.toggle('fa-eye');
-                eyeIcon.classList.toggle('fa-eye-slash');
+                this.classList.toggle('fa-eye');
+                this.classList.toggle('fa-eye-slash');
             });
         }
 

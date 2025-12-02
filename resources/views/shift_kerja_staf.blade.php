@@ -1,88 +1,241 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Absensi Shift - SIM KOS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Absensi Shift - SIMK</title>
+
+    {{-- Link CSS Bootstrap --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    {{-- Font Awesome --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* === NAVBAR STYLING === */
+        .navbar-navy {
+            background-color: #001931;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding-top: 0.8rem;
+            padding-bottom: 0.8rem;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            font-size: 1.25rem;
+        }
+
+        /* === CARD STYLING === */
+        .card-absensi {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .card-header-absensi {
+            background: linear-gradient(135deg, #001931 0%, #003366 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        /* Tombol Absen */
+        .btn-absen {
+            background-color: #001931;
+            color: white;
+            font-weight: 700;
+            padding: 0.8rem;
+            border-radius: 12px;
+            width: 100%;
+            border: none;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .btn-absen:hover {
+            background-color: #003366;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 25, 49, 0.2);
+        }
+
+        /* Form Control Custom */
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .input-group-text {
+            background-color: #f8f9fa;
+            border-right: none;
+        }
+
+        .form-select {
+            border-left: none;
+        }
+
+        .form-select:focus {
+            box-shadow: none;
+            border-color: #ced4da;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            background-color: white;
+            padding: 1.5rem 0;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
 
-    <div class="bg-white rounded-2xl shadow-lg w-full max-w-md overflow-hidden">
+<body>
 
-        <div class="bg-indigo-600 p-6 text-center relative">
-            <a href="{{ route('staff.menu') }}" class="absolute left-4 top-4 text-white/80 hover:text-white">
-                <i class="fas fa-arrow-left"></i>
+    {{-- 1. NAVBAR --}}
+    <nav class="navbar navbar-navy navbar-dark sticky-top">
+        <div class="container">
+
+            {{-- Logo Brand --}}
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="{{ asset('images/logo-simk.png') }}" alt="Logo" style="width: 40px; height: auto;"
+                    class="me-2">
+                <span>SIMK <span class="fw-light">Staff</span></span>
             </a>
-            <h1 class="text-2xl font-bold text-white">Absensi Staff</h1>
-            <p class="text-indigo-100 text-sm mt-1">{{ date('d F Y') }}</p>
+
+            {{-- Tombol Menu Utama --}}
+            <div class="ms-auto">
+                <a href="{{ route('staff.menu') }}"
+                    class="btn btn-light text-primary fw-bold rounded-pill px-4 shadow-sm"
+                    style="color: #001931 !important;">
+                    <i class="fas fa-th-large me-2"></i> Menu Utama
+                </a>
+            </div>
+
         </div>
+    </nav>
 
-        <div class="p-8">
+    {{-- 2. KONTEN UTAMA --}}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-8">
 
-            @if(session('error'))
-                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded" role="alert">
-                    <p class="font-bold">Gagal!</p>
-                    <p>{{ session('error') }}</p>
-                </div>
-            @endif
+                <div class="card card-absensi">
 
-            @if(session('sukses'))
-                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded" role="alert">
-                    <p class="font-bold">Berhasil Masuk!</p>
-                    <p>{{ session('sukses') }}</p>
-                </div>
-            @endif
+                    {{-- Header Card --}}
+                    <div class="card-header-absensi">
+                        <h3 class="fw-bold mb-1">Absensi Staff</h3>
+                        <p class="mb-0 opacity-75 small">
+                            <i class="far fa-calendar-alt me-1"></i> {{ date('d F Y') }}
+                        </p>
+                    </div>
 
-            <form action="{{ route('staff.absen.store') }}" method="POST">
-                @csrf
+                    <div class="card-body p-4 p-md-5">
 
-                <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Masukkan ID Staff / NIP</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-id-badge text-gray-400"></i>
-                        </div>
-                        <input type="number" name="id_staf" placeholder="Contoh: 1" required
-                            class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                        {{-- 🛑 PERBAIKAN 1: TAMPILKAN ERROR VALIDASI (Jika Data Kurang/Salah) --}}
+                        @if ($errors->any())
+                            <div class="alert alert-warning alert-dismissible fade show rounded-3 border-0 shadow-sm mb-4"
+                                role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-exclamation-triangle fs-4 me-3"></i>
+                                    <div>
+                                        <strong>Mohon Periksa:</strong>
+                                        <ul class="mb-0 ps-3 small">
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        @endif
+
+                        {{-- Alert Error Biasa (Session) --}}
+                        @if (session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show rounded-3 border-0 shadow-sm mb-4"
+                                role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-exclamation-circle fs-4 me-3"></i>
+                                    <div>
+                                        <strong>Gagal!</strong> {{ session('error') }}
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        @endif
+
+                        {{-- Alert Sukses --}}
+                        @if (session('sukses'))
+                            <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm mb-4"
+                                role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-check-circle fs-4 me-3"></i>
+                                    <div>
+                                        <strong>Berhasil!</strong> {{ session('sukses') }}
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        @endif
+
+                        <form action="{{ route('staff.absen.store') }}" method="POST">
+                            @csrf
+
+                            {{-- Input ID Staff (Dropdown) --}}
+                            <div class="mb-4">
+                                <label class="form-label">Nama Petugas / Staf</label>
+                                <p class="text-muted small mb-2">Pilih nama Anda dari daftar di bawah ini:</p>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user text-muted"></i></span>
+                                    {{-- 🛑 PERBAIKAN 2: Tambahkan Error Class pada Input --}}
+                                    <select name="id_staf" required
+                                        class="form-select @error('id_staf') is-invalid @enderror">
+                                        <option value="" selected disabled>-- Cari Nama Anda --</option>
+                                        @foreach ($daftarStaf as $staf)
+                                            <option value="{{ $staf->id_staf }}">
+                                                {{ $staf->nama_staf }} - Shift {{ ucfirst($staf->jadwal) }} - ID:
+                                                {{ $staf->id_staf }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                {{-- 🛑 PERBAIKAN 3: Tampilkan Pesan Error di Bawah Input --}}
+                                @error('id_staf')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text small mt-1">
+                                    <i class="fas fa-info-circle me-1"></i> Pastikan ID sesuai jika ada nama yang sama.
+                                </div>
+                            </div>
+
+                            {{-- Tombol Submit --}}
+                            <button type="submit" class="btn btn-absen mt-3">
+                                HADIR / PRESENSI <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+
+                        </form>
+
                     </div>
                 </div>
 
-                <label class="block text-gray-700 text-sm font-bold mb-3">Pilih Shift Anda Saat Ini:</label>
-                <div class="grid grid-cols-3 gap-3 mb-8">
-                    <label class="cursor-pointer">
-                        <input type="radio" name="shift" value="pagi" class="peer sr-only" required>
-                        <div class="rounded-xl border-2 border-gray-200 p-4 text-center peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition-all hover:bg-gray-50">
-                            <i class="fas fa-sun text-orange-400 text-2xl mb-2"></i>
-                            <div class="text-sm font-semibold text-gray-600">Pagi</div>
-                        </div>
-                    </label>
-
-                    <label class="cursor-pointer">
-                        <input type="radio" name="shift" value="siang" class="peer sr-only">
-                        <div class="rounded-xl border-2 border-gray-200 p-4 text-center peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition-all hover:bg-gray-50">
-                            <i class="fas fa-cloud-sun text-yellow-500 text-2xl mb-2"></i>
-                            <div class="text-sm font-semibold text-gray-600">Siang</div>
-                        </div>
-                    </label>
-
-                    <label class="cursor-pointer">
-                        <input type="radio" name="shift" value="malam" class="peer sr-only">
-                        <div class="rounded-xl border-2 border-gray-200 p-4 text-center peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition-all hover:bg-gray-50">
-                            <i class="fas fa-moon text-indigo-800 text-2xl mb-2"></i>
-                            <div class="text-sm font-semibold text-gray-600">Malam</div>
-                        </div>
-                    </label>
-                </div>
-
-                <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-indigo-700 shadow-lg transition-transform transform hover:scale-[1.02]">
-                    HADIR / PRESENSI
-                </button>
-
-            </form>
+            </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
+
 </html>
