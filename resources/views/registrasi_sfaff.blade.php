@@ -51,11 +51,27 @@
         background-color: #001931;
         border-color: #001931;
         color: white;
+        width: 65%;
         transition: all 0.3s ease;
     }
 
     .btn-primary-custom:hover {
         background-color: #033f7e;
+        border-color: #033f7e;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 25, 49, 0.3);
+    }
+
+    .btn-outline-secondary {
+        background-color: #f0efefff;
+        border-color: #001931;
+        color: gray;
+        width: 35%;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #757575ff;
         border-color: #033f7e;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 25, 49, 0.3);
@@ -217,58 +233,25 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12 my-2">
-                                    <hr class="text-muted">
-                                    <p class="text-muted small mb-0"><i class="fas fa-lock me-1"></i> Pengaturan Akun
-                                        Login
-                                    </p>
-                                </div>
-
-                                {{-- Username --}}
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        <input type="text" class="form-control @error('username') is-invalid @enderror"
-                                            id="username" name="username" placeholder="Username"
-                                            value="{{ old('username') }}" required minlength="4">
-                                        <label for="username">Username</label>
-                                        @error('username')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                {{-- Password --}}
-                                <div class="col-md-6">
-                                    <div class="form-floating form-floating-password">
-                                        <input type="password"
-                                            class="form-control @error('password') is-invalid @enderror" id="password"
-                                            name="password" placeholder="Password" required minlength="6">
-                                        <label for="password">Password</label>
-
-                                        <button type="button" class="password-toggle" onclick="togglePassword()">
-                                            <i class="fa fa-eye" id="toggleIcon"></i>
-                                        </button>
-
-                                        @error('password')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                {{-- Tombol Submit --}}
                                 <div class="col-12 mt-4">
-                                    <button type="submit"
-                                        class="btn btn-primary-custom w-100 py-3 rounded-pill fw-bold">
-                                        <i class="fas fa-user-plus me-2"></i> Daftarkan Staff
-                                    </button>
-                                </div>
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        {{-- Tombol Batal/Kembali (Opsional) --}}
+                                        <a href="{{ route('pemilik.datastaff') }}"
+                                            class="btn btn-outline-secondary py-3 rounded-pill fw-bold col-md-4">
+                                            <i class="fas fa-arrow-left me-2"></i> Batal / Kembali
+                                        </a>
 
+                                        {{-- Tombol Submit --}}
+                                        <button type="submit"
+                                            class="btn btn-primary-custom py-3 rounded-pill fw-bold col-md-8">
+                                            <i class="fas fa-user-plus me-2"></i> Daftarkan Staff
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </form>
-
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -311,20 +294,20 @@
         title: "🎉 Berhasil Disimpan!",
         html: `Data staff **{{ session('staff_saved') }}**<br>Sekarang Anda akan dialihkan ke halaman Data Staff.`,
         icon: "success",
-        iconColor: "#FFFFFF", // Icon putih
+        // ... styling pop-up ...
         showConfirmButton: false,
         timer: 3500, // Durasi pop-up 3.5 detik
         timerProgressBar: true,
-        background: "#001931", // Navy Primary
-        color: "#FFFFFF", // Teks putih
+        background: "#001931",
+        color: "#FFFFFF",
         customClass: {
             popup: 'rounded-4 shadow-lg border border-3 border-light',
             title: 'fw-bold',
         },
-        // Sebelum pop-up ditutup
+
+        // Ini adalah bagian KRITIS untuk REDIRECT
         willClose: () => {
-            // 🛑 Lakukan redirect ke halaman data staff
-            // Ganti 'pemilik.data_staff_pemilik' sesuai nama route yang benar di web.php
+            // 🛑 Lakukan redirect ke halaman data staff setelah pop-up tertutup
             window.location.href = "{{ route('pemilik.datastaff') }}";
         }
     });

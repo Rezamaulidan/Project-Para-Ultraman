@@ -152,7 +152,7 @@ tailwind.config = {
                             <div class="tw-relative">
                                 <span class="tw-absolute tw-left-4 tw-top-3 tw-text-gray-400 tw-font-bold">Rp</span>
                                 {{-- UPDATE: name="sub_total", id="input-subtotal" --}}
-                                <input type="number" name="sub_total" id="input-subtotal" placeholder="0"
+                                <input type="number" name="nominal" id="input-subtotal" placeholder="0"
                                     class="tw-w-full tw-bg-navydark/5 tw-border tw-border-navydark/20 tw-text-navydark tw-font-bold tw-rounded-xl tw-pl-12 tw-pr-4 tw-py-3 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-navydark tw-transition"
                                     required>
                             </div>
@@ -230,7 +230,7 @@ tailwind.config = {
                                         </span>
                                     </td>
                                     <td class="tw-p-4 tw-text-right tw-font-bold">
-                                        Rp {{ number_format($item->sub_total, 0, ',', '.') }}
+                                        Rp {{ number_format($item->nominal, 0, ',', '.') }}
                                     </td>
                                     <td class="tw-p-4 tw-text-center">
                                         {{-- TOMBOL DELETE --}}

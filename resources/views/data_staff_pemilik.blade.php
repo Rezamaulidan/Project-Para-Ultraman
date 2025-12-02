@@ -125,7 +125,9 @@ body {
 
 .header-section {
     position: relative;
+    /* Jaga ini jika butuh positioning */
     display: flex;
+    /* Ganti: menjadi justify-content-between di div HTML */
     margin-bottom: 2rem;
     padding: 1rem 0;
 }
@@ -137,13 +139,23 @@ body {
     text-align: center;
 }
 
-.header-section .btn {
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #e0a800;
+}
+
+/* .header-section .btn {
     background-color: #001931;
     position: absolute;
     right: 0;
     top: 50%;
     transform: translateY(-50%);
-}
+} */
 
 /* Header Halaman */
 .header-list {
@@ -164,89 +176,57 @@ body {
 
 <div class="staff-index-container">
 
-    <div class="header-section">
+    <div class="header-section d-flex justify-content-between align-items-center">
         <h2 class="header-list"><i class="fas fa-users-cog"></i> Daftar Staff Kos</h2>
-        <a href="{{ route('pemilik.registrasi_staff') }}" class="btn btn-primary shadow-sm">
-            <i class="bi bi-plus-lg me-1"></i> Input Staff Baru
-        </a>
+
+        <div class="btn-group" role="group" aria-label="Staff Actions">
+            <a href="#" class="btn btn-warning shadow-sm me-2 text-white">
+                <i class="fas fa-clock me-1"></i> Edit Jadwal Shift
+            </a>
+
+            <a href="{{ route('pemilik.registrasi_staff') }}" class="btn btn-primary shadow-sm">
+                <i class="fas fa-user-plus me-1"></i> Input Staff Baru
+            </a>
+        </div>
     </div>
+
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
 
+        @forelse ($stafs as $staff)
         <div class="col">
-            <a href="/info-detail-staff" class="staff-card">
+            <a href="{{ route('pemilik.informasi.staff', $staff->id_staf) }}" class="staff-card">
                 <div class="staff-avatar-wrapper">
-                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                        alt="Budi" class="staff-avatar">
+                    @if ($staff->foto_staf)
+                    <img src="{{ $storageUrl . $staff->foto_staf }}" alt="{{ $staff->nama_staf }}" class="staff-avatar">
+                    @else
+                    <img src="{{ asset('images/pp-default.jpg') }}" alt="Default" class="staff-avatar">
+                    @endif
                 </div>
-                <span class="staff-name-list">Budi Santoso</span>
-                <span class="staff-id-list">STF-2024-001</span>
+                <span class="staff-name-list">{{ $staff->nama_staf }}</span>
+                <span class="staff-id-list">STF-{{ str_pad($staff->id_staf, 3, '0', STR_PAD_LEFT) }}</span>
+
                 <div class="d-flex justify-content-around mt-3">
-                    <span class="info-badge shift-pagi-list">
-                        <i class="fas fa-sun"></i> Pagi
+                    @php
+                    $shiftClass = ($staff->jadwal == 'Pagi') ? 'shift-pagi-list' : 'shift-sore-list';
+                    $shiftIcon = ($staff->jadwal == 'Pagi') ? 'fas fa-sun' : 'fas fa-moon';
+                    @endphp
+                    <span class="info-badge {{ $shiftClass }}">
+                        <i class="{{ $shiftIcon }}"></i> {{ $staff->jadwal }}
                     </span>
+
                     <span class="info-badge status-aktif">
                         Aktif
                     </span>
                 </div>
             </a>
         </div>
-
-        <div class="col">
-            <a href="/info-detail-staff" class="staff-card">
-                <div class="staff-avatar-wrapper">
-                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29329?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cHJvZmlsZSUyMGZlbWFsZXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60"
-                        alt="Siti" class="staff-avatar">
-                </div>
-                <span class="staff-name-list">Siti Rahayu</span>
-                <span class="staff-id-list">STF-2024-002</span>
-                <div class="d-flex justify-content-around mt-3">
-                    <span class="info-badge shift-sore-list">
-                        <i class="fas fa-moon"></i> Sore
-                    </span>
-                    <span class="info-badge status-cuti">
-                        Cuti
-                    </span>
-                </div>
-            </a>
+        @empty
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">Tidak ada data staff yang terdaftar saat ini.</p>
+            <a href="{{ route('pemilik.registrasi_staff') }}" class="btn btn-success"><i
+                    class="fas fa-plus-circle me-1"></i> Tambah Staff Pertama</a>
         </div>
-
-        <div class="col">
-            <a href="/info-detail-staff" class="staff-card">
-                <div class="staff-avatar-wrapper">
-                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60"
-                        alt="Agus" class="staff-avatar">
-                </div>
-                <span class="staff-name-list">Agus Supriyadi</span>
-                <span class="staff-id-list">STF-2024-003</span>
-                <div class="d-flex justify-content-around mt-3">
-                    <span class="info-badge shift-sore-list">
-                        <i class="fas fa-moon"></i> Sore
-                    </span>
-                    <span class="info-badge status-aktif">
-                        Aktif
-                    </span>
-                </div>
-            </a>
-        </div>
-
-        <div class="col">
-            <a href="/info-detail-staff" class="staff-card">
-                <div class="staff-avatar-wrapper">
-                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60"
-                        alt="Dewi" class="staff-avatar">
-                </div>
-                <span class="staff-name-list">Dewi Kartika</span>
-                <span class="staff-id-list">STF-2024-004</span>
-                <div class="d-flex justify-content-around mt-3">
-                    <span class="info-badge shift-pagi-list">
-                        <i class="fas fa-sun"></i> Pagi
-                    </span>
-                    <span class="info-badge status-aktif">
-                        Aktif
-                    </span>
-                </div>
-            </a>
-        </div>
+        @endforelse
 
     </div>
 </div>

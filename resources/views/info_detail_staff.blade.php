@@ -257,21 +257,26 @@ body {
             <div class="custom-card panel-identitas">
                 <div class="profile-img-lg-wrapper">
 
-                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                        alt="Foto Staff" class="profile-img-lg">
+                    @if ($staff->foto_staf)
+                    <img src="{{ $storageUrl . $staff->foto_staf }}" alt="{{ $staff->nama_staf }}"
+                        class="profile-img-lg">
+                    @else
+                    <img src="{{ asset('images/default-staff.jpg') }}" alt="Default" class="profile-img-lg">
+                    @endif
                 </div>
 
-                <h2 class="staff-name-lg">Budi Santoso</h2>
+                <h2 class="staff-name-lg">{{ $staff->nama_staf }}</h2>
                 <div classs="d-flex justify-content-center">
-                    <span class="staff-id-lg">ID: STF-2024-001</span>
+                    <span class="staff-id-lg">ID: STF-{{ str_pad($staff->id_staf, 3, '0', STR_PAD_LEFT) }}</span>
                 </div>
-                <!-- <div class="d-block mt-4">
-                    <div class="shift-badge-lg shift-pagi">
-                        <i class="fas fa-sun"></i> <span>Shift Pagi (07:00 - 15:00)</span>
-                    </div>
-                </div> -->
 
-                <a href="https://wa.me/6281348892871" target="_blank" class="btn-hubungi mt-4">
+                @php
+                $waNumber = preg_replace('/\s+/', '', $staff->no_hp);
+                if (substr($waNumber, 0, 1) === '0') {
+                $waNumber = '62' . substr($waNumber, 1);
+                }
+                @endphp
+                <a href="https://wa.me/{{ $waNumber }}" target="_blank" class="btn-hubungi mt-4">
                     <i class="fab fa-whatsapp"></i> Hubungi Staff
                 </a>
             </div>
@@ -279,16 +284,17 @@ body {
 
         <div class="col-lg-7 mb-4">
             <div class="custom-card panel-detail">
+
                 <h5 class="detail-section-title">
                     <i class="fas fa-id-card-alt"></i> Informasi Kontak
                 </h5>
                 <div class="info-group">
                     <label>Nomor WhatsApp</label>
-                    <p><i class="fas fa-phone-alt"></i>0813 4889 2871</p>
+                    <p><i class="fas fa-phone-alt"></i>{{ $staff->no_hp }}</p>
                 </div>
-                <div class="info-group" style="cursor: pointer;" onclick="copyEmail('budi.staff@kosan.com')">
+                <div class="info-group" style="cursor: pointer;" onclick="copyEmail('{{ $staff->email }}')">
                     <label>Email (Klik untuk salin)</label>
-                    <p><i class="fas fa-envelope"></i> <span id="emailText">budi.staff@kosan.com</span> <i
+                    <p><i class="fas fa-envelope"></i> <span id="emailText">{{ $staff->email }}</span> <i
                             class="far fa-copy ms-auto text-muted"></i></p>
                 </div>
 
@@ -297,13 +303,29 @@ body {
                 </h5>
                 <div class="info-group">
                     <label>Jenis Kelamin</label>
-                    <p><i class="fas fa-venus-mars"></i> Laki-laki</p>
+                    <p><i class="fas fa-venus-mars"></i> {{ $staff->jenis_kelamin ?? 'Belum terdata' }}</p>
                 </div>
+
+                @php
+                $shiftText = $staff->jadwal == 'Pagi' ? 'Shift Pagi (07:00 - 15:00)' : 'Shift Sore (15:00 - 23:00)';
+                $shiftIcon = $staff->jadwal == 'Pagi' ? 'fas fa-sun' : 'fas fa-moon';
+                $shiftClass = $staff->jadwal == 'Pagi' ? 'shift-pagi' : 'shift-sore';
+                @endphp
                 <div class="info-group">
                     <label class="shift-label">Jadwal Shift</label>
-                    <!-- <p><i class="fas fa-map-marker-alt"></i> Jl. Merdeka No. 45, Jakarta</p> -->
-                    <i class="fas fa-sun shift-pagi"></i> <span><b>Shift Pagi (07:00 - 15:00)</b></span>
+                    <p>
+                        <i class="{{ $shiftIcon }} {{ $shiftClass }}"></i>
+                        <b>{{ $shiftText }}</b>
+                    </p>
                 </div>
+
+                @if (isset($staff->alamat))
+                <div class="info-group">
+                    <label>Alamat Staff</label>
+                    <p><i class="fas fa-map-marker-alt"></i> {{ $staff->alamat }}</p>
+                </div>
+                @endif
+
                 <div class="info-group">
                     <label>Status Karyawan</label>
                     <p><i class="fas fa-briefcase"></i> Full-time</p>
