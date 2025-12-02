@@ -20,10 +20,6 @@ return new class extends Migration
             $table->date('tanggal')->default(DB::raw('CURRENT_DATE'))->after('id_pengeluaran');
         });
     }
-
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('pengeluarans', function (Blueprint $table) {
