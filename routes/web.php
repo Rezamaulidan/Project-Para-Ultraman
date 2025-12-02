@@ -11,12 +11,13 @@ use App\Http\Controllers\LaporanKeamananController;
 use App\Http\Controllers\PemilikKosController;
 use App\Http\Controllers\PenyewaController;
 use App\Http\Controllers\StafController;
-use App\Http\Controllers\AbsensiController; 
+use App\Http\Controllers\AbsensiController;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Notifications\ResetPassword;
 use App\Models\Akun;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\StaffPenyewaController;
 
 // === RUTE PUBLIK ===
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -109,24 +110,32 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // --- ROLE: STAF ---
+// --- ROLE: STAF ---
     Route::middleware(['role:staf'])->group(function () {
 
         Route::get('/staff/menu', fn() => view('menu_staff'))->name('staff.menu');
 
+        // Laporan Keamanan
         Route::get('/staff/laporan-keamanan', [LaporanKeamananController::class, 'index'])->name('staff.laporan_keamanan');
         Route::get('/staff/laporan-keamanan/create', [LaporanKeamananController::class, 'create'])->name('staff.laporan_keamanan.create');
         Route::post('/staff/laporan-keamanan', [LaporanKeamananController::class, 'store'])->name('staff.laporan_keamanan.store');
 
-        // [DIPERTAHANKAN: Fitur Absensi Anda]
-        Route::get('/staff/shift-kerja', [AbsensiController::class, 'index'])->name('staff.shift_kerja');
-        Route::post('/staff/absen', [AbsensiController::class, 'store'])->name('staff.absen.store');
+        // --- PERBAIKAN DI SINI ---
+        // Pastikan hanya ada SATU baris ini untuk penyewa
+        Route::get('/staff/penyewa', [StaffPenyewaController::class, 'index'])->name('staff.penyewa');
 
-        // Manajemen Profil Staf
+        // Absensi
+        Route::get('/staff/shift-kerja', [AbsensiController::class, 'index'])->name('staff.shift_kerja');
+        Route::post('/staff/absen/store', [AbsensiController::class, 'store'])->name('staff.absen.store');
+
+        // Manajemen Profil
         Route::get('/staff/manajemen', [StafController::class, 'indexManajemen'])->name('staff.manajemen');
         Route::get('/staff/profil/{id}', [StafController::class, 'lihatProfil'])->name('staff.lihat_profil');
         Route::get('/staff/profil-saya/edit', [StafController::class, 'editProfil'])->name('staff.manajemen.edit');
         Route::put('/staff/profil-saya/update', [StafController::class, 'updateProfil'])->name('staff.manajemen.update');
 
-        Route::get('/staff/penyewa', fn() => '<h1>Informasi Penyewa untuk Staff (Segera Hadir)</h1>')->name('staff.penyewa');
+        // --- HAPUS BARIS DI BAWAH INI ---
+        // Route::get('/staff/penyewa', fn() => '<h1>Informasi Penyewa...</h1>')->name('staff.penyewa');
+        // ^^^ INI WAJIB DIHAPUS BIAR TIDAK BENTROK
     });
 });

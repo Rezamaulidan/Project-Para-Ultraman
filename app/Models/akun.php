@@ -25,6 +25,15 @@ class Akun extends Authenticatable
         'alamat',
     ];
 
+    protected $hidden = [
+        'password',
+    ];
+
+    public function getAuthIdentifierName()
+    {
+        return 'username';
+    }
+
     // Relasi ke Pemilik
     public function pemilikKos()
     {
