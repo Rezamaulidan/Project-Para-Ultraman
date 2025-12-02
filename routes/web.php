@@ -19,7 +19,6 @@ use App\Http\Controllers\LaporanKeamananController;
 use App\Http\Controllers\PemilikKosController;
 use App\Http\Controllers\PenyewaController;
 use App\Http\Controllers\StafController;
-// use App\Http\Controllers\AbsensiController; // SUDAH TIDAK DIPAKAI (Pindah ke StafController)
 
 /*
 |--------------------------------------------------------------------------
