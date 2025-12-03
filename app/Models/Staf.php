@@ -12,15 +12,18 @@ class Staf extends Model
     protected $table = 'stafs';
     protected $primaryKey = 'id_staf';
 
+    // Kolom yang boleh diisi secara massal (Mass Assignment)
     protected $fillable = [
+        'username',      // Diperlukan untuk Shared Account
         'nama_staf',
-        'foto_staf',
-        'jadwal',
+        'jadwal',        // Pagi / Malam
         'email',
         'no_hp',
+        'foto_staf',     // Opsional
     ];
 
-    public function LaporanKeamanans()
+    // Relasi ke Laporan Keamanan
+    public function laporanKeamanan()
     {
         return $this->hasMany(LaporanKeamanan::class, 'id_staf', 'id_staf');
     }

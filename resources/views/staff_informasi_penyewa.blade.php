@@ -100,24 +100,6 @@
             border: 1px solid #badbcc;
         }
 
-        /* Search Box */
-        .search-box .form-control {
-            border-radius: 50px 0 0 50px;
-            border-right: none;
-            padding-left: 20px;
-        }
-
-        .search-box .input-group-text {
-            border-radius: 0 50px 50px 0;
-            background-color: white;
-            border-left: none;
-        }
-
-        .search-box .form-control:focus {
-            box-shadow: none;
-            border-color: #ced4da;
-        }
-
         /* Footer */
         footer {
             margin-top: auto;
@@ -144,7 +126,7 @@
                 <span>SIMK <span class="fw-light">Staff</span></span>
             </a>
 
-            {{-- Tombol Menu Utama (Kanan) --}}
+            {{-- Tombol Menu Utama --}}
             <div class="ms-auto">
                 <a href="{{ route('staff.menu') }}"
                     class="btn btn-light text-primary fw-bold rounded-pill px-4 shadow-sm"
@@ -163,6 +145,7 @@
         <div class="row align-items-center mb-4 g-3">
             <div class="col-md-6">
                 <h2 class="fw-bold text-dark mb-1">Data Informasi Penyewa</h2>
+                <p class="text-muted mb-0">Kelola dan pantau data penyewa yang terdaftar di sistem.</p>
             </div>
         </div>
 
@@ -177,6 +160,7 @@
                                 <th width="30%">Nama Penyewa</th>
                                 <th width="20%">Kontak</th>
                                 <th width="25%">Email</th>
+                                <th class="text-center pe-4" width="10%">Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -194,6 +178,7 @@
                                                     class="avatar-circle">
                                             @else
                                                 <div class="avatar-circle">
+                                                    {{-- Menggunakan nama_penyewa dari tabel penyewa --}}
                                                     {{ strtoupper(substr($penyewa->nama_penyewa ?? $penyewa->username, 0, 1)) }}
                                                 </div>
                                             @endif
@@ -226,6 +211,13 @@
 
                                     {{-- Email --}}
                                     <td class="text-secondary fw-medium">{{ $penyewa->email ?? '-' }}</td>
+
+                                    {{-- Status --}}
+                                    <td class="text-center pe-4">
+                                        <span class="badge-status badge-active">
+                                            <i class="fas fa-check-circle me-1"></i> Terdaftar
+                                        </span>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
@@ -246,7 +238,7 @@
 
         {{-- Footer Info --}}
         <div class="d-flex justify-content-between align-items-center mt-3 px-2">
-            <small class="text-muted">Menampilkan seluruh data penyewa</small>
+            <small class="text-muted">Menampilkan seluruh data penyewa.</small>
             <div class="text-muted small">
                 Total: <strong>{{ $daftar_penyewa->count() }}</strong> Penyewa
             </div>

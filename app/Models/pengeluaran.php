@@ -15,14 +15,14 @@ class Pengeluaran extends Model
     protected $fillable = [
         'tanggal',
         'jumlah',
-        'nominal', // Kita pakai nominal (sesuai migrasi terakhir)
+        'nominal',
         'keterangan',
     ];
 
     protected $casts = [
         'tanggal' => 'date',
-        'jumlah'  => 'integer',
-        'nominal' => 'decimal:2',
+        'jumlah'  => 'integer', // Tipe data Integer untuk kuantitas
+        'nominal' => 'decimal:2', // Nominal/Harga total dalam format desimal (Rp xxx.xx)
     ];
 
     public function pemilikKos()

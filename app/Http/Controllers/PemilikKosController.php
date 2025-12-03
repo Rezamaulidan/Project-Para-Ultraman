@@ -14,6 +14,8 @@ use Carbon\Carbon;
 use App\Models\Booking;
 use App\Models\Kamar;
 use App\Models\Pengeluaran;
+use App\Models\LaporanKeamanan;
+use App\Models\Penyewa;
 
 class PemilikKosController extends Controller
 {
@@ -127,95 +129,53 @@ class PemilikKosController extends Controller
         ));
     }
 
-    // --- LOGIKA PENYIMPANAN STAFF (REVERT KE AUTO INCREMENT) ---
+    // --- LOGIKA PENYIMPANAN STAFF ---
     public function storeStaff(Request $request)
     {
-        $request->validate([
-            'nama_staf' => 'required|string|max:100',
-            'no_hp'     => 'required|string|max:20',
-            'email'     => 'required|email|unique:stafs,email',
-            'jadwal'    => 'required|in:Pagi,Malam',
-            'foto_staf' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        // 1. Validasi Data
+        $validatedData = $request->validate([
+            'nama_staf' => 'required|string|max:255',
+            'no_hp' => 'required|string|max:15|unique:stafs,no_hp', // Asumsi kolom 'staff' memiliki kolom 'no_hp'
+            'email' => 'required|email|max:255|unique:stafs,email', // Asumsi kolom 'staff' memiliki kolom 'email'
+            'jadwal' => 'required|in:Pagi,Malam',
+            'foto_staf' => 'nullable|image|file|max:1024', // Maks 1MB
+        ], [
+            'no_hp.unique' => 'Nomor HP ini sudah terdaftar.',
+            'email.unique' => 'Email ini sudah terdaftar.',
         ]);
 
-        DB::beginTransaction();
-
+        // Gunakan transaksi jika melibatkan banyak operasi database
         try {
-            // 🛑 REVERT: Hapus logika generate ID (mt_rand). Biarkan DB yang mengurus ID.
+            DB::beginTransaction();
+            $nama_staff = $validatedData['nama_staf'];
+            $staff = new Staf();
+            $staff->nama_staf = $nama_staff;
+            $staff->no_hp = $validatedData['no_hp'];
+            $staff->email = $validatedData['email'];
+            $staff->jadwal = $validatedData['jadwal'];
+            // Tambahkan kolom lain yang relevan
 
-            // 2. Upload Foto
-            $fotoPath = null;
-            if ($request->hasFile('foto_staf')) {
-                $fotoPath = $request->file('foto_staf')->store('foto_staf', 'public');
+            // 2. Upload Foto (Jika ada)
+            if ($request->file('foto_staf')) {
+                $staff->foto_staf = $request->file('foto_staf')->store('foto_staf', 'public');
             }
 
-            // 3. Simpan
-            Staf::create([
-                // 'id_staf' => $idBaru, // 🛑 HAPUS BARIS INI
-                'username'  => 'staf',
-                'nama_staf' => $request->nama_staf,
-                'email'     => $request->email,
-                'no_hp'     => $request->no_hp,
-                'jadwal'    => $request->jadwal,
-                'foto_staf' => $fotoPath,
-            ]);
-
+            $staff->save();
             DB::commit();
-            // Pesan sukses tanpa ID
-            return redirect()->back()->with('success', 'Data Staff berhasil ditambahkan!');
+
+            // 3. Redirect dengan SweetAlert (Menggunakan Session 'staff_saved')
+            return redirect()->route('pemilik.datastaff')->with('staff_saved', $nama_staff);
 
         } catch (\Exception $e) {
-            DB::rollback();
-            if (isset($fotoPath) && Storage::disk('public')->exists($fotoPath)) {
-                Storage::disk('public')->delete($fotoPath);
-            }
-            return redirect()->back()->withInput()->withErrors(['error' => 'Gagal menyimpan: ' . $e->getMessage()]);
+            DB::rollBack();
+            // Optional: Log error $e->getMessage()
+            // Kembali ke halaman form dengan error umum
+            return back()->with('error', 'Gagal menyimpan data staff. Silakan coba lagi.')->withInput();
         }
     }
-
-    // --- FOTO PROFIL ---
-    public function updatePhoto(Request $request)
-    {
-        $request->validate(['foto' => 'required|image|mimes:jpeg,png,jpg|max:2048']);
-        $akun = Auth::user();
-        $pemilik = $akun->pemilikKos ?? $akun->PemilikKos;
-
-        if (!$pemilik) return response()->json(['success' => false, 'message' => 'Data pemilik tidak ditemukan.'], 404);
-
-        if ($pemilik->foto_profil && Storage::disk('public')->exists($pemilik->foto_profil)) {
-            Storage::disk('public')->delete($pemilik->foto_profil);
-        }
-
-        $path = $request->file('foto')->store('foto_profil', 'public');
-        $pemilik->foto_profil = $path;
-        $pemilik->save();
-
-        return response()->json(['success' => true, 'message' => 'Foto profil berhasil diubah!', 'foto_url' => Storage::url($path)]);
-    }
-
-    public function deletePhoto()
-    {
-        $akun = Auth::user();
-        $pemilik = $akun->pemilikKos ?? $akun->PemilikKos;
-
-        if (!$pemilik) return response()->json(['success' => false, 'message' => 'Data pemilik tidak ditemukan.'], 404);
-
-        if ($pemilik->foto_profil) {
-            if (Storage::disk('public')->exists($pemilik->foto_profil)) {
-                Storage::disk('public')->delete($pemilik->foto_profil);
-            }
-            $pemilik->foto_profil = null;
-            $pemilik->save();
-            return response()->json(['success' => true, 'message' => 'Foto profil berhasil dihapus!', 'default_url' => asset('images/pp-default.jpg')]);
-        }
-        return response()->json(['success' => false, 'message' => 'Tidak ada foto untuk dihapus']);
-    }
-
-    public function infoDetailStaff() { return view('info_detail_staff'); }
-    public function infoDetailPenyewa() { return view('info_detail_penyewa_pmlk'); }
 
     // =========================================================================
-    // FITUR BARU (TRANSAKSI & PENGELUARAN)
+    // FITUR BARU DARI REMOTE (TRANSAKSI & PENGELUARAN)
     // =========================================================================
 
     public function transaksiPemilik(Request $request)
@@ -285,7 +245,7 @@ class PemilikKosController extends Controller
         $pengeluarans = Pengeluaran::orderBy('tanggal', 'desc')->paginate(10);
         $totalBulanIni = Pengeluaran::whereMonth('tanggal', Carbon::now()->month)
             ->whereYear('tanggal', Carbon::now()->year)
-            ->sum('nominal'); // Pakai 'nominal' sesuai model
+            ->sum('nominal');
         return view('pengeluaran_pemilik', compact('pengeluarans', 'totalBulanIni'));
     }
 
@@ -295,7 +255,7 @@ class PemilikKosController extends Controller
             'tanggal' => 'required|date',
             'keterangan' => 'required|string|max:255',
             'jumlah' => 'required|numeric|min:1',
-            'nominal' => 'required|numeric|min:0', 
+            'nominal' => 'required|numeric|min:0',
         ]);
 
         Pengeluaran::create($request->all());
@@ -308,4 +268,240 @@ class PemilikKosController extends Controller
         $pengeluaran->delete();
         return redirect()->back()->with('success', 'Data pengeluaran berhasil dihapus.');
     }
+
+    public function laporanKeamanan()
+    {
+        // Mengambil semua laporan, urutkan berdasarkan tanggal terbaru, dan preload data staf
+        try {
+            $laporans = LaporanKeamanan::with('staf')->latest('tanggal')->get();
+        } catch (\Exception $e) {
+            $laporans = collect();
+        }
+
+        return view('keamanan_pemilik', compact('laporans'));
+    }
+
+    public function dataPenyewaPemilik(Request $request)
+    {
+        $penyewaUsernamesDenganTransaksi = Booking::whereIn('status_booking', ['lunas', 'terlambat'])->pluck('username')->unique()->toArray();
+
+        $query = Penyewa::whereIn('username', $penyewaUsernamesDenganTransaksi)
+            ->with(['booking' => function ($q) {
+                $q->whereIn('status_booking', ['lunas', 'terlambat'])
+                    ->latest('tanggal')
+                    ->with('kamar');
+            }]);
+
+        if ($request->filled('q')) {
+            $searchTerm = $request->q;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('nama_penyewa', 'LIKE', '%' . $searchTerm . '%')
+                    ->orWhere('username', 'LIKE', '%' . $searchTerm . '%');
+            });
+
+            $query->orWhereHas('booking.kamar', function ($q) use ($searchTerm) {
+                $q->whereIn('status_booking', ['lunas', 'terlambat'])
+                    ->where('no_kamar', 'LIKE', '%' . $searchTerm . '%');
+            });
+        }
+
+        $penyewas = $query->orderBy('username', 'asc')->get();
+        $storageUrl = Storage::url('');
+
+        return view('data_penyewa_pemilik', compact('penyewas', 'storageUrl'));
+    }
+
+    public function infoDetailPenyewa($username)
+    {
+        $penyewa = Penyewa::where('username', $username)
+            ->with(['booking' => function ($q) {
+                $q->whereIn('status_booking', ['lunas', 'terlambat'])
+                  ->latest('tanggal')
+                  ->with('kamar');
+            }])
+            ->firstOrFail();
+
+        $storageUrl = Storage::url('');
+
+        $statusPenyewa = 'Tidak Aktif';
+        if ($penyewa->booking) {
+            if ($penyewa->booking->status_booking == 'lunas') {
+                $statusPenyewa = 'Penyewa Aktif';
+            } elseif ($penyewa->booking->status_booking == 'terlambat') {
+                $statusPenyewa = 'Terlambat Bayar';
+            }
+        }
+
+        return view('info_detail_penyewa_pmlk', compact('penyewa', 'storageUrl', 'statusPenyewa'));
+    }
+
+    public function dataStaff()
+    {
+        // 1. Ambil semua data staff dari database
+        $stafs = Staf::all();
+
+        // 2. Tentukan URL dasar untuk storage (tempat foto disimpan)
+        // KOREKSI: Gunakan Storage::url('') atau asset('storage')
+        // agar sesuai dengan path yang di-link Laravel.
+        $storageUrl = Storage::url('');
+
+        // 3. Kirim data ke view
+        return view('data_staff_pemilik', compact('stafs', 'storageUrl'));
+    }
+
+        // DI DALAM class PemilikKosController.php
+
+// --- LOGIKA UPDATE FOTO PROFIL PEMILIK ---
+public function updatePhoto(Request $request)
+{
+    $request->validate([
+        'foto' => 'required|image|file|max:2048', // Max 2MB
+    ]);
+
+    $pemilik = Auth::user()->pemilikKos;
+
+    if (!$pemilik) {
+        return response()->json(['success' => false, 'message' => 'Data pemilik tidak ditemukan.'], 404);
+    }
+
+    try {
+        DB::beginTransaction();
+
+        // 1. Hapus foto lama jika ada
+        if ($pemilik->foto_profil) {
+            Storage::disk('public')->delete($pemilik->foto_profil);
+        }
+
+        // 2. Simpan foto baru ke folder 'foto_profil'
+        $path = $request->file('foto')->store('foto_profil', 'public');
+
+        // 3. Update path di database
+        $pemilik->foto_profil = $path;
+        $pemilik->save();
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Foto profil berhasil diperbarui.',
+            'foto_url' => Storage::url($path)
+        ]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['success' => false, 'message' => 'Gagal mengupload foto.'], 500);
+    }
+}
+
+// --- LOGIKA HAPUS FOTO PROFIL PEMILIK (KOREKSI UTAMA) ---
+public function deleteProfilePhoto(Request $request)
+{
+    $pemilik = Auth::user()->pemilikKos;
+
+    if (!$pemilik || !$pemilik->foto_profil) {
+        return response()->json(['success' => false, 'message' => 'Tidak ada foto profil untuk dihapus.'], 400);
+    }
+
+    $filePath = $pemilik->foto_profil;
+    $defaultImagePath = asset('images/pp-default.jpg'); // Kirim URL default ke JS
+
+    try {
+        DB::beginTransaction();
+
+        // 1. Hapus file fisik dari storage
+        if (Storage::disk('public')->exists($filePath)) {
+            Storage::disk('public')->delete($filePath);
+        }
+
+        // 2. Hapus path foto dari database (set menjadi NULL)
+        $pemilik->foto_profil = null;
+        $pemilik->save();
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Foto profil berhasil dihapus.',
+            'default_url' => $defaultImagePath // URL default
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['success' => false, 'message' => 'Gagal menghapus foto. Silakan coba lagi.'], 500);
+    }
+}
+
+    public function infoDetailStaff($id_staf)
+{
+    // 1. Ambil data staff berdasarkan id_staf
+    // Gunakan findOrFail agar otomatis melempar 404 jika staf tidak ditemukan
+    $staff = Staf::findOrFail($id_staf);
+
+    // 2. Tentukan URL dasar untuk storage
+    $storageUrl = Storage::url('');
+
+    // 3. Kirim data ke view
+    return view('info_detail_staff', compact('staff', 'storageUrl'));
+}
+
+    // Method untuk menampilkan halaman
+    public function editJadwal()
+    {
+        // Mengambil semua staf untuk ditampilkan di dropdown/list
+        $stafs = Staf::all();
+
+        // Jika menggunakan Blade biasa, return view('namaview', compact('stafs'));
+        // Jika menggunakan React/Inertia, return Inertia::render('ShiftManager', ['stafs' => $stafs]);
+        return view('edit_data_shif', compact('stafs'));
+    }
+
+    // Method untuk menyimpan perubahan (Logic Inti No. 3)
+    public function updateJadwal(Request $request)
+    {
+        // Validasi input
+        // Kita mengharapkan array ID untuk pagi dan array ID untuk malam
+        $request->validate([
+            'pagi_ids' => 'present|array', // 'present' berarti field harus ada meski kosong
+            'pagi_ids.*' => 'exists:stafs,id_staf', // Pastikan ID ada di tabel
+            'malam_ids' => 'present|array',
+            'malam_ids.*' => 'exists:stafs,id_staf',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // 1. Reset jadwal (Opsional, tapi aman untuk menghindari duplikasi tak terduga)
+            // Atau langsung update berdasarkan ID yang dikirim.
+
+            // 2. Update Staf Shift Pagi
+            if (!empty($request->pagi_ids)) {
+                Staf::whereIn('id_staf', $request->pagi_ids)
+                    ->update(['jadwal' => 'Pagi']);
+            }
+
+            // 3. Update Staf Shift Malam
+            if (!empty($request->malam_ids)) {
+                Staf::whereIn('id_staf', $request->malam_ids)
+                    ->update(['jadwal' => 'Malam']);
+            }
+
+            // Opsional: Handle staf yang dikeluarkan dari kedua list (set null atau libur?)
+            // $allIds = array_merge($request->pagi_ids, $request->malam_ids);
+            // Staf::whereNotIn('id_staf', $allIds)->update(['jadwal' => 'Libur']);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Jadwal berhasil diperbarui!'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\File; // Tambahkan facade File untuk hapus gambar
 
 class KamarController extends Controller
 {
-    // ... (method index, create, store, infoKamarDetail biarkan saja seperti sebelumnya) ...
 
     public function index()
     {
@@ -49,7 +48,7 @@ class KamarController extends Controller
         // ... (kode store Anda sudah benar) ...
         $validatedData = $request->validate([
             'no_kamar' => 'required|integer|unique:kamars,no_kamar',
-            'foto_kamar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', 
+            'foto_kamar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'ukuran' => 'required|string|max:50',
             'harga' => 'required|numeric',
             'tipe_kamar' => 'required|in:kosongan,basic,ekslusif',
@@ -91,7 +90,7 @@ class KamarController extends Controller
 
         // 1. Cari SATU kamar berdasarkan no_kamar
         $kamar = Kamar::where('no_kamar', $no_kamar)->firstOrFail();
-        
+
         // 2. Cek status ketersediaan berdasarkan booking yang LUNAS
         $isTerisi = Booking::where('no_kamar', $no_kamar)
                            ->where('status_booking', 'lunas')
@@ -99,7 +98,7 @@ class KamarController extends Controller
 
         // 3. Tentukan status ketersediaan dinamis
         $statusKetersediaan = $isTerisi ? 'terisi' : 'tersedia';
-        
+
         // 4. Kirim variabel kamar dan status barunya ke view
         // Kita akan menggunakan $statusKetersediaan di view
         return view('edit_data_kamar', compact('kamar', 'statusKetersediaan'));
@@ -122,7 +121,7 @@ class KamarController extends Controller
             'fasilitas' => 'nullable|string',
             'ukuran' => 'required|string|max:50',
             // Gunakan nullable agar jika tidak upload foto baru, foto lama tidak hilang/error
-            'foto_kamar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 
+            'foto_kamar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         // Cek apakah ada file foto baru yang diupload
@@ -147,7 +146,7 @@ class KamarController extends Controller
         // Respon JSON untuk AJAX
         if ($request->expectsJson()) {
             return response()->json([
-                'success' => true, 
+                'success' => true,
                 'message' => 'Data kamar berhasil diperbarui!'
             ]);
         }

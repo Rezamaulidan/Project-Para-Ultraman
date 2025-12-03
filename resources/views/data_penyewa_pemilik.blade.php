@@ -162,7 +162,10 @@
             <div class="col-md-6">
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="form-control" placeholder="Cari nama penyewa atau nomor kamar...">
+                    <form id="search-form" action="{{ url()->current() }}" method="GET">
+                        <input id="search-input" name="q" type="text" class="form-control"
+                            placeholder="Cari nama penyewa atau nomor kamar..." value="{{ request('q') }}">
+                    </form>
                 </div>
             </div>
         </div>
@@ -178,78 +181,68 @@
                     </tr>
                 </thead>
                 <tbody>
-
-                    <tr class="row-card" onclick="window.location.href='/info-detail-penyewa'">
+                    {{-- LOGIKA DINAMIS DIMULAI DI SINI --}}
+                    @forelse ($penyewas as $penyewa)
+                    <tr class="row-card" onclick="window.location.href='/info-detail-penyewa/{{ $penyewa->username }}'">
                         <td>
                             <div class="d-flex align-items-center">
-                                <img src="https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg"
-                                    class="avatar-small me-3" alt="Avatar">
+                                @php
+                                // Pastikan base storage URL tersedia, fallback ke asset('storage')
+                                $storageBase = isset($storageUrl) && $storageUrl
+                                ? $storageUrl
+                                : asset('storage/');
+
+                                // LOGIKA BARU UNTUK FOTO DEFAULT BERDASARKAN JENIS KELAMIN
+                                $gender = $penyewa->jenis_kelamin ?? 'Laki-laki';
+                                $defaultImageUrl = '';
+
+                                if (strcasecmp($gender, 'Laki-laki') === 0) {
+                                $defaultImageUrl =
+                                'https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg';
+                                } else {
+                                $defaultImageUrl = asset('images/3d-cartoon-avatar-woman.png');
+                                }
+
+                                // Ambil URL foto profil, jika null/kosong gunakan defaultImageUrl
+                                $fotoUrl = $penyewa->foto_profil
+                                ? rtrim($storageBase, '/') . '/' . ltrim($penyewa->foto_profil, '/')
+                                : $defaultImageUrl;
+                                @endphp
+                                <img src="{{ $fotoUrl }}" class="avatar-small me-3" alt="{{ $penyewa->nama_penyewa }}">
                                 <div>
-                                    <span class="name-text">Rizky Ramadhan</span>
-                                    <span class="username-text">@rizky_rmdhn</span>
+                                    <span class="name-text">{{ $penyewa->nama_penyewa }}</span>
+                                    <span class="username-text">@ {{ $penyewa->username }}</span>
                                 </div>
                             </div>
                         </td>
                         <td>
-                            <span class="room-badge"><i class="fas fa-door-closed me-2"></i>Kamar A-10</span>
+                            @if($penyewa->booking && $penyewa->booking->kamar)
+                            <span class="room-badge">
+                                <i class="fas fa-door-closed me-2"></i>
+                                {{ $penyewa->booking->kamar->no_kamar ?? 'N/A' }}
+                            </span>
+                            @else
+                            <span class="room-badge bg-warning text-dark">N/A (Cek Booking)</span>
+                            @endif
                         </td>
                         <td>
-                            <span class="fw-bold text-secondary">0812-3456-7890</span>
+                            <span class="fw-bold text-secondary">{{ $penyewa->no_hp }}</span>
                         </td>
                         <td class="text-end">
-                            <button class="btn-detail-arrow ms-auto">
+                            {{-- Ganti tag button dengan link untuk navigasi detail --}}
+                            <a href="/info-detail-penyewa/{{ $penyewa->username }}" class="btn-detail-arrow ms-auto">
                                 <i class="fas fa-arrow-right"></i>
-                            </button>
+                            </a>
                         </td>
                     </tr>
-
-                    <tr class="row-card" onclick="window.location.href='/info-detail-penyewa'">
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <img src="https://img.freepik.com/free-psd/3d-illustration-business-man-with-glasses_23-2149436194.jpg"
-                                    class="avatar-small me-3" alt="Avatar">
-                                <div>
-                                    <span class="name-text">Siti Aisyah</span>
-                                    <span class="username-text">@aisyah_st</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="room-badge"><i class="fas fa-door-closed me-2"></i>Kamar B-05</span>
-                        </td>
-                        <td>
-                            <span class="fw-bold text-secondary">0857-1122-3344</span>
-                        </td>
-                        <td class="text-end">
-                            <button class="btn-detail-arrow ms-auto">
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
+                    @empty
+                    <tr class="row-card">
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            Tidak ada data penyewa yang ditemukan.
                         </td>
                     </tr>
-
-                    <tr class="row-card" onclick="window.location.href='/info-detail-penyewa'">
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <img src="https://img.freepik.com/free-psd/3d-illustration-person-with-long-hair_23-2149436197.jpg"
-                                    class="avatar-small me-3" alt="Avatar">
-                                <div>
-                                    <span class="name-text">Budi Santoso</span>
-                                    <span class="username-text">@budisants</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="room-badge"><i class="fas fa-door-closed me-2"></i>Kamar C-02</span>
-                        </td>
-                        <td>
-                            <span class="fw-bold text-secondary">0813-9988-7766</span>
-                        </td>
-                        <td class="text-end">
-                            <button class="btn-detail-arrow ms-auto">
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
-                        </td>
-                    </tr>
+                    @endforelse
+                    {{-- LOGIKA DINAMIS BERAKHIR DI SINI --}}
 
                 </tbody>
             </table>
@@ -257,4 +250,34 @@
 
     </div>
 </div>
+
+<script>
+// Ambil input pencarian
+const searchInput = document.getElementById('search-input');
+const searchForm = document.getElementById('search-form');
+
+// Tambahkan event listener untuk mendeteksi ketika input berubah
+searchInput.addEventListener('keyup', function(event) {
+    // Cek jika tombol yang ditekan adalah Enter (opsional: bisa dihilangkan jika ingin langsung mencari)
+    // if (event.key === 'Enter') {
+    //     searchForm.submit();
+    // }
+    // Atau, bisa menggunakan delay untuk otomatis submit (misal setelah 500ms)
+});
+
+// Auto submit form saat value berubah (untuk mempermudah testing)
+searchInput.addEventListener('input', function() {
+    // Agar tidak submit terlalu cepat, gunakan debounce
+    clearTimeout(window.searchTimeout);
+    window.searchTimeout = setTimeout(() => {
+        searchForm.submit();
+    }, 500);
+});
+
+// Menonaktifkan submit form saat menekan enter pada input
+searchInput.closest('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    searchForm.submit();
+});
+</script>
 @endsection

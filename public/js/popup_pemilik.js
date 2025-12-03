@@ -1,119 +1,31 @@
-const profileModal = document.getElementById("profileModal");
-const profilePhoto = document.getElementById("profilePhoto");
-const photoInput = document.getElementById("photoInput");
-const deletePhotoButton = document.getElementById("deletePhotoButton");
+// ISI LENGKAP FILE popup_pemilik.js (dengan fungsi async/await yang dikoreksi)
+
+// Menggunakan document.querySelector untuk kompatibilitas dan menghilangkan dependensi jQuery ($)
+// Namun, karena Anda menggunakan SweetAlert2, pastikan ia di-load melalui CDN.
 
 // --- 1. FUNGSI MODAL (Buka/Tutup) ---
+const profileModal = document.getElementById("profileModal");
+
 function openModal() {
-    if (profileModal) {
-        profileModal.classList.add("show");
-    }
+    if (profileModal) {
+        profileModal.classList.add("show");
+    }
 }
 
 function closeModal() {
-    if (profileModal) {
-        profileModal.classList.remove("show");
-    }
+    if (profileModal) {
+        profileModal.classList.remove("show");
+    }
 }
 
-PemilikKost;
-if (photoInput) {
-    photoInput.addEventListener("change", function () {
-        const file = this.files[0];
-        if (file) {
-            uploadPhoto(file);
-        }
-    });
-}
-
-function uploadPhoto(file) {
-    const formData = new FormData();
-    formData.append("foto", file);
-
-    // Ambil CSRF Token dari meta tag
-    const csrfToken = document
-        .querySelector('meta[name="csrf-token"]')
-        .getAttribute("content");
-
-    fetch("/pemilik/profile/update-photo", {
-        // Ganti URL sesuai route Anda
-        method: "POST",
-        headers: {
-            "X-CSRF-TOKEN": csrfToken,
-        },
-        body: formData,
-    })
-        .then((response) => response.json())
-        .then((data) => {
-            if (data.success) {
-                // Update tampilan foto profil
-                profilePhoto.src = data.foto_url;
-                // Tampilkan tombol hapus
-                if (deletePhotoButton) {
-                    deletePhotoButton.style.display = "";
-                }
-                alert("Foto profil berhasil diperbarui!");
-            } else {
-                alert(
-                    "Gagal mengupdate foto: " +
-                        (data.message || "Terjadi kesalahan.")
-                );
-            }
-        })
-        .catch((error) => {
-            console.error("Error:", error);
-            alert("Terjadi kesalahan koneksi saat mengupload foto.");
-        });
-}
-
-// --- FUNGSI BARU UNTUK HAPUS FOTO ---
-function deletePhoto() {
-    if (!confirm("Anda yakin ingin menghapus foto profil?")) {
-        return;
-    }
-
-    const csrfToken = document
-        .querySelector('meta[name="csrf-token"]')
-        .getAttribute("content");
-
-    fetch("/pemilik/profile/delete-photo", {
-        // Ganti URL sesuai route Anda
-        method: "POST",
-        headers: {
-            "X-CSRF-TOKEN": csrfToken,
-        },
-    })
-        .then((response) => response.json())
-        .then((data) => {
-            if (data.success) {
-                // Ganti foto dengan foto default
-                profilePhoto.src = data.default_url;
-                // Sembunyikan tombol hapus
-                if (deletePhotoButton) {
-                    deletePhotoButton.style.display = "none";
-                }
-                alert(data.message);
-            } else {
-                alert(
-                    "Gagal menghapus foto: " +
-                        (data.message || "Terjadi kesalahan.")
-                );
-            }
-        })
-        .catch((error) => {
-            console.error("Error:", error);
-            alert("Terjadi kesalahan koneksi saat menghapus foto.");
-        });
-}
-
-// Pastikan fungsi ini tersedia secara global karena dipanggil di HTML Navbar
-
-// Pastikan fungsi ini tersedia secara global
-master;
+// Expose ke window agar bisa dipanggil via onclick HTML
 window.openModal = openModal;
 window.closeModal = closeModal;
+window.uploadPhoto = uploadPhoto;
+window.deletePhoto = deletePhoto;
 
-// --- 2. FUNGSI UPLOAD FOTO ---
+
+// --- 2. FUNGSI UPLOAD FOTO (Mengambil dari fileInput) ---
 async function uploadPhoto() {
     const fileInput = document.getElementById("fileInput");
     const file = fileInput.files[0];
@@ -141,7 +53,9 @@ async function uploadPhoto() {
         const csrfToken = document
             .querySelector('meta[name="csrf-token"]')
             .getAttribute("content");
-        const response = await fetch("/profile/update-photo", {
+
+        // KOREKSI URL UNTUK UPDATE FOTO
+        const response = await fetch("/pemilik/profile/update-photo", {
             method: "POST",
             headers: {
                 "X-CSRF-TOKEN": csrfToken,
@@ -149,7 +63,6 @@ async function uploadPhoto() {
             body: formData,
         });
 
-        // Cek jika respon bukan JSON (misal error 419 Page Expired atau 500 server error)
         if (!response.ok) {
             throw new Error(`Server Error: ${response.status}`);
         }
@@ -159,20 +72,12 @@ async function uploadPhoto() {
         if (result.success) {
             // --- UPDATE TAMPILAN (DOM) ---
             const imgElement = document.getElementById("profileImage");
-            const initialElement = document.getElementById("defaultAvatar");
 
-            // 1. Update source gambar
             if (imgElement) {
                 imgElement.src = result.foto_url;
-                imgElement.style.display = "block"; // Pastikan gambar muncul
+                imgElement.style.display = "block";
             }
 
-            // 2. Sembunyikan inisial huruf
-            if (initialElement) {
-                initialElement.style.display = "none";
-            }
-
-            // Tampilkan notifikasi sukses
             Swal.fire({
                 icon: "success",
                 title: "Berhasil",
@@ -181,8 +86,7 @@ async function uploadPhoto() {
                 showConfirmButton: false,
             });
 
-            // Reload halaman agar tombol hapus muncul (jika sebelumnya tidak ada)
-            // dan agar data di navbar juga terupdate
+            // Reload setelah sukses agar tombol hapus muncul/data navbar terupdate
             setTimeout(() => location.reload(), 1500);
         } else {
             throw new Error(result.message);
@@ -195,17 +99,16 @@ async function uploadPhoto() {
             text: "Gagal mengupload foto. Silakan coba lagi.",
         });
     } finally {
-        // Sembunyikan loading & reset input
         if (loadingOverlay) loadingOverlay.style.display = "none";
         fileInput.value = "";
     }
 }
 
-// --- 3. FUNGSI HAPUS FOTO ---
+// --- 3. FUNGSI HAPUS FOTO (Menggunakan SweetAlert2) ---
 async function deletePhoto() {
     const confirmResult = await Swal.fire({
         title: "Hapus Foto?",
-        text: "Foto profil akan dihapus",
+        text: "Foto profil akan dihapus permanen.",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#dc3545",
@@ -215,7 +118,6 @@ async function deletePhoto() {
 
     if (!confirmResult.isConfirmed) return;
 
-    // Tampilkan loading saat menghapus
     const loadingOverlay = document.getElementById("photoLoading");
     if (loadingOverlay) loadingOverlay.style.display = "flex";
 
@@ -224,7 +126,8 @@ async function deletePhoto() {
             .querySelector('meta[name="csrf-token"]')
             .getAttribute("content");
 
-        const response = await fetch("/profile/delete-photo", {
+        // KOREKSI URL UNTUK HAPUS FOTO
+        const response = await fetch("/pemilik/profile/delete-photo", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -233,6 +136,10 @@ async function deletePhoto() {
         });
 
         const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || `Server Error: ${response.status}`);
+        }
 
         if (result.success) {
             Swal.fire({
@@ -243,20 +150,20 @@ async function deletePhoto() {
                 showConfirmButton: false,
             });
 
+            // Reload setelah sukses untuk update tampilan DOM secara penuh
             setTimeout(() => location.reload(), 1500);
+
         } else {
             throw new Error(result.message);
         }
     } catch (error) {
+        console.error(error);
         Swal.fire({
             icon: "error",
             title: "Gagal",
-            text: "Gagal menghapus foto.",
+            text: `Gagal menghapus foto. Error: ${error.message || "Kesalahan koneksi."}`,
         });
+    } finally {
         if (loadingOverlay) loadingOverlay.style.display = "none";
     }
 }
-
-// Expose ke window agar bisa dipanggil via onclick HTML
-window.uploadPhoto = uploadPhoto;
-window.deletePhoto = deletePhoto;

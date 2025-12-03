@@ -40,16 +40,17 @@
                 <p class="text-muted">Halo, {{ Auth::user()->name ?? 'Penyewa' }}! Pantau status kos Anda di sini.</p>
             </div>
 
-            {{-- 🛑 LOGIKA TOMBOL CARI KAMAR --}}
+            {{-- LOGIKA TOMBOL CARI KAMAR --}}
             @php
-                // Cek apakah ada booking yang sedang berproses (Pending atau Confirmed)
-                $sedangProses = $bookingsSaya->contains(function ($booking) {
-                    return in_array($booking->status_booking, ['pending', 'confirmed']);
+                // Cek apakah ada booking yang sedang berproses (Pending, Confirmed, Lunas)
+                $sedangProsesAtauAktif = $bookingsSaya->contains(function ($booking) {
+                    // Menggunakan 'lunas' karena ini adalah status kamar aktif
+                    return in_array($booking->status_booking, ['pending', 'confirmed', 'lunas']);
                 });
             @endphp
 
-            {{-- Tombol muncul jika: BELUM punya kamar aktif DAN TIDAK sedang dalam proses --}}
-            @if (!$sudahPunyaKamarAktif && !$sedangProses)
+            {{-- Tombol muncul jika TIDAK ADA booking yang sedang berjalan atau sudah lunas. --}}
+            @if (!$sedangProsesAtauAktif)
                 <a href="{{ route('dashboard.booking') }}" class="btn btn-primary rounded-pill shadow-sm">
                     <i class="fas fa-plus me-2"></i> Cari Kamar Baru
                 </a>
@@ -68,17 +69,13 @@
             <div class="col-lg-8">
 
                 @php
-                    // 1. Filter: Sembunyikan status Rejected
-                    // 2. Take(1): Hanya ambil 1 data paling baru (Teratas)
-                    $visibleBookings = $bookingsSaya
-                        ->filter(function ($booking) {
-                            return $booking->status_booking !== 'rejected';
-                        })
-                        ->take(1);
+                    // Ambil 1 data booking paling baru.
+                    // ASUMSI: $bookingsSaya sudah diurutkan dari yang terbaru (e.g., orderBy('updated_at', 'desc'))
+                    $latestBooking = $bookingsSaya->first();
                 @endphp
 
-                @if ($visibleBookings->isEmpty())
-                    {{-- TAMPILAN JIKA BELUM ADA BOOKING AKTIF/PROSES --}}
+                @if (!$latestBooking)
+                    {{-- TAMPILAN JIKA BELUM ADA BOOKING SAMA SEKALI --}}
                     <div class="text-center py-5 bg-white rounded-4 shadow-sm">
                         <div class="mb-3"><i class="fas fa-bed fa-4x text-muted opacity-25"></i></div>
                         <h5 class="fw-bold text-muted">Belum ada booking aktif</h5>
@@ -88,7 +85,26 @@
                         </a>
                     </div>
                 @else
-                    @foreach ($visibleBookings as $booking)
+                    @if ($latestBooking->status_booking == 'rejected')
+                        {{-- SKENARIO BARU: BOOKING DITOLAK (REJECTED) --}}
+                        <div class="alert alert-danger border-0 rounded-4 shadow-sm p-4 mb-4">
+                            <h5 class="alert-heading fw-bold text-danger">
+                                <i class="fas fa-times-circle me-2"></i> Permintaan Ditolak
+                            </h5>
+                            <p class="mb-3">
+                                Mohon maaf, permintaan *booking* Anda untuk Kamar No.
+                                <b>{{ $latestBooking->kamar->no_kamar ?? 'N/A' }}</b> telah
+                                **ditolak** oleh pemilik kos pada tanggal
+                                {{ \Carbon\Carbon::parse($latestBooking->updated_at)->format('d F Y H:i') }}.
+                            </p>
+                            <hr>
+                            <p class="mb-0 small fst-italic">
+                                Anda dipersilakan mencari kamar lain yang tersedia.
+                            </p>
+                        </div>
+                    @else
+                        {{-- SKENARIO AKTIF/PENDING/CONFIRMED/TERLAMBAT --}}
+                        @php $booking = $latestBooking; @endphp
                         <div class="card border-0 shadow-sm rounded-4 mb-4 card-booking overflow-hidden">
                             <div class="card-body p-4">
                                 <div class="row">
@@ -220,7 +236,7 @@
                                 @endif
                             </div>
                         </div>
-                    @endforeach
+                    @endif
                 @endif
 
             </div>
