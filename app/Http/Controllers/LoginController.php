@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use App\Models\Booking;
+use App\Models\Akun;
 
 class LoginController extends Controller
 {

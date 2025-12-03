@@ -95,7 +95,7 @@ class PemilikKosController extends Controller
 
             $labelsChart[] = $bulanNama[$bulanIterasi->month - 1];
             $nominal = $pendapatan6Bulan->has($key) ? $pendapatan6Bulan[$key]->total_nominal : 0;
-            $dataChart[] = round($nominal / 1000000, 2); 
+            $dataChart[] = round($nominal / 1000000, 2);
         }
 
         // --- 6. DATA CHART PENGELUARAN ---
@@ -123,9 +123,9 @@ class PemilikKosController extends Controller
         }
 
         return view('home_pemilik', compact(
-            'user', 'pendapatanBulanIni', 'daftarKamarKosong', 'jumlahKamarKosong', 
-            'jumlahKamarTerisi', 'totalKamar', 'permintaanSewa', 'jumlahPermintaan', 
-            'belumLunas', 'jumlahBelumLunas', 'totalUangBelumLunas', 'dataChart', 
+            'user', 'pendapatanBulanIni', 'daftarKamarKosong', 'jumlahKamarKosong',
+            'jumlahKamarTerisi', 'totalKamar', 'permintaanSewa', 'jumlahPermintaan',
+            'belumLunas', 'jumlahBelumLunas', 'totalUangBelumLunas', 'dataChart',
             'labelsChart', 'dataPengeluaranChart'
         ));
     }
@@ -152,7 +152,7 @@ class PemilikKosController extends Controller
             // Ambil booking terbaru yang statusnya lunas/terlambat untuk mendapatkan No. Kamar
             $q->whereIn('status_booking', ['lunas', 'terlambat'])
                 ->latest('tanggal')
-                ->with('kamar'); 
+                ->with('kamar');
         }]);
 
         // 3. Implementasi fitur pencarian
@@ -178,8 +178,8 @@ class PemilikKosController extends Controller
 
         // 4. Ambil data dan kirim ke view
         $penyewas = $query->orderBy('username', 'asc')->get();
-        $storageUrl = Storage::url(''); 
-    
+        $storageUrl = Storage::url('');
+
         return view('data_penyewa_pemilik', compact('penyewas', 'storageUrl'));
     }
 
@@ -200,7 +200,7 @@ class PemilikKosController extends Controller
             ->firstOrFail(); // Gagal jika penyewa tidak ditemukan
 
         // URL untuk mengakses file di storage, misalnya foto KTP atau foto profil
-        $storageUrl = Storage::url(''); 
+        $storageUrl = Storage::url('');
 
         // Tentukan status penyewa berdasarkan booking terakhir
         $statusPenyewa = 'Tidak Aktif';
@@ -264,7 +264,7 @@ class PemilikKosController extends Controller
     public function infoDetailStaff($id_staf)
     {
         // 1. Cari data staff berdasarkan ID atau tampilkan error 404 jika tidak ditemukan
-        $staff = Staf::findOrFail($id_staf); 
+        $staff = Staf::findOrFail($id_staf);
 
         // 2. Tentukan URL dasar untuk storage
         $storageUrl = Storage::url('storage/');
@@ -280,7 +280,7 @@ class PemilikKosController extends Controller
 
         // 2. Tentukan URL dasar untuk storage (tempat foto disimpan)
         $storageUrl = Storage::url('storage/');
-        
+
         // 3. Kirim data ke view
         return view('data_staff_pemilik', compact('stafs', 'storageUrl'));
     }
@@ -338,7 +338,7 @@ class PemilikKosController extends Controller
             })->orWhere('id_booking', 'LIKE', '%' . $searchTerm . '%');
         }
 
-        $transaksis = $query->paginate(10); 
+        $transaksis = $query->paginate(10);
         return view('transaksi_pemilik', compact('transaksis'));
     }
 
@@ -375,12 +375,12 @@ class PemilikKosController extends Controller
             fputcsv($file, ['ID. Transaksi', 'Penyewa', 'Kamar', 'Periode Bayar', 'Jumlah Bayar', 'Tgl. Bayar', 'Status'], ';');
             foreach ($transaksis as $transaksi) {
                 fputcsv($file, [
-                    'TRKS-' . str_pad($transaksi->id_booking, 3, '0', STR_PAD_LEFT), 
-                    $transaksi->penyewa ? $transaksi->penyewa->nama_penyewa : '*Penyewa Tidak Ditemukan*', 
-                    $transaksi->kamar ? $transaksi->kamar->no_kamar : '*N/A*', 
-                    \Carbon\Carbon::parse($transaksi->tanggal)->format('M Y'), 
-                    number_format($transaksi->nominal, 0, '', ''), 
-                    \Carbon\Carbon::parse($transaksi->tanggal)->format('d M Y'), 
+                    'TRKS-' . str_pad($transaksi->id_booking, 3, '0', STR_PAD_LEFT),
+                    $transaksi->penyewa ? $transaksi->penyewa->nama_penyewa : '*Penyewa Tidak Ditemukan*',
+                    $transaksi->kamar ? $transaksi->kamar->no_kamar : '*N/A*',
+                    \Carbon\Carbon::parse($transaksi->tanggal)->format('M Y'),
+                    number_format($transaksi->nominal, 0, '', ''),
+                    \Carbon\Carbon::parse($transaksi->tanggal)->format('d M Y'),
                     'Lunas'
                 ], ';');
             }
@@ -426,10 +426,10 @@ class PemilikKosController extends Controller
             $laporans = LaporanKeamanan::with('staf')->latest('tanggal')->get();
         } catch (\Exception $e) {
             // Ini akan membantu jika ada masalah database atau Model/Relasi
-            $laporans = collect(); 
+            $laporans = collect();
             // Opsional: Anda bisa log error $e jika di Production
         }
-        
+
         // Mengirim variabel $laporans yang sudah terdefinisi ke view
         return view('keamanan_pemilik', compact('laporans'));
     }

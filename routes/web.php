@@ -125,6 +125,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/staff/penyewa', [StaffPenyewaController::class, 'index'])->name('staff.penyewa');
 
         // Absensi
+Route::get('/presensi', [StafController::class, 'index'])->name('presensi.index');
+Route::post('/presensi/check', [StafController::class, 'checkStaf'])->name('presensi.check');
+Route::post('/presensi/store', [StafController::class, 'storePresensi'])->name('presensi.store');
         Route::get('/staff/shift-kerja', [AbsensiController::class, 'index'])->name('staff.shift_kerja');
         Route::post('/staff/absen/store', [AbsensiController::class, 'store'])->name('staff.absen.store');
 
